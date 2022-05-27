@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Access Denied</title>
+</head>
+<body>
+	<div th:replace="/common/header.html :: headerFragment"></div>
+	<div class="content-wrapper">
+		<div class="title-wrapper">
+        	<h2 class="error-title">접근 권한 없음</h2>
+		</div>
+		<div class="desc-wrapper">
+			<div class="error-desc">
+				<p>액세스가 거부되었습니다. 관리자에게 문의하세요.</p>
+			</div>
+			<div class="buttonBox">
+				<input type="button" class="btn-outline-dark" id="returnMainPage" style="width: 40%;"></input>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

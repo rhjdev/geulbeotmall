@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" th:fragment="header">
+<head>
+<meta charset="UTF-8">
+	<title>header</title>
+    <!-- CSS -->
+    <link th:href="@{/css/header.css}" rel="stylesheet">
+</head>
+<body>
+<div class="sticky-top">
+    <nav class="py-2 border-bottom">
+        <div class="container d-flex flex-wrap">
+            <ul class="nav me-auto">
+                <li class="nav-item"><span class="nav-menu nav-link link-secondary px-3"></span></li>
+            </ul>
+            <ul class="nav">
+            	<!-- 비로그인 -->
+            	<th:block sec:authorize="isAnonymous()">
+	                <li class="nav-item"><a th:href="@{/member/signin}" class="nav-menu nav-link link-secondary px-3">로그인</a></li>
+	                <li class="nav-item"><a th:href="@{/member/signup}" class="nav-menu nav-link link-secondary px-3">회원가입</a></li>
+            	</th:block>
+            	<!-- 로그인(회원) -->
+            	<th:block sec:authorize="isAuthenticated()">
+	                <li class="nav-item"><a href="#" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
+		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
+            	</th:block>
+                <li class="nav-item"><a href="#" class="nav-menu nav-link link-secondary px-3">장바구니<em class="cartCnt">10</em></a></li>
+            </ul>
+        </div>
+    </nav>
+    <header class="py-3 mb-4 border-bottom">
+        <div class="container d-flex flex-wrap justify-content-center container-fluid">
+            <a href="/" class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none">
+                <span class="fs-4">글벗문구</span>
+            </a>
+            <ul class="nav me-auto">
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3 active" aria-current="page"><b>전체 상품</b></a></li>
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3">프리미엄 펜</a></li>
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3">펜/연필</a></li>
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3">마카/컬러링</a></li>
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3">디자인 문구</a></li>
+              <li class="nav-item"><a href="#" class="head-menu nav-link link-secondary px-3">기획전</a></li>
+            </ul>
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 search-form" action="#">
+                <input type="search" class="form-control search-bar" placeholder="엠에코 플러스펜 정식 출시🤩" aria-label="Search">
+                <button type="button" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+    </header>
+</div>
+</body>
+</html>

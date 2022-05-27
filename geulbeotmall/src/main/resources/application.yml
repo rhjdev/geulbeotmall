@@ -1,0 +1,20 @@
+# server port config
+server:
+  port: 8001
+
+# datasource config
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521:xe
+    username: C##GBMALL
+    password: GBMALL
+
+# mybatis config
+mybatis:
+  mapper-locations: mappers/**/*.xml
+
+# logging level
+logging:
+  level:
+    '[com.reminder.geulbeot]': debug

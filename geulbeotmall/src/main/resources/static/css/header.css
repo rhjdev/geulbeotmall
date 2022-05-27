@@ -1,0 +1,87 @@
+@charset "UTF-8";
+
+/* 전체 폰트 적용 */
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.fs-4 {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-weight: 700;
+}
+
+.mb-4 {
+	margin-bottom: 0 !important;
+}
+
+/* 네비게이션 */
+.nav-menu {
+    height: 20px;
+    line-height: 20px;
+    padding: 0 12px 0 11px;
+    font-size: 12px;
+}
+
+/* 네비게이션 - 장바구니 수량 */
+.cartCnt {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    color: #fff;
+    font-size: 8px;
+    font-style: normal;
+    text-align: center;
+    background-color: #000;
+    border-radius: 10px;
+    box-sizing: border-box;
+    margin-left: 3px;
+}
+
+/* 헤더 메뉴 */
+.head-menu {
+    color: #000;
+}
+
+.sticky-top {
+    background-color: #fff;
+}
+
+/* 검색창 */
+.search-form {
+    position: relative;
+    width: 250px;
+    border-bottom: 2px solid #000;
+    right: 0;
+}
+
+.search-bar {
+    display: inline-block;
+    width: calc(100% - 25px);
+    font-size: 14px;
+    color: #000;
+    border: none;
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.search-form button {
+    display:inline-block;
+    width: 18px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.fa-solid fa-magnifying-glass {
+    position: absolute;
+}
+
+input[type="search"]:focus {
+    box-shadow: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    filter: invert(47%) sepia(13%) saturate(314%) hue-rotate(167deg) brightness(93%) contrast(89%);
+}

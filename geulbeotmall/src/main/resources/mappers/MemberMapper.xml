@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.member.model.dao.MemberMapper">
+	
+	<resultMap id="signInMemberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
+		<id property="memberId" column="MEMBER_ID"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="name" column="NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="address" column="ADDRESS"/>
+		<result property="agreement" column="AGREEMENT"/>
+		<result property="accInactiveYn" column="ACC_INACTIVE_YN"/>
+		<result property="tempPwdYn" column="TEMP_PWD_YN"/>
+		<result property="accumLoginCount" column="ACCUM_LOGIN_COUNT"/>
+		<result property="loginFailedCount" column="LOGIN_FAILED_COUNT"/>
+		<result property="latestLoginDate" column="LATEST_LOGIN_DATE"/>
+		<result property="accCreationDate" column="ACC_CREATION_DATE"/>
+		<result property="accChangedDate" column="ACC_CHANGED_DATE"/>
+		<result property="accClosingDate" column="ACC_CLOSING_DATE"/>
+		<result property="accClosingYn" column="ACC_CLOSING_YN"/>
+		<collection property="roleList" resultMap="roleResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<resultMap id="roleResultMap" type="com.reminder.geulbeotmall.member.model.dto.RoleDTO">
+		<id property="memberId" column="REF_MEMBER_ID"/>
+		<id property="authorityCode" column="REF_AUTHORITY_CODE"/>
+		<association property="authority" resultMap="authorityResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<resultMap id="authorityResultMap" type="com.reminder.geulbeotmall.member.model.dto.AuthorityDTO">
+		<id property="authCode" column="AUTHORITY_CODE"/>
+		<result property="authName" column="AUTHORITY_NAME"/>
+		<result property="authDesc" column="AUTHORITY_DESC"/>
+	</resultMap>
+	
+	<select id="findMemberById" resultMap="signInMemberResultMap">
+		SELECT
+			   A.MEMBER_ID
+			 , A.MEMBER_PWD
+			 , A.NAME
+			 , A.PHONE
+			 , A.EMAIL
+			 , A.ADDRESS
+			 , A.AGREEMENT
+			 , A.ACC_INACTIVE_YN
+			 , A.TEMP_PWD_YN
+			 , A.ACCUM_LOGIN_COUNT
+			 , A.LOGIN_FAILED_COUNT
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+			 , A.ACC_CHANGED_DATE
+			 , A.ACC_CLOSING_DATE
+			 , A.ACC_CLOSING_YN
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.MEMBER_ID = #{ username }
+	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="insertMember">
+		INSERT
+		  INTO TBL_MEMBER
+		(
+		  MEMBER_ID
+		, MEMBER_PWD
+		, NAME
+		, PHONE
+		, EMAIL
+		, ADDRESS
+		, AGREEMENT
+		, ACC_INACTIVE_YN
+		, TEMP_PWD_YN
+		, ACCUM_LOGIN_COUNT
+		, LOGIN_FAILED_COUNT
+		, LATEST_LOGIN_DATE
+		, ACC_CREATION_DATE
+		, ACC_CHANGED_DATE
+		, ACC_CLOSING_DATE
+		, ACC_CLOSING_YN
+		)
+		VALUES
+		(
+		  #{ memberId }
+		, #{ memberPwd }
+		, #{ name }
+		, #{ phone }
+		, #{ email }
+		, #{ address }
+		, #{ agreement }
+		, DEFAULT
+		, DEFAULT
+		, DEFAULT
+		, DEFAULT
+		, NULL
+		, SYSDATE
+		, SYSDATE
+		, NULL
+		, DEFAULT
+		)
+	</insert>
+	
+	<insert id="insertRole">
+		INSERT
+		  INTO TBL_ROLE
+		(
+		  MEMBER_ID
+		, AUTHORITY_CODE
+		)
+		VALUES
+		(
+		  #{ memberId }
+		, #{ authorityCode }
+		)
+	</insert>
+	
+	<!-- 회원가입 중 아이디 중복 검사 -->
+	<select id="checkId" parameterType="String" resultType="int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_MEMBER
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
+	<!-- 회원가입 완료 시 이메일 인증 후 계정 활성화 -->
+	<update id="updateAccActivation">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_INACTIVE_YN = 'N'
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
+	
+	<!-- 로그인 실패 횟수 카운팅 -->
+	<update id="updateFailCount">
+		UPDATE
+			   TBL_MEMBER
+		   SET LOGIN_FAILED_COUNT = LOGIN_FAILED_COUNT+1
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
+</mapper>

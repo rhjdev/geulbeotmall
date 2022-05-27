@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>로그인 | 글벗문구</title>
+	<!-- CSS -->
+	<th:block layout:fragment="css">
+    	<link th:href="@{/css/signin.css}" rel="stylesheet">
+    </th:block>
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>로그인</h2>
+    </div>
+    <div class="container content-wrapper">
+        <form id="loginForm" name="loginForm" th:action="@{/member/signin}" method="post">
+            <div class="inputBox">
+                <div class="form-floating required">
+                    <input type="text" class="form-control" id="username" name="username" autocomplete="off" placeholder="아이디" title="아이디 입력" oninvalid="this.setCustomValidity('아이디 입력')" oninput="setCustomValidity('')">
+                    <label for="username">아이디<b style="color: #ff0000;"> *</b></label>
+                </div>
+                <div class="form-floating required">
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="비밀번호" title="비밀번호 입력" oninvalid="this.setCustomValidity('비밀번호 입력')" oninput="setCustomValidity('')">
+                    <label for="password">비밀번호<b style="color: #ff0000;"> *</b></label>
+                    <button type="button" class="visibility" tabindex="-1">
+                        <i class="fa-solid fa-eye-slash" style="filter: invert(47%) sepia(2%) saturate(2314%) hue-rotate(167deg) brightness(95%) contrast(80%);"></i>
+                    </button>
+                </div>
+            </div>
+    
+            <div class="buttonBox">
+                <div class="remember-wrapper">
+                    <label class="label-checkbox">
+                        <input type="checkbox" class="input-checkbox" id="rememberId">
+                        <span>아이디 저장</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-dark" id="loginBtn">로그인</button>
+            </div>
+            <div class="cut-in-title"><small>NEED HELP?</small></div>
+            <div class="linkBox">
+                <ul class="link-list">
+                    <li class="link findId">
+                        <a href="#">아이디 찾기</a>
+                    </li>
+                    <span></span>
+                    <li class="link findPwd">
+                        <a href="#">비밀번호 찾기</a>
+                    </li>
+                    <span></span>
+                    <li class="link signup">
+                        <a href="#">회원가입</a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+    
+    <!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/signin.js}" type="text/javascript"></script>
+    </th:block>
+</body>
+</html>

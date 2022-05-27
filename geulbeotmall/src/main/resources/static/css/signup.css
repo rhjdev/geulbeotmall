@@ -1,0 +1,202 @@
+@charset "UTF-8";
+
+/* 타이틀 */
+.title-wrapper {
+    display: flex;
+    height: 190px;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.title-wrapper h2 {
+    top: 50%;
+    left: 50%;
+}
+
+/* 본문 */
+.content-wrapper {
+    width: 580px !important;
+}
+
+.inputBox, .termsBox {
+    display: flexbox;
+    width: 100%;
+    border-top: 3px solid #000;
+    margin-top: 40px;
+}
+
+.form-floating {
+    position: relative;
+    display: flex;
+    margin: 14px auto;
+    padding-left: 0;
+}
+
+.required label {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.form-floating>.form-control:focus~label,
+.form-floating>.form-control:not(:placeholder-shown)~label {
+    opacity: 1 !important;
+    color: #00008b !important;
+}
+
+.required input {
+    width: 100%;
+    height: 44px;
+    align-items: center;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ced4da;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    color: #6c757d;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 6px 0;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+    box-shadow: none;
+    border-bottom: 1px solid #00008b;
+}
+
+input::placeholder {
+    opacity: 0;
+}
+
+/* 출력 문구 */
+.required > .msg {
+    display: inline-block;
+    position: absolute;
+    font-size: 11px;
+    font-weight: bold;
+    top: 50%;
+    right: 1.5%;
+}
+
+#confirmPwdMsg {
+    right: calc(1.5% + 5.5%);
+}
+
+.visibility {
+    display: inline-block;
+    position: absolute;
+    background-color: transparent;
+    border: 0;
+    top: calc(50% - 8%);
+    right: 1%;
+}
+
+.required > .dash {
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
+    color: #767676;
+    font-size: small;
+}
+
+/* 자동완성 선택지 */
+.ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+    background: #00008b !important; 
+    border: solid 1px transparent; 
+    color: #f9f9f9;
+}
+
+/* 버튼 */
+.buttonBox {
+    margin-block-start: 10%;
+    margin-block-end: 20%;
+    margin-inline-start: 20%;
+    margin-inline-end: 20%;
+}
+
+input[type="button"] {
+    width: 100%;
+    height: 44px;
+    align-items: center;
+    margin: auto 0 auto 10px;
+    box-shadow: none !important;
+    background-color: #f9f9f9;
+}
+
+button[type="submit"] {
+    width: 100%;
+    height: 44px;
+    align-items: center;
+    box-shadow: none !important;
+}
+
+.btn-outline-dark:hover {
+    background-color: #000;
+}
+
+.btn-dark:hover {
+	opacity: 93%;
+}
+
+/* 체크박스 */
+.all-terms-wrapper {
+    margin: 14px auto;
+}
+
+.terms-list {
+    position: relative;
+}
+
+input[type="checkbox"] {
+    transform : scale(1.5);
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+	accent-color: black;
+}
+
+.label-checkbox {
+    top: 50%;
+    margin-block-start: 12px;
+    margin-inline-start: 12px;
+}
+
+.label-checkbox span {
+    font-size: medium;
+    font-weight: bold;
+    margin-inline-start: 8px;
+}
+
+/* 자세히 */
+.terms-detail {
+    position: absolute;
+    display: inline-block;
+    position: absolute;
+    font-size: 11px;
+    font-weight: bold;
+    right: 1.5%;
+}
+
+.terms-detail a {
+    color: #6c757d;
+}
+
+/* 읽기 전용 */
+input[type="text"]:read-only {
+    background-color: transparent;
+}
+
+/* 전체 폰트 적용 */
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+h2 {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 48px !important;
+    font-weight: 400 !important;
+}
