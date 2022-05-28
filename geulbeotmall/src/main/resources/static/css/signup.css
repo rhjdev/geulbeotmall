@@ -80,6 +80,7 @@ input::placeholder {
     font-weight: bold;
     top: 50%;
     right: 1.5%;
+    color: #ff0000;
 }
 
 #confirmPwdMsg {
@@ -131,6 +132,7 @@ button[type="submit"] {
     height: 44px;
     align-items: center;
     box-shadow: none !important;
+    cursor: pointer;
 }
 
 .btn-outline-dark:hover {

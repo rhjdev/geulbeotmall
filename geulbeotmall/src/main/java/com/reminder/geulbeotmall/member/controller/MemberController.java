@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
@@ -53,33 +54,33 @@ public class MemberController {
 		log.info("init binder : {}", binder);
 		binder.addValidators(signUpValidator);
 	}
-	/*
-	@PostMapping(value="checkid", produces="application/json; charset=UTF-8")
+	
+	@PostMapping(value="/checkId", produces="application/json; charset=UTF-8")
 	@ResponseBody	//ajax 통신에서 JSON 응답을 치르기 위해서는 어노테이션 추가, spring-web의 경우 jackson-databind 등 기본적으로 추가돼 있는 의존성들을 고려하여야 함
-	public boolean checkId(@RequestParam("memberId") String memberId) {
+	public int checkId(String memberId) {
 		
 		log.info("checkId 시작");
 		log.info("전달 받은 ID : {}", memberId);
-		int count = memberService.checkId(memberId);
-		log.info("checkId 결과 : {}", count);
+		int result = memberService.checkId(memberId);
+		log.info("checkId 결과 : {}", result);
 		
-		return count;
+		return result;
 	}
-	*/
+	
 	@GetMapping("signup")
-	public void signUpForm(Model model) {}
+	public void signUpForm() {}
 	
 	@PostMapping("signup")
 	public Object signUpMember(@Validated @ModelAttribute("member") MemberDTO member, BindingResult bindingResult,
 			@RequestParam Map<String, String> params, RedirectAttributes rttr, Model model, Locale locale) throws Exception { //BindingResult는 유효성 검사 대상 객체 바로 뒤에 선언
-		
+		/*
 		signUpValidator.validate(member, bindingResult);
 		
-		/* 검증 오류 발생 시 입력 폼으로 리턴 */
-		if(bindingResult.hasErrors()) {
+		if(bindingResult.hasErrors()) { //검증 오류 발생 시 입력 폼으로 리턴
 			log.info("검증 오류 발생 : {}", bindingResult);
 			return "signup";
 		}
+		*/
 		
 		/* 회원가입 성공 로직 */
 		String phone = params.get("phoneA") + params.get("phoneB") + params.get("phoneC");

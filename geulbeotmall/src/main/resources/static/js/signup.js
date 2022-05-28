@@ -1,3 +1,88 @@
+/* 아이디 유효성 검사 및 중복 확인 */
+$('#memberId').on('propertychange change keyup paste input focusout', function(){
+	const regexp = /^[A-Za-z0-9]{6,15}$/;
+	const memberId = $('[name=memberId]').val();
+	
+	if(memberId != '') {
+		$.ajax({
+			url : '/member/checkId',
+			type: 'post',
+			data : {'memberId' : memberId},
+			success : function(result){
+				//console.log(result);
+	    		if(result > 0) {
+	    			$('#checkIdMsg').text('이미 사용 중인 아이디입니다');
+	    			$('#registBtn').attr('disabled', true);
+	    		} else {
+		    		if(!regexp.test(memberId) || memberId.length < 6) {
+		    			$('#checkIdMsg').text('6~15자의 영문/숫자 조합하여 입력하세요');
+		    			$('#registBtn').attr('disabled', true);
+		    		} else {
+		    			$('#checkIdMsg').text('');
+		    			$('#registBtn').attr('disabled', false);
+		    			return true;
+		    		}
+	    		}
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	} else {
+		$('#checkIdMsg').text('아이디는 필수 입력 항목입니다');
+		$('#registBtn').attr('disabled', true);
+	}
+});
+
+/* 비밀번호 유효성 검사 */
+$('#memberPwd').on('propertychange change keyup paste input focusout', function(){
+	const regexp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,16}$/;
+	const memberPwd = $('[name=memberPwd]').val();
+	
+	if(memberPwd != '') {
+		/* 1. 영문, 숫자, 특수기호 포함 여부 검사 */
+		if(!regexp.test(memberPwd)) {
+			$('#checkPwdMsg').text('8~16자의 영문 대소문자/숫자/특수기호 조합하여 입력하세요');
+			$('#registBtn').attr('disabled', true);
+		} else {
+			$('#checkPwdMsg').text('');
+			$('#registBtn').attr('disabled', false);
+		}
+		
+		/* 2. 아이디와 연속 일치 여부 검사 */
+		if(isValidPwd()) {
+			$('#checkPwdMsg').text('아이디와 연속 3자리 이상 일치하는 비밀번호는 사용할 수 없어요');
+			$('#registBtn').attr('disabled', true);
+		}
+	} else {
+		$('#checkPwdMsg').text('비밀번호는 필수 입력 항목입니다');
+		$('#registBtn').attr('disabled', true);
+	}
+});
+
+function isValidPwd() {
+	let id = $('[name=memberId]').val();
+	let pwd = $('[name=memberPwd]').val();
+	
+	let tmp = '';
+	let count = 0;
+	
+	for(i=0; i < id.length-2; i++) {
+		tmp = id.charAt(i) + id.charAt(i+1) + id.charAt(i+2);
+		if(pwd.indexOf(tmp) > -1) { count = count + 1 };
+	}
+	return count > 0 ? true : false;
+}
+
+/* 비밀번호 입력란과 확인란 일치 여부 확인 */
+$('#confirmPwd').on('propertychange change keyup paste input', function(){
+	if($('#memberPwd').val() != $(this).val()) {
+		$('#confirmPwdMsg').text('비밀번호가 일치하지 않습니다');
+		$('#registBtn').attr('disabled', true);
+	} else {
+		$('#confirmPwdMsg').text('');
+		$('#registBtn').attr('disabled', false);
+	}
+});
+
 /* 비밀번호 표시 */
 $('.visibility i').click(function(){
 	const password = document.querySelector('#memberPwd');
@@ -14,6 +99,44 @@ $('.visibility i').click(function(){
 		$(this).attr('class', 'fa-solid fa-eye-slash');
 		$(this).attr('class', 'fa-solid fa-eye-slash').css('filter', 'invert(47%) sepia(2%) saturate(2314%) hue-rotate(167deg) brightness(95%) contrast(80%)');
     }
+});
+
+/* 이름 유효성 검사 */
+$('#name').focusout(function(){
+	const regexp = /^[가-힣]{2,6}$/;
+	const name = $('[name=name]').val();
+	
+	if(name != '') {
+		if(!regexp.test(name)) {
+			$('#checkNameMsg').text('2글자 이상의 한글 이름을 입력하세요');
+			$('#registBtn').attr('disabled', true);
+		} else {
+			$('#checkNameMsg').text('');
+			$('#registBtn').attr('disabled', false);
+		}
+	} else {
+		$('#checkNameMsg').text('이름은 필수 입력 항목입니다');
+		$('#registBtn').attr('disabled', true);
+	}
+});
+
+/* 이메일 유효성 검사 */
+$('#email').focusout(function(){
+	const regexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+	const email = $('[name=email]').val();
+	
+	if(email != '') {
+		if(!regexp.test(email)) {
+			$('#checkEmailMsg').text('이메일 형식이 올바르지 않습니다');
+			$('#registBtn').attr('disabled', true);
+		} else {
+			$('#checkEmailMsg').text('');
+			$('#registBtn').attr('disabled', false);
+		}
+	} else {
+		$('#checkEmailMsg').text('이메일은 필수 입력 항목입니다');
+		$('#registBtn').attr('disabled', true);
+	}
 });
 
 /* 이메일 자동완성 */
@@ -62,4 +185,37 @@ $('.term').click(function(){
     } else {
         $('#checkAll').prop('checked', false);
     }
+});
+
+/* 양식 제출 전 필수 입력값 확인 */
+$('#registBtn').click(function(){
+	if($('#term1').prop('checked') && $('#term2').prop('checked') && $('term3').prop('checked') && $('#memberId').val() == true) {
+		Swal.fire({
+			icon: 'warning',
+			title: '회원가입을 진행하시겠습니까?',
+			text: '입력하신 이메일 주소로 본인인증메일이 발송됩니다',
+			showCancelButton: true,
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '가입하기',
+			cancelButtonColor: '#f9f9f9',
+			cancelButtonText: '돌아가기'
+		}).then(result => {
+			if(result.isConfirmed) {
+				Swal.fire({
+					icon: 'success',
+					title: '회원가입이 완료되었습니다',
+					text: '본인인증메일 확인 통해 계정을 활성화하세요',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		});
+	} else {
+		Swal.fire({
+			icon: 'error',
+			title: '필수 입력 항목을 작성하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		})
+	}
 });

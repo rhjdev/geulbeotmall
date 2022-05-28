@@ -20,17 +20,17 @@
                 <div class="form-floating required">
                     <input type="text" class="form-control" id="memberId" name="memberId" autocomplete="off" placeholder="아이디" title="아이디 입력" oninvalid="this.setCustomValidity('아이디 입력')" oninput="setCustomValidity('')">
                     <label for="memberId">아이디<b style="color: #ff0000;"> *</b></label>
-                    <span id="memberIdMsg" class="msg memberIdMsg"></span>
+                    <span id="checkIdMsg" class="msg checkIdMsg"></span>
                 </div>
                 <div class="form-floating required">
                     <input type="password" class="form-control" id="memberPwd" name="memberPwd" autocomplete="off" placeholder="비밀번호" title="비밀번호 입력" oninvalid="this.setCustomValidity('비밀번호 입력')" oninput="setCustomValidity('')">
                     <label for="memberPwd">비밀번호<b style="color: #ff0000;"> *</b></label>
-                    <span class="msg">8~16자의 영문 대소문자/숫자/특수기호 조합하여 입력</span>
+                    <span id="checkPwdMsg" class="msg"></span>
                 </div>
                 <div class="form-floating required">
                     <input type="password" class="form-control" id="confirmPwd" name="confirmPwd" autocomplete="off" placeholder="비밀번호 확인" title="비밀번호 확인 입력" oninvalid="this.setCustomValidity('비밀번호 확인 입력')" oninput="setCustomValidity('')">
                     <label for="confirmPwd">비밀번호 확인<b style="color: #ff0000;"> *</b></label>
-                    <span id="confirmPwdMsg" class="msg">비밀번호가 일치하지 않습니다</span>
+                    <span id="confirmPwdMsg" class="msg"></span>
                     <button type="button" class="visibility" tabindex="-1">
                         <i class="fa-solid fa-eye-slash" style="filter: invert(47%) sepia(2%) saturate(2314%) hue-rotate(167deg) brightness(95%) contrast(80%);"></i>
                     </button>
@@ -38,7 +38,7 @@
                 <div class="form-floating required">
                     <input type="text" class="form-control" id="name" name="name" autocomplete="off" placeholder="이름" title="이름 입력" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')">
                     <label for="name">이름<b style="color: #ff0000;"> *</b></label>
-                    <span class="msg"></span>
+                    <span id="checkNameMsg" class="msg"></span>
                 </div>
                 <div class="form-floating required">
                     <input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" class="form-control" id="phoneA" name="phoneA" autocomplete="off" placeholder="연락처" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="3">
@@ -51,7 +51,7 @@
                 <div class="form-floating required">
                     <input type="email" class="form-control" id="email" name="email" onkeyup="autoDomain('email', this.value)" autocomplete="off" placeholder="이메일" title="이메일 입력" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')">
                     <label for="email">이메일<b style="color: #ff0000;"> *</b></label>
-                    <span class="msg">인증메일발송 통해 이메일을 인증</span>
+                    <span id="checkEmailMsg" class="msg"></span>
                 </div>
                 <div class="form-floating required">
                     <input type="text" class="form-control" id="postalCode" name="postalCode" autocomplete="off" placeholder="우편번호" title="우편번호 입력" oninvalid="this.setCustomValidity('우편번호 입력')" oninput="setCustomValidity('')" readonly>
@@ -78,20 +78,20 @@
                 <hr>
                 <div class="terms-list">
                     <label class="label-checkbox">
-                        <input type="checkbox" class="input-checkbox term">
+                        <input type="checkbox" class="input-checkbox term" id="term1">
                         <span><b style="color: #ff0000;">(필수)</b>만 14세 이상입니다.</span>
                     </label>
                 </div>
                 <div class="terms-list">
                     <label class="label-checkbox">
-                        <input type="checkbox" class="input-checkbox term">
+                        <input type="checkbox" class="input-checkbox term" id="term2">
                         <span><b style="color: #ff0000;">(필수)</b>이용약관에 동의합니다.</span>
                         <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
                     </label>
                 </div>
                 <div class="terms-list">
                     <label class="label-checkbox">
-                        <input type="checkbox" class="input-checkbox term">
+                        <input type="checkbox" class="input-checkbox term" id="term3">
                         <span><b style="color: #ff0000;">(필수)</b>개인정보 수집 및 이용 방침에 동의합니다.</span>
                         <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
                     </label>
@@ -106,7 +106,7 @@
             </div>
 
             <div class="buttonBox">
-                <button type="submit" class="btn-dark" id="registBtn">회원가입</button>
+                <button type="submit" class="btn-dark" id="registBtn" disabled>회원가입</button>
             </div>
         </form>
     </div>
