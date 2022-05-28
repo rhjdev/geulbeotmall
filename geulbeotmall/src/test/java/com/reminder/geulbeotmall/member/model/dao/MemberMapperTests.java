@@ -3,6 +3,7 @@ package com.reminder.geulbeotmall.member.model.dao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class MemberMapperTests {
 	
 	@Test
 	@DisplayName("신규 회원 등록용 매퍼 성공 테스트")
+	@Disabled
 	public void testSignUpMember() {
 		
 		//given
@@ -54,6 +56,20 @@ public class MemberMapperTests {
 		//then
 		assertEquals(1, resultA);
 		assertEquals(1, resultB);
+	}
+	
+	@Test
+	@DisplayName("아이디 중복 확인 매퍼 테스트")
+	public void testIsIdDuplicated() {
+		
+		//given
+		String memberId = "user01";
+		
+		//when
+		int count = memberMapper.checkId(memberId);
+		
+		//then
+		assertEquals(1, count);
 	}
 	
 }

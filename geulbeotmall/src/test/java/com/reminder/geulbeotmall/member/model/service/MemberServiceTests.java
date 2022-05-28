@@ -1,8 +1,10 @@
 package com.reminder.geulbeotmall.member.model.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ public class MemberServiceTests {
 	
 	@Test
 	@DisplayName("신규 회원 등록용 서비스 성공 테스트")
+	@Disabled
 	public void testSignUpMember() throws Exception {
 		
 		//given
@@ -53,5 +56,20 @@ public class MemberServiceTests {
 		//then
 		assertTrue(result);
 	}
+	
+	@Test
+	@DisplayName("아이디 중복 확인 서비스 테스트")
+	public void testIsIdDuplicated() {
+		
+		//given
+		String memberId = "user01";
+		
+		//when
+		int count = memberService.checkId(memberId);
+		
+		//then
+		assertEquals(1, count);
+	}
+	
 	
 }

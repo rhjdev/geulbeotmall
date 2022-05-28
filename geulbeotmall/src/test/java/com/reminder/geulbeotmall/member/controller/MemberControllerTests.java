@@ -64,5 +64,5 @@ public class MemberControllerTests {
 			   .andExpect(MockMvcResultMatchers.redirectedUrl("/"))
 			   .andDo(MockMvcResultHandlers.print());
 	}
-		
+	
 }
