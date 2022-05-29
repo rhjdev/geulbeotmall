@@ -20,7 +20,6 @@ $('#memberId').on('propertychange change keyup paste input focusout', function()
 		    		} else {
 		    			$('#checkIdMsg').text('');
 		    			$('#registBtn').attr('disabled', false);
-		    			return true;
 		    		}
 	    		}
 			},
@@ -188,19 +187,37 @@ $('.term').click(function(){
 });
 
 /* 양식 제출 전 필수 입력값 확인 */
-$('#registBtn').click(function(){
-	if($('#term1').prop('checked') && $('#term2').prop('checked') && $('term3').prop('checked') && $('#memberId').val() == true) {
+function submitForm(form) {
+	event.preventDefault();
+	
+	if(!($('#term1').prop('checked') && $('#term2').prop('checked') && $('#term3').prop('checked'))) {
+		Swal.fire({
+			icon: 'error',
+			title: '이용약관에 동의해 주세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		})
+	} else if(!($('#name').val().trim().length > 0 && $('#phoneA').val().length > 0 && $('#phoneB').val().length > 0 && $('#phoneC').val().length > 0 && $('#email').val().trim().length > 0 && $('#postalCode').val().length > 0)) {
+		Swal.fire({
+			icon: 'error',
+			title: '필수 입력 항목을 작성하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		})
+	} else {
 		Swal.fire({
 			icon: 'warning',
-			title: '회원가입을 진행하시겠습니까?',
+			title: '회원가입을 진행할까요?',
 			text: '입력하신 이메일 주소로 본인인증메일이 발송됩니다',
 			showCancelButton: true,
 			confirmButtonColor: '#00008b',
-			confirmButtonText: '가입하기',
-			cancelButtonColor: '#f9f9f9',
-			cancelButtonText: '돌아가기'
-		}).then(result => {
+			confirmButtonText: '가입',
+			cancelButtonColor: '#6c757d',
+			cancelButtonText: '취소',
+			reverseButtons: true
+		}).then((result) => {
 			if(result.isConfirmed) {
+				form.submit();
 				Swal.fire({
 					icon: 'success',
 					title: '회원가입이 완료되었습니다',
@@ -210,12 +227,5 @@ $('#registBtn').click(function(){
 				})
 			}
 		});
-	} else {
-		Swal.fire({
-			icon: 'error',
-			title: '필수 입력 항목을 작성하세요',
-			confirmButtonColor: '#00008b',
-			confirmButtonText: '확인'
-		})
 	}
-});
+}

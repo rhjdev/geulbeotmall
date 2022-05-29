@@ -15,7 +15,7 @@
         <h2>회원가입</h2>
     </div>
     <div class="container content-wrapper">
-        <form id="signupForm" name="signupForm" th:object="${member}" th:action="@{/member/signup}" method="post">
+        <form id="signupForm" name="signupForm" th:object="${member}" th:action="@{/member/signup}" method="post" onsubmit="return submitForm(this);">
             <div class="inputBox">
                 <div class="form-floating required">
                     <input type="text" class="form-control" id="memberId" name="memberId" autocomplete="off" placeholder="아이디" title="아이디 입력" oninvalid="this.setCustomValidity('아이디 입력')" oninput="setCustomValidity('')">
