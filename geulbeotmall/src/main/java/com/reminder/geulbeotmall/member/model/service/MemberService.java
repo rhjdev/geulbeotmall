@@ -11,6 +11,8 @@ public interface MemberService extends UserDetailsService {
 	
 	int checkId(String memberId);
 	
+	int checkEmail(String email);
+	
 	boolean signUpMember(MemberDTO member) throws Exception;
 
 }

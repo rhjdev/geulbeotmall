@@ -48,6 +48,17 @@ public class MemberServiceImpl implements MemberService {
 		return count;
 	}
 	
+	/** 
+	 * 이메일 중복 검사
+	 * @return 중복된 이메일 개수
+	 */
+	@Transactional(readOnly = true)
+	@Override
+	public int checkEmail(String email) {
+		int count = memberMapper.checkEmail(email);
+		return count;
+	}
+	
 	/**
 	 * 회원가입
 	 */
@@ -100,5 +111,6 @@ public class MemberServiceImpl implements MemberService {
 		
 		return user;
 	}
+
 	
 }

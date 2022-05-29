@@ -120,18 +120,33 @@ $('#name').focusout(function(){
 });
 
 /* 이메일 유효성 검사 */
-$('#email').focusout(function(){
+$('#email').on('propertychange change keyup paste input focusout', function(){
 	const regexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 	const email = $('[name=email]').val();
 	
 	if(email != '') {
-		if(!regexp.test(email)) {
-			$('#checkEmailMsg').text('이메일 형식이 올바르지 않습니다');
-			$('#registBtn').attr('disabled', true);
-		} else {
-			$('#checkEmailMsg').text('');
-			$('#registBtn').attr('disabled', false);
-		}
+		
+		$.ajax({
+			url : '/member/checkEmail',
+			type : 'post',
+			data : {'email' : email},
+			success : function(result){
+				console.log(result);
+				if(result > 0) {
+					$('#checkEmailMsg').text('이미 가입된 이메일입니다');
+					$('#registBtn').attr('disabled', true);
+				} else {
+					if(!regexp.test(email)) {
+						$('#checkEmailMsg').text('이메일 형식이 올바르지 않습니다');
+						$('#registBtn').attr('disabled', true);
+					} else {
+						$('#checkEmailMsg').text('');
+						$('#registBtn').attr('disabled', false);
+					}
+				}
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
 	} else {
 		$('#checkEmailMsg').text('이메일은 필수 입력 항목입니다');
 		$('#registBtn').attr('disabled', true);

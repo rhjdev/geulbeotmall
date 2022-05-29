@@ -123,6 +123,14 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</select>
 	
+	<!-- 회원가입 중 이메일 중복 검사 -->
+	<select id="checkEmail" parameterType="String" resultType="int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_MEMBER
+		 WHERE EMAIL = #{ email }
+	</select>
+	
 	<!-- 회원가입 완료 시 이메일 인증 후 계정 활성화 -->
 	<update id="updateAccActivation">
 		UPDATE

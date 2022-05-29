@@ -55,6 +55,10 @@ public class MemberController {
 		binder.addValidators(signUpValidator);
 	}
 	
+	/**
+	 * 아이디 중복 검사
+	 * @return 중복된 아이디 개수
+	 */
 	@PostMapping(value="/checkId", produces="application/json; charset=UTF-8")
 	@ResponseBody	//ajax 통신에서 JSON 응답을 치르기 위해서는 어노테이션 추가, spring-web의 경우 jackson-databind 등 기본적으로 추가돼 있는 의존성들을 고려하여야 함
 	public int checkId(String memberId) {
@@ -63,6 +67,22 @@ public class MemberController {
 		log.info("전달 받은 ID : {}", memberId);
 		int result = memberService.checkId(memberId);
 		log.info("checkId 결과 : {}", result);
+		
+		return result;
+	}
+	
+	/** 
+	 * 이메일 중복 검사
+	 * @return 중복된 이메일 개수
+	 */
+	@PostMapping(value="/checkEmail", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public int checkEmail(String email) {
+		
+		log.info("checkEmail 시작");
+		log.info("전달 받은 Email : {}", email);
+		int result = memberService.checkEmail(email);
+		log.info("checkEmail 결과 : {}", result);
 		
 		return result;
 	}
