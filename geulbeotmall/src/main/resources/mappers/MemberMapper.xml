@@ -139,11 +139,35 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
-	<!-- 로그인 실패 횟수 카운팅 -->
+	<!-- 로그인 성공 시 실패 횟수 리셋 -->
+	<update id="updateFailCountReset">
+		UPDATE
+			   TBL_MEMBER
+		   SET LOGIN_FAILED_COUNT = 0
+		 WHERE MEMBER_ID = #{ username }
+	</update>
+	
+	<!-- 로그인 실패 횟수 증가 -->
 	<update id="updateFailCount">
 		UPDATE
 			   TBL_MEMBER
 		   SET LOGIN_FAILED_COUNT = LOGIN_FAILED_COUNT+1
-		 WHERE MEMBER_ID = #{ memberId }
+		 WHERE MEMBER_ID = #{ username }
+	</update>
+	
+	<!-- 로그인 실패 횟수 조회 -->
+	<select id="checkLoginFailureCount" parameterType="String" resultType="int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_MEMBER
+		 WHERE MEMBER_ID = #{ username }
+	</select>
+	
+	<!-- 로그인 실패 횟수 3회 초과 시 계정 비활성화 -->
+	<update id="deactivateUsername">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_INACTIVE_YN = 'Y'
+		 WHERE MEMBER_ID = #{ username }
 	</update>
 </mapper>

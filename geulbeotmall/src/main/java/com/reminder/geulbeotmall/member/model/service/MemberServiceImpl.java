@@ -112,5 +112,24 @@ public class MemberServiceImpl implements MemberService {
 		return user;
 	}
 
-	
+	@Override
+	public void updateFailCountReset(String username) {
+		memberMapper.updateFailCountReset(username);
+	}
+
+	@Override
+	public void updateFailCount(String username) {
+		memberMapper.updateFailCount(username);
+	}
+
+	@Override
+	public int checkLoginFailureCount(String username) {
+		int count = memberMapper.checkLoginFailureCount(username);
+		return count;
+	}
+
+	@Override
+	public void deactivateUsername(String username) {
+		memberMapper.deactivateUsername(username);
+	}
 }
