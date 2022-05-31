@@ -72,4 +72,20 @@ public class MemberMapperTests {
 		assertEquals(1, count);
 	}
 	
+	@Test
+	@DisplayName("로그인 실패 시 카운팅 증가 여부 매퍼 테스트")
+	public void testLoginFailed() {
+		
+		//given
+		String username = "user01";
+		String password = "1234";
+		
+		//when
+		memberMapper.updateFailCount(username);
+		int count = memberMapper.checkLoginFailureCount(username);
+		
+		//then
+		assertEquals(1, count);
+	}
+	
 }
