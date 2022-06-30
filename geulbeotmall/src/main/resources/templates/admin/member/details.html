@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+</head>
+<body layout:fragment="content">
+	<h1>회원 상세 정보</h1>
+	<hr>
+	<div>
+		<div th:text="${ member.name }"></div>
+	</div>
+</body>
+</html>

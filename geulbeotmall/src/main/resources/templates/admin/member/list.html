@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+</head>
+<body layout:fragment="content">
+	<h1>회원 목록</h1>
+	<hr>
+	<div class="card mb-4">
+        <div class="card-header">
+            전체 회원 <b th:text="${ total }" style="color: #ff0000;"></b>
+               일반 회원 <b th:text="${ regular }"></b>
+               관리자 <b th:text="${ admin }"></b>
+        </div>
+        <div class="card-body">
+            <div class="dataTable-wrapper dataTable-loading no-footer sortable searchable fixed-columns">
+            <div class="dataTable-top">
+            <div class="dataTable-dropdown">
+            <label>
+            <select class="dataTable-selector">
+            <option value="5">5</option>
+            <option value="10" selected="">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            </select> entries per page</label>
+            </div>
+            </div>
+            <div class="dataTable-container">
+            <table id="datatablesSimple" class="dataTable-table">
+                <thead>
+                    <tr>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">번호</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">아이디</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">이름</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">연락처</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">이메일</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">주소</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">최근 로그인</a></th>
+                    	<th data-sortable=""><a href="#" class="dataTable-sorter">계정 가입일</a></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="member, stat : ${ memberList }">
+                		<td th:text="${ stat.count }"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
+	                	<td th:text="${ member.name }"></td>
+	                	<td th:text="${ member.phone }"></td>
+	                	<td th:text="${ member.email }"></td>
+	                	<td th:text="${ member.address }"></td>
+	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
+	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(memberList)} > 0">
+                		<td colspan="4">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+            <div class="dataTable-bottom">
+            <nav class="dataTable-pagination">
+            <ul class="dataTable-pagination-list">
+            <li class="active"><a href="#" data-page="1">1</a></li>
+            <li class=""><a href="#" data-page="2">2</a></li>
+            <li class=""><a href="#" data-page="3">3</a></li>
+            <li class=""><a href="#" data-page="4">4</a></li>
+            <li class=""><a href="#" data-page="5">5</a></li>
+            <li class=""><a href="#" data-page="6">6</a></li>
+            <li class="pager"><a href="#" data-page="2">›</a></li>
+            </ul>
+            </nav>
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

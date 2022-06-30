@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.admin.model.dao.AdminMapper">
+	<resultMap id="memberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
+		<id property="memberId" column="MEMBER_ID"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="name" column="NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="address" column="ADDRESS"/>
+		<result property="agreement" column="AGREEMENT"/>
+		<result property="accInactiveYn" column="ACC_INACTIVE_YN"/>
+		<result property="tempPwdYn" column="TEMP_PWD_YN"/>
+		<result property="accumLoginCount" column="ACCUM_LOGIN_COUNT"/>
+		<result property="loginFailedCount" column="LOGIN_FAILED_COUNT"/>
+		<result property="latestLoginDate" column="LATEST_LOGIN_DATE"/>
+		<result property="accCreationDate" column="ACC_CREATION_DATE"/>
+		<result property="accChangedDate" column="ACC_CHANGED_DATE"/>
+		<result property="accClosingDate" column="ACC_CLOSING_DATE"/>
+		<result property="accClosingYn" column="ACC_CLOSING_YN"/>
+		<collection property="roleList" resultMap="roleResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<resultMap id="roleResultMap" type="com.reminder.geulbeotmall.member.model.dto.RoleDTO">
+		<id property="memberId" column="REF_MEMBER_ID"/>
+		<id property="authorityCode" column="REF_AUTHORITY_CODE"/>
+		<association property="authority" resultMap="authorityResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<resultMap id="authorityResultMap" type="com.reminder.geulbeotmall.member.model.dto.AuthorityDTO">
+		<id property="authCode" column="AUTHORITY_CODE"/>
+		<result property="authName" column="AUTHORITY_NAME"/>
+		<result property="authDesc" column="AUTHORITY_DESC"/>
+	</resultMap>
+	
+	<select id="getMemberList" resultMap="memberResultMap">
+		SELECT
+			   MEMBER_ID
+			 , NAME
+			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+			 , EMAIL
+			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
+			 , LATEST_LOGIN_DATE
+			 , ACC_CREATION_DATE
+		  FROM TBL_MEMBER
+		 WHERE ACC_CLOSING_YN = 'N'
+		 ORDER BY ACC_CREATION_DATE
+	</select>
+	
+	<select id="getMemberDetails" resultMap="memberResultMap">
+		SELECT
+			   A.MEMBER_ID
+			 , A.MEMBER_PWD
+			 , A.NAME
+			 , A.PHONE
+			 , A.EMAIL
+			 , A.ADDRESS
+			 , A.AGREEMENT
+			 , A.ACC_INACTIVE_YN
+			 , A.TEMP_PWD_YN
+			 , A.ACCUM_LOGIN_COUNT
+			 , A.LOGIN_FAILED_COUNT
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+			 , A.ACC_CHANGED_DATE
+			 , A.ACC_CLOSING_DATE
+			 , A.ACC_CLOSING_YN
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.MEMBER_ID = #{ memberId }
+	</select>
+	
+	<select id="getTotalNumber" resultType="_int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_MEMBER
+		 WHERE ACC_CLOSING_YN = 'N'
+	</select>
+	
+	<select id="getRegularNumber" resultType="_int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_MEMBER
+		 WHERE ACC_CLOSING_YN = 'N'
+		   AND MEMBER_ID NOT IN (SELECT
+		   						  		A.MEMBER_ID
+		   					 	   FROM TBL_MEMBER A
+		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		  						  WHERE B.AUTHORITY_CODE = 2)
+	</select>
+	
+	<select id="getAdminNumber" resultType="_int">
+		SELECT
+			   COUNT(A.MEMBER_ID)
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.ACC_CLOSING_YN = 'N'
+		   AND B.AUTHORITY_CODE = 2
+	</select>
+</mapper>
