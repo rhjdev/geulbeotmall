@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
+import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
@@ -109,11 +110,16 @@ public class MemberController {
 		member.setAddress(address);
 		memberService.signUpMember(member);
 		
+		/* 리다이렉트 시에는 요청이 새로 생겨나는 것이므로 RedirectAttributes 사용 
+		 * 메시지 목록을 리터럴리하게 쓰지 않고 따로 목록화 해서 관리되도록 ContextConfiguration에 bean으로 등록
+		 * 상단에 MessageSource 타입에 대하여 의존성 주입
+		 * 
+		 * 결과적으로 request scope 안에 successMessage가 담김
+		 * alert를 띄우기 위해서는 main html 안에 작성
+		 * */
 		rttr.addFlashAttribute("successMessage", messageSource.getMessage("signUpMember", null, locale));
 		
 		log.info("성공 로직 실행 완료");
-		
-		model.addAttribute("member", member);
 		
 		return "redirect:/";
 	}
@@ -122,7 +128,13 @@ public class MemberController {
 	public void signInForm() {}
 	
 	@PostMapping("signin")
-	public void signInMember() {
-		
+	public void signInMember(@RequestParam(required=false) String errorMessage, Model model) {
+		model.addAttribute("errorMessage", errorMessage);
+	}
+	
+	@GetMapping("mypage")
+	public void mypage(@AuthenticationPrincipal UserImpl user) {
+		//로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
+		log.info("로그인 된 유저 : {}", user);
 	}
 }
