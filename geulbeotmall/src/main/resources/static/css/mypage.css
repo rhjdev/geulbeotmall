@@ -1,0 +1,26 @@
+@charset "UTF-8";
+
+/* 타이틀 */
+.title-wrapper {
+    display: flex;
+    height: 190px;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.title-wrapper h2 {
+    top: 50%;
+    left: 50%;
+}
+
+/* 전체 폰트 적용 */
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+h2 {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 48px !important;
+    font-weight: 400 !important;
+}
