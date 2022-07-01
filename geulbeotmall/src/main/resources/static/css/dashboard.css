@@ -11699,26 +11699,3 @@ body {
   font-size: 0.75rem;
   border-radius: 0.25rem !important;
 }
-
-/* 전체 폰트 적용 */
-* {
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
-.navbar-brand {
-	font-family: 'Gowun Dodum', sans-serif;
-    font-weight: 700;
-    text-align: center;
-    padding-left: 0!important;
-}
-
-.link a {
-	color: #6c757d;
-}
-
-h1 {
-	font-family: 'Gowun Dodum', sans-serif;
-    font-weight: 700;
-	margin-top: 1.5rem !important;
-	text-align: center;
-}
