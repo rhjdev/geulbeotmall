@@ -1,0 +1,65 @@
+@charset "UTF-8";
+
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.navbar-brand {
+	font-family: 'Gowun Dodum', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    padding-left: 0!important;
+}
+
+.link a {
+	color: #6c757d;
+}
+
+h1 {
+	font-family: 'Gowun Dodum', sans-serif;
+    font-weight: 700;
+	margin-top: 1.5rem !important;
+	text-align: center;
+}
+
+.nav-tabs .nav-link {
+	border: 0;
+	color: #495057;
+	background-color: #f9f9f9;
+}
+
+.nav-tabs .nav-link.active {
+	color: #fff;
+	background-color: #212529;
+}
+
+.dataTable-table > :not(:first-child) {
+	border-top: 1px solid #6c757d;
+}
+
+thead {
+	border-top: 2px solid;
+}
+
+thead tr {
+	background-color: #fff;
+}
+
+thead tr > th {
+	text-align: center!important;
+	vertical-align: middle!important;
+}
+
+tbody tr > td {
+	text-align: center!important;
+	vertical-align: middle!important;
+}
+
+input[type="checkbox"] {
+    transform : scale(1.2);
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+	accent-color: black;
+}
