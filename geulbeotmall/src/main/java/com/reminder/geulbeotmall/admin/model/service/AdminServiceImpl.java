@@ -48,4 +48,59 @@ public class AdminServiceImpl implements AdminService {
 		int admin = adminMapper.getAdminNumber();
 		return admin;
 	}
+
+	@Override
+	public int getClosedNumber() {
+		int closed = adminMapper.getClosedNumber();
+		return closed;
+	}
+	
+	@Override
+	public List<MemberDTO> getMemberOnly() {
+		List<MemberDTO> memberOnly = adminMapper.getMemberOnly();
+		return memberOnly;
+	}
+
+	@Override
+	public List<MemberDTO> getAdminOnly() {
+		List<MemberDTO> adminOnly = adminMapper.getAdminOnly();
+		return adminOnly;
+	}
+
+	@Override
+	public List<MemberDTO> getClosedOnly() {
+		List<MemberDTO> closedOnly = adminMapper.getClosedOnly();
+		return closedOnly;
+	}
+	
+	@Override
+	public int searchAuthById(String memberId) {
+		int current = adminMapper.searchAuthById(memberId);
+		return current;
+	}
+
+	@Override
+	public int deleteAuthAsAdmin(String memberId) {
+		return adminMapper.deleteAuthAsAdmin(memberId);
+	}
+
+	@Override
+	public int insertAuthAsAdmin(String memberId) {
+		return adminMapper.insertAuthAsAdmin(memberId);
+	}
+
+	@Override
+	public int updateAccSuspension(String memberId) {
+		return adminMapper.updateAccSuspension(memberId);
+	}
+
+	@Override
+	public int insertAccSuspension(String memberId, String accSuspDesc) {
+		return adminMapper.insertAccSuspension(memberId, accSuspDesc);
+	}
+
+	@Override
+	public int updateAccActivation(String memberId) {
+		return adminMapper.updateAccActivation(memberId);
+	}
 }

@@ -15,5 +15,24 @@ public interface AdminService {
 	int getRegularNumber();
 
 	int getAdminNumber();
+	
+	int getClosedNumber();
 
+	List<MemberDTO> getMemberOnly();
+
+	List<MemberDTO> getAdminOnly();
+
+	List<MemberDTO> getClosedOnly();
+	
+	int searchAuthById(String memberId);
+
+	int deleteAuthAsAdmin(String memberId);
+
+	int insertAuthAsAdmin(String memberId);
+
+	int updateAccSuspension(String memberId);
+	
+	int insertAccSuspension(String memberId, String accSuspDesc);
+
+	int updateAccActivation(String memberId);
 }

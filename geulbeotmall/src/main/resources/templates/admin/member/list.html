@@ -3,46 +3,49 @@
 <head>
 	<meta charset="UTF-8">
 	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
 </head>
 <body layout:fragment="content">
 	<h1>회원 목록</h1>
 	<hr>
-	<div class="card mb-4">
-        <div class="card-header">
-            전체 회원 <b th:text="${ total }" style="color: #ff0000;"></b>
-               일반 회원 <b th:text="${ regular }"></b>
-               관리자 <b th:text="${ admin }"></b>
-        </div>
-        <div class="card-body">
-            <div class="dataTable-wrapper dataTable-loading no-footer sortable searchable fixed-columns">
-            <div class="dataTable-top">
-            <div class="dataTable-dropdown">
-            <label>
-            <select class="dataTable-selector">
-            <option value="5">5</option>
-            <option value="10" selected="">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-            <option value="25">25</option>
-            </select> entries per page</label>
-            </div>
-            </div>
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 회원 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="regular-tab" data-bs-toggle="tab" data-bs-target="#regular" type="button" role="tab" aria-controls="regular" aria-selected="false">일반 회원 <b th:text="${ regular }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab" aria-controls="admin" aria-selected="false">관리자 <b th:text="${ admin }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab" aria-controls="closed" aria-selected="false">탈퇴/계정정지 <b th:text="${ closed }" style="color: #6c757d;"></b></button>
+		</li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+		<!-- 전체 회원 -->
+		<div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="total-tab">
             <div class="dataTable-container">
-            <table id="datatablesSimple" class="dataTable-table">
+            <table class="dataTable-table table-striped">
                 <thead>
                     <tr>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">번호</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">아이디</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">이름</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">연락처</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">이메일</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">주소</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">최근 로그인</a></th>
-                    	<th data-sortable=""><a href="#" class="dataTable-sorter">계정 가입일</a></th>
+                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><a href="#">번호</a></th>
+                    	<th><a href="#">아이디</a></th>
+                    	<th><a href="#">이름</a></th>
+                    	<th><a href="#">연락처</a></th>
+                    	<th><a href="#">이메일</a></th>
+                    	<th><a href="#">주소</a></th>
+                    	<th><a href="#">최근 로그인</a></th>
+                    	<th><a href="#">계정 가입일</a></th>
                    	</tr>
                 </thead>
                 <tbody>
                 	<tr th:each="member, stat : ${ memberList }">
+                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
                 		<td th:text="${ stat.count }"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
@@ -53,26 +56,132 @@
 	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(memberList)} > 0">
-                		<td colspan="4">조회된 결과가 없습니다.</td>
+                		<td colspan="9">조회된 결과가 없습니다.</td>
                 	</tr>
                	</tbody>
             </table>
             </div>
-            <div class="dataTable-bottom">
-            <nav class="dataTable-pagination">
-            <ul class="dataTable-pagination-list">
-            <li class="active"><a href="#" data-page="1">1</a></li>
-            <li class=""><a href="#" data-page="2">2</a></li>
-            <li class=""><a href="#" data-page="3">3</a></li>
-            <li class=""><a href="#" data-page="4">4</a></li>
-            <li class=""><a href="#" data-page="5">5</a></li>
-            <li class=""><a href="#" data-page="6">6</a></li>
-            <li class="pager"><a href="#" data-page="2">›</a></li>
-            </ul>
-            </nav>
+		</div>
+		<!-- 일반 회원 -->
+		<div class="tab-pane fade" id="regular" role="tabpanel" aria-labelledby="regular-tab">
+			<div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><a href="#">번호</a></th>
+                    	<th><a href="#">아이디</a></th>
+                    	<th><a href="#">이름</a></th>
+                    	<th><a href="#">연락처</a></th>
+                    	<th><a href="#">이메일</a></th>
+                    	<th><a href="#">주소</a></th>
+                    	<th><a href="#">최근 로그인</a></th>
+                    	<th><a href="#">계정 가입일</a></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="member, stat : ${ memberOnly }">
+                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td th:text="${ stat.count }"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
+	                	<td th:text="${ member.name }"></td>
+	                	<td th:text="${ member.phone }"></td>
+	                	<td th:text="${ member.email }"></td>
+	                	<td th:text="${ member.address }"></td>
+	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
+	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(memberOnly)} > 0">
+                		<td colspan="9">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
             </div>
+		</div>
+		<!-- 관리자 -->
+		<div class="tab-pane fade" id="admin" role="tabpanel" aria-labelledby="admin-tab">
+			<div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><a href="#">번호</a></th>
+                    	<th><a href="#">아이디</a></th>
+                    	<th><a href="#">이름</a></th>
+                    	<th><a href="#">연락처</a></th>
+                    	<th><a href="#">이메일</a></th>
+                    	<th><a href="#">주소</a></th>
+                    	<th><a href="#">최근 로그인</a></th>
+                    	<th><a href="#">계정 가입일</a></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="member, stat : ${ adminOnly }">
+                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td th:text="${ stat.count }"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
+	                	<td th:text="${ member.name }"></td>
+	                	<td th:text="${ member.phone }"></td>
+	                	<td th:text="${ member.email }"></td>
+	                	<td th:text="${ member.address }"></td>
+	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
+	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(adminOnly)} > 0">
+                		<td colspan="9">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
             </div>
-        </div>
+		</div>
+		<!-- 탈퇴/계정정지 -->
+		<div class="tab-pane fade" id="closed" role="tabpanel" aria-labelledby="closed-tab">
+			<div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><a href="#">번호</a></th>
+                    	<th><a href="#">아이디</a></th>
+                    	<th><a href="#">탈퇴/정지 사유</a></th>
+                    	<th><a href="#">계정 비활성화일</a></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="member, stat : ${ closedOnly }">
+                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td th:text="${ stat.count }"></td>
+                		<td th:text="${ member.member.memberId }"></td>
+	                	<td th:text="${ member.susp.accSuspDesc }"></td>
+	                	<td th:text="${#dates.format(member.member.accClosingDate, 'yyyy-MM-dd')}"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(closedOnly)} > 0">
+                		<td colspan="5">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+	</div>
+    <div class="card mb-4">
+    	<div class="card-body">
+	     	<label>선택한 회원 &nbsp;
+		     	<select class="dataTable-selector" id="authValue">
+			     	<option value="1">일반회원</option>
+			     	<option value="2">관리자</option>
+		     	</select>
+		     	(으)로
+	     	</label>
+	     	<button type="button" class="btn btn-outline-primary" onclick="manageAuth()"><i class="fa-solid fa-arrow-right-arrow-left"></i> 변경</button>
+	    	&nbsp;&nbsp;&nbsp;
+	    	<button type="button" class="btn btn-outline-danger" onclick="suspendAcc()"><i class="fa-solid fa-ban"></i> 계정정지</button>
+    		&nbsp;&nbsp;&nbsp;
+    		<button type="button" class="btn btn-outline-secondary" onclick="activateAcc()"><i class="fa-solid fa-arrow-rotate-left"></i>정지해제</button>
+    	</div>
     </div>
+    <!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/customtable.js}" type="text/javascript"></script>
+	</th:block>
 </body>
 </html>

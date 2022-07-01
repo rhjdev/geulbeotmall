@@ -33,6 +33,18 @@
 		<result property="authDesc" column="AUTHORITY_DESC"/>
 	</resultMap>
 	
+	<resultMap id="suspResultMap" type="com.reminder.geulbeotmall.admin.model.dto.SuspDTO">
+		<id property="suspNo" column="SUSP_NO"/>
+		<result property="accSuspCount" column="ACC_SUSP_COUNT"/>
+		<result property="accSuspDesc" column="ACC_SUSP_DESC"/>
+		<association property="memberId" resultMap="memberResultMap"/>
+	</resultMap>
+	
+	<resultMap id="memberSuspResultMap" type="com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO">
+		<collection property="member" resultMap="memberResultMap"/>
+		<collection property="susp" resultMap="suspResultMap"/>
+	</resultMap>
+	
 	<select id="getMemberList" resultMap="memberResultMap">
 		SELECT
 			   MEMBER_ID
@@ -100,4 +112,127 @@
 		 WHERE A.ACC_CLOSING_YN = 'N'
 		   AND B.AUTHORITY_CODE = 2
 	</select>
+	
+	<select id="getClosedNumber" resultType="_int">
+		SELECT
+			   COUNT(MEMBER_ID)
+		  FROM TBL_MEMBER
+		 WHERE ACC_CLOSING_YN = 'Y'
+	</select>
+	
+	<select id="getMemberOnly" resultMap="memberResultMap">
+		SELECT
+			   MEMBER_ID
+			 , NAME
+			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+			 , EMAIL
+			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
+			 , LATEST_LOGIN_DATE
+			 , ACC_CREATION_DATE
+		  FROM TBL_MEMBER
+		 WHERE ACC_CLOSING_YN = 'N'
+		   AND MEMBER_ID NOT IN (SELECT
+		   						  		A.MEMBER_ID
+		   					 	   FROM TBL_MEMBER A
+		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		  						  WHERE B.AUTHORITY_CODE = 2)
+		 ORDER BY ACC_CREATION_DATE
+	</select>
+	
+	<select id="getAdminOnly" resultMap="memberResultMap">
+		SELECT
+			   A.MEMBER_ID
+			 , A.NAME
+			 , REGEXP_REPLACE(A.PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+			 , A.EMAIL
+			 , REGEXP_REPLACE(A.ADDRESS, '-|\$', ' ') ADDRESS
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.ACC_CLOSING_YN = 'N'
+		   AND B.AUTHORITY_CODE = 2
+	</select>
+	
+	<select id="getClosedOnly" resultMap="memberSuspResultMap">
+		SELECT
+			   B.MEMBER_ID
+			 , B.ACC_SUSP_DESC
+			 , A.ACC_CLOSING_DATE
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_SUSP B ON(A.MEMBER_ID = B.MEMBER_ID)
+		 WHERE A.ACC_CLOSING_YN = 'Y'
+	</select>
+	
+	<select id="searchAuthById" resultType="_int">
+		SELECT
+			   COUNT(MEMBER_ID)
+		  FROM TBL_ROLE
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
+	<delete id="deleteAuthAsAdmin">
+		DELETE
+		  FROM TBL_ROLE
+		 WHERE MEMBER_ID = #{ memberId }
+		   AND AUTHORITY_CODE = 2
+	</delete>
+	
+	<insert id="insertAuthAsAdmin">
+		INSERT
+		  INTO TBL_ROLE
+		(
+		  MEMBER_ID
+		, AUTHORITY_CODE
+		)
+		VALUES
+		(
+		  #{ memberId }
+		, 2
+		)
+	</insert>
+	
+	<update id="updateAccSuspension">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_CLOSING_YN = 'Y'
+		     , ACC_CLOSING_DATE = SYSDATE
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
+	
+	<insert id="insertAccSuspension">
+		<selectKey resultType="_int" keyProperty="accSuspCount" order="BEFORE">
+			SELECT
+				   NVL(MAX(ACC_SUSP_COUNT), 0) + 1
+			  FROM TBL_SUSP
+			 WHERE MEMBER_ID = #{ memberId }
+		</selectKey>
+		INSERT
+		  INTO TBL_SUSP
+		(
+		  SUSP_NO
+		, MEMBER_ID
+		, ACC_SUSP_DESC
+		, ACC_SUSP_COUNT
+		, ACC_SUSP_DATE
+		)
+		VALUES
+		(
+		  SEQ_SUSP_NO.NEXTVAL
+		, #{ memberId }
+		, #{ accSuspDesc }
+		, #{ accSuspCount }
+		, SYSDATE
+		)
+	</insert>
+	
+	<update id="updateAccActivation">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_CLOSING_YN = 'N'
+		     , ACC_CLOSING_DATE = NULL
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
 </mapper>
