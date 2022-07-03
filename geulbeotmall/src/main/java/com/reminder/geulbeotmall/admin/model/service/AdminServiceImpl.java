@@ -35,20 +35,20 @@ public class AdminServiceImpl implements AdminService {
 	 * @return totalRecordCount
 	 */
 	@Override
-	public int getTotalNumber() {
-		int total = adminMapper.getTotalNumber();
+	public int getTotalNumber(Criteria criteria) {
+		int total = adminMapper.getTotalNumber(criteria);
 		return total;
 	}
 
 	@Override
-	public int getRegularNumber() {
-		int regular = adminMapper.getRegularNumber();
+	public int getRegularNumber(Criteria criteria) {
+		int regular = adminMapper.getRegularNumber(criteria);
 		return regular;
 	}
 
 	@Override
-	public int getAdminNumber() {
-		int admin = adminMapper.getAdminNumber();
+	public int getAdminNumber(Criteria criteria) {
+		int admin = adminMapper.getAdminNumber(criteria);
 		return admin;
 	}
 
@@ -59,14 +59,14 @@ public class AdminServiceImpl implements AdminService {
 	}
 	
 	@Override
-	public List<MemberDTO> getMemberOnly() {
-		List<MemberDTO> memberOnly = adminMapper.getMemberOnly();
+	public List<MemberDTO> getMemberOnly(Criteria criteria) {
+		List<MemberDTO> memberOnly = adminMapper.getMemberOnly(criteria);
 		return memberOnly;
 	}
 
 	@Override
-	public List<MemberDTO> getAdminOnly() {
-		List<MemberDTO> adminOnly = adminMapper.getAdminOnly();
+	public List<MemberDTO> getAdminOnly(Criteria criteria) {
+		List<MemberDTO> adminOnly = adminMapper.getAdminOnly(criteria);
 		return adminOnly;
 	}
 

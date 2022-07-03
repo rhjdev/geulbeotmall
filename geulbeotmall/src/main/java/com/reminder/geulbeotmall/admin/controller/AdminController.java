@@ -45,17 +45,17 @@ public class AdminController {
 	public void getMemberList(@Valid @ModelAttribute("criteria") Criteria criteria, BindingResult bindingResult, HttpServletRequest request, Model model) {
 		log.info("회원 목록 요청");
 		
-		int total = adminService.getTotalNumber();
-		int regular = adminService.getRegularNumber();
-		int admin = adminService.getAdminNumber();
+		int total = adminService.getTotalNumber(criteria);
+		int regular = adminService.getRegularNumber(criteria);
+		int admin = adminService.getAdminNumber(criteria);
 		int closed = adminService.getClosedNumber();
 		log.info("전체 회원수 : {}", total);
 		log.info("일반 회원수 : {}", regular);
 		log.info("관리자 수 : {}", admin);
 		
 		List<MemberDTO> memberList = adminService.getMemberList(criteria);
-		List<MemberDTO> memberOnly = adminService.getMemberOnly();
-		List<MemberDTO> adminOnly = adminService.getAdminOnly();
+		List<MemberDTO> memberOnly = adminService.getMemberOnly(criteria);
+		List<MemberDTO> adminOnly = adminService.getAdminOnly(criteria);
 		List<MemberDTO> closedOnly = adminService.getClosedOnly();
 		log.info("회원 목록 조회 완료");
 		
@@ -67,7 +67,7 @@ public class AdminController {
 		model.addAttribute("memberOnly", memberOnly);
 		model.addAttribute("adminOnly", adminOnly);
 		model.addAttribute("closedOnly", closedOnly);
-		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(), 10, criteria));
+		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(criteria), 10, criteria));
 	}
 	
 	@GetMapping("/member/details")

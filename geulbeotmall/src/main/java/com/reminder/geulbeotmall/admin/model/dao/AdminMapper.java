@@ -14,17 +14,17 @@ public interface AdminMapper {
 
 	MemberDTO getMemberDetails(String memberId);
 
-	int getTotalNumber();
+	int getTotalNumber(Criteria criteria);
 
-	int getRegularNumber();
+	int getRegularNumber(Criteria criteria);
 
-	int getAdminNumber();
+	int getAdminNumber(Criteria criteria);
 
 	int getClosedNumber();
 	
-	List<MemberDTO> getMemberOnly();
+	List<MemberDTO> getMemberOnly(Criteria criteria);
 
-	List<MemberDTO> getAdminOnly();
+	List<MemberDTO> getAdminOnly(Criteria criteria);
 
 	List<MemberDTO> getClosedOnly();
 	

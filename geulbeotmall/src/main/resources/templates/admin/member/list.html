@@ -11,31 +11,26 @@
 <body layout:fragment="content">
 	<h1>회원 목록</h1>
 	<hr>
-	<div class="search-container">
-		<form id="searchForm" name="searchForm" class="search-form" th:action="@{/admin/member/list}" method="get">
-			<select id="condition" name="condition" class="dataTable-selector">
-				<option value="id">아이디</option>
-				<option value="name">이름</option>
-				<option value="phone">연락처</option>
-				<option value="email">이메일</option>
-				<option value="address">주소</option>
-				<option value="creation">가입일</option>
-			</select>
-			<input type="search" name="keyword" value="" class="form-control search-bar" autocomplete="off">
-			<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
-		</form>
-			<div class="calendar-container">
-				<div class="calendar-wrapper">
-					<div class="dateBox">
-						<input type="date">
-					</div>
-					<span>-</span>
-					<div class="dateBox">
-						<input type="date">
-					</div>
-				</div>
+	<div class="card mb-4">
+    	<div class="card-body">
+			<div class="search-container">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/member/list}" method="get">
+					<select id="condition" name="condition" class="dataTable-selector">
+						<option value="id" th:selected="*{condition} eq 'id'">아이디</option>
+						<option value="name" th:selected="*{condition} eq 'name'">이름</option>
+						<option value="phone" th:selected="*{condition} eq 'phone'">연락처</option>
+						<option value="email" th:selected="*{condition} eq 'email'">이메일</option>
+						<option value="address" th:selected="*{condition} eq 'address'">주소</option>
+						<option value="creation" th:selected="*{condition} eq 'creation'">가입일</option>
+					</select>
+					<input type="search" name="keyword" th:field="*{keyword}" class="form-control search-bar" autocomplete="off">
+					<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+					<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+					<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+				</form>
 			</div>
-	</div>
+    	</div>
+    </div>
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
 			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 회원 <b th:text="${ total }" style="color: #ff0000;"></b></button>
@@ -58,20 +53,22 @@
                 <thead>
                     <tr>
                     	<th><input type="checkbox" class="input-checkbox checkAll"></th>
-                    	<th><a href="#">번호</a></th>
-                    	<th><a href="#">아이디</a></th>
-                    	<th><a href="#">이름</a></th>
-                    	<th><a href="#">연락처</a></th>
-                    	<th><a href="#">이메일</a></th>
-                    	<th><a href="#">주소</a></th>
-                    	<th><a href="#">최근 로그인</a></th>
-                    	<th><a href="#">계정 가입일</a></th>
+                    	<th><span>번호</span></th>
+                    	<th><span>아이디</span></th>
+                    	<th><span>이름</span></th>
+                    	<th><span>연락처</span></th>
+                    	<th><span>이메일</span></th>
+                    	<th><span>주소</span></th>
+                    	<th><span>최근 로그인</span></th>
+                    	<th><span>계정 가입일</span></th>
+                    	<th><span>상세 정보</span></th>
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="member, stat : ${ memberList }" th:if="${not #lists.isEmpty(memberList)}">
+                	<tr th:each="member, stat : ${ memberList }" th:if="${not #lists.isEmpty(memberList)}" th:with="cri=${criteria}, total=${total}">
                 		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
-                		<td th:text="${ stat.count }"></td>
+                		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
+                		<!-- 역순 조회 <td th:text="${total - ((cri.currentPageNo - 1) * 10) - stat.index}"></td> -->
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
 	                	<td th:text="${ member.phone }"></td>
@@ -79,6 +76,7 @@
 	                	<td th:text="${ member.address }"></td>
 	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
 	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><button type="button" class="btn btn-sm btn-light">조회</button></a></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(memberList)} > 0">
                 		<td colspan="9">조회된 결과가 없습니다.</td>
@@ -94,20 +92,21 @@
                 <thead>
                     <tr>
                     	<th><input type="checkbox" class="input-checkbox checkAll"></th>
-                    	<th><a href="#">번호</a></th>
-                    	<th><a href="#">아이디</a></th>
-                    	<th><a href="#">이름</a></th>
-                    	<th><a href="#">연락처</a></th>
-                    	<th><a href="#">이메일</a></th>
-                    	<th><a href="#">주소</a></th>
-                    	<th><a href="#">최근 로그인</a></th>
-                    	<th><a href="#">계정 가입일</a></th>
+                    	<th><span>번호</span></th>
+                    	<th><span>아이디</span></th>
+                    	<th><span>이름</span></th>
+                    	<th><span>연락처</span></th>
+                    	<th><span>이메일</span></th>
+                    	<th><span>주소</span></th>
+                    	<th><span>최근 로그인</span></th>
+                    	<th><span>계정 가입일</span></th>
+                    	<th><span>상세 정보</span></th>
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="member, stat : ${ memberOnly }">
+                	<tr th:each="member, stat : ${ memberOnly }" th:if="${not #lists.isEmpty(memberOnly)}" th:with="cri=${criteria}, regular=${regular}">
                 		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
-                		<td th:text="${ stat.count }"></td>
+                		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
 	                	<td th:text="${ member.phone }"></td>
@@ -115,6 +114,7 @@
 	                	<td th:text="${ member.address }"></td>
 	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
 	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><button type="button" class="btn btn-sm btn-light">조회</button></a></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(memberOnly)} > 0">
                 		<td colspan="9">조회된 결과가 없습니다.</td>
@@ -130,20 +130,21 @@
                 <thead>
                     <tr>
                     	<th><input type="checkbox" class="input-checkbox checkAll"></th>
-                    	<th><a href="#">번호</a></th>
-                    	<th><a href="#">아이디</a></th>
-                    	<th><a href="#">이름</a></th>
-                    	<th><a href="#">연락처</a></th>
-                    	<th><a href="#">이메일</a></th>
-                    	<th><a href="#">주소</a></th>
-                    	<th><a href="#">최근 로그인</a></th>
-                    	<th><a href="#">계정 가입일</a></th>
+                    	<th><span>번호</span></th>
+                    	<th><span>아이디</span></th>
+                    	<th><span>이름</span></th>
+                    	<th><span>연락처</span></th>
+                    	<th><span>이메일</span></th>
+                    	<th><span>주소</span></th>
+                    	<th><span>최근 로그인</span></th>
+                    	<th><span>계정 가입일</span></th>
+                    	<th><span>상세 정보</span></th>
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="member, stat : ${ adminOnly }">
+                	<tr th:each="member, stat : ${ adminOnly }" th:if="${not #lists.isEmpty(adminOnly)}" th:with="cri=${criteria}, admin=${admin}">
                 		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
-                		<td th:text="${ stat.count }"></td>
+                		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
 	                	<td th:text="${ member.phone }"></td>
@@ -151,6 +152,7 @@
 	                	<td th:text="${ member.address }"></td>
 	                	<td th:text="${#dates.format(member.latestLoginDate, 'yyyy-MM-dd')}"></td>
 	                	<td th:text="${#dates.format(member.accCreationDate, 'yyyy-MM-dd')}"></td>
+                		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><button type="button" class="btn btn-sm btn-light">조회</button></a></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(adminOnly)} > 0">
                 		<td colspan="9">조회된 결과가 없습니다.</td>

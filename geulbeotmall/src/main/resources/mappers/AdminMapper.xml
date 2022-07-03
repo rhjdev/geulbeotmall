@@ -57,7 +57,7 @@
 			 , ACC_CREATION_DATE
 		  FROM
 		(
-		SELECT ROWNUM R
+		SELECT ROWNUM RM
 			 , MEMBER_ID
 			 , NAME
 			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
@@ -68,11 +68,19 @@
 		  FROM TBL_MEMBER
 		 WHERE ACC_CLOSING_YN = 'N'
 		   AND ROWNUM <= #{ currentPageNo } * #{ recordsPerPage }
-		 ORDER BY ACC_CREATION_DATE DESC
-		)
-		WHERE R > (#{ currentPageNo } - 1) * #{ recordsPerPage }
 		]]>
-		
+		<trim prefix="AND">
+		   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
+		   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
+		   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
+		   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+		<![CDATA[
+		 ORDER BY ACC_CREATION_DATE
+		)
+		WHERE RM > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<select id="getMemberDetails" resultMap="memberResultMap">
@@ -104,6 +112,13 @@
 			   COUNT(*)
 		  FROM TBL_MEMBER
 		 WHERE ACC_CLOSING_YN = 'N'
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
 	</select>
 	
 	<select id="getRegularNumber" resultType="_int">
@@ -117,6 +132,13 @@
 		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
 		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		  						  WHERE B.AUTHORITY_CODE = 2)
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
 	</select>
 	
 	<select id="getAdminNumber" resultType="_int">
@@ -127,6 +149,13 @@
 		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		 WHERE A.ACC_CLOSING_YN = 'N'
 		   AND B.AUTHORITY_CODE = 2
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">A.NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">A.PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">A.EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">A.ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
 	</select>
 	
 	<select id="getClosedNumber" resultType="_int">
@@ -153,6 +182,13 @@
 		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
 		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		  						  WHERE B.AUTHORITY_CODE = 2)
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
 		 ORDER BY ACC_CREATION_DATE
 	</select>
 	
@@ -170,6 +206,13 @@
 		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		 WHERE A.ACC_CLOSING_YN = 'N'
 		   AND B.AUTHORITY_CODE = 2
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">A.NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">A.PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">A.EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">A.ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
 	</select>
 	
 	<select id="getClosedOnly" resultMap="memberSuspResultMap">

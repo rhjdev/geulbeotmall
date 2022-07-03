@@ -9,7 +9,7 @@ public class Criteria {
 	
 	private int currentPageNo;
 	private int recordsPerPage;
-	private String category;
+	private String condition;
 	private String keyword;
 	
 	public Criteria() {
@@ -24,7 +24,9 @@ public class Criteria {
 	public String getListLink() {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromPath("")
 				.queryParam("currentPageNo", currentPageNo)
-				.queryParam("recordsPerPage", recordsPerPage);
+				.queryParam("recordsPerPage", recordsPerPage)
+				.queryParam("category", this.getCondition())
+				.queryParam("keyword", this.keyword);
 		return builder.toUriString();
 	}
 }
