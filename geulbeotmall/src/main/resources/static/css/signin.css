@@ -1,5 +1,20 @@
 @charset "UTF-8";
 
+/* alert */
+.alert {
+	display: flex;
+	padding: 0.5rem 1rem;
+	margin-top: 40px;
+}
+
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
+}
+
 /* 타이틀 */
 .title-wrapper {
     display: flex;
