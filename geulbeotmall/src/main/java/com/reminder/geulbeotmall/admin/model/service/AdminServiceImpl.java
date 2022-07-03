@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.reminder.geulbeotmall.admin.model.dao.AdminMapper;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
 @Service("adminService")
 public class AdminServiceImpl implements AdminService {
@@ -20,8 +20,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<MemberDTO> getMemberList() {
-		List<MemberDTO> memberList = adminMapper.getMemberList();
+	public List<MemberDTO> getMemberList(Criteria criteria) {
+		List<MemberDTO> memberList = adminMapper.getMemberList(criteria);
 		return memberList;
 	}
 
@@ -30,7 +30,10 @@ public class AdminServiceImpl implements AdminService {
 		MemberDTO member = adminMapper.getMemberDetails(memberId);
 		return member;
 	}
-
+	
+	/**
+	 * @return totalRecordCount
+	 */
 	@Override
 	public int getTotalNumber() {
 		int total = adminMapper.getTotalNumber();

@@ -1,15 +1,17 @@
 package com.reminder.geulbeotmall.admin.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +42,7 @@ public class AdminController {
 	}
 	
 	@GetMapping("/member/list")
-	public String getMemberList(Model model) {
+	public void getMemberList(@Valid @ModelAttribute("criteria") Criteria criteria, BindingResult bindingResult, HttpServletRequest request, Model model) {
 		log.info("회원 목록 요청");
 		
 		int total = adminService.getTotalNumber();
@@ -49,7 +53,7 @@ public class AdminController {
 		log.info("일반 회원수 : {}", regular);
 		log.info("관리자 수 : {}", admin);
 		
-		List<MemberDTO> memberList = adminService.getMemberList();
+		List<MemberDTO> memberList = adminService.getMemberList(criteria);
 		List<MemberDTO> memberOnly = adminService.getMemberOnly();
 		List<MemberDTO> adminOnly = adminService.getAdminOnly();
 		List<MemberDTO> closedOnly = adminService.getClosedOnly();
@@ -63,7 +67,7 @@ public class AdminController {
 		model.addAttribute("memberOnly", memberOnly);
 		model.addAttribute("adminOnly", adminOnly);
 		model.addAttribute("closedOnly", closedOnly);
-		return "admin/member/list";
+		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(), 10, criteria));
 	}
 	
 	@GetMapping("/member/details")
@@ -75,7 +79,7 @@ public class AdminController {
 	
 	@PostMapping(value="/member/manageAuth", produces="application/json; charset=UTF-8")
 	@ResponseBody
-	public String changeAuth(@RequestParam Map<String, Object> params, HttpServletRequest request, String errorMessage, Model model) {
+	public String changeAuth(@RequestParam Map<String, Object> params, HttpServletRequest request) {
 		log.info("권한 수정 시작");
 		String optValue = params.get("optValue").toString();
 		int selected = Integer.parseInt(optValue);
@@ -88,9 +92,11 @@ public class AdminController {
 			log.info("현재 권한 수(1 : 일반회원, 2 : 관리자) : {}", current);
 			
 			if(current == 2 && selected == 2) {
-				model.addAttribute("errorMessage", idList[i] + "(은)는 이미 관리자입니다");
+				result = idList[i] + "(은)는 이미 관리자입니다";
+				log.info(result);
 			} else if(current == 1 && selected == 1) {
-				model.addAttribute("errorMessage", idList[i] + "(은)는 이미 일반회원입니다");
+				result = idList[i] + "(은)는 이미 일반회원입니다";
+				log.info(result);
 			} else if(current == 2 && selected == 1) { //현재 관리자에서 일반회원으로 변경
 				count += adminService.deleteAuthAsAdmin(idList[i]);
 			} else { //현재 일반회원에서 관리자로 변경
@@ -99,6 +105,7 @@ public class AdminController {
 			
 			if(idList.length == count) {
 				result = "성공";
+				log.info(result);
 			}
 		}
 		return result;
@@ -136,4 +143,5 @@ public class AdminController {
 		}
 		return result;
 	}
+	
 }

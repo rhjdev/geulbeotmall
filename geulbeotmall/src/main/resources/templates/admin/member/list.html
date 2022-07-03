@@ -11,6 +11,31 @@
 <body layout:fragment="content">
 	<h1>회원 목록</h1>
 	<hr>
+	<div class="search-container">
+		<form id="searchForm" name="searchForm" class="search-form" th:action="@{/admin/member/list}" method="get">
+			<select id="condition" name="condition" class="dataTable-selector">
+				<option value="id">아이디</option>
+				<option value="name">이름</option>
+				<option value="phone">연락처</option>
+				<option value="email">이메일</option>
+				<option value="address">주소</option>
+				<option value="creation">가입일</option>
+			</select>
+			<input type="search" name="keyword" value="" class="form-control search-bar" autocomplete="off">
+			<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+		</form>
+			<div class="calendar-container">
+				<div class="calendar-wrapper">
+					<div class="dateBox">
+						<input type="date">
+					</div>
+					<span>-</span>
+					<div class="dateBox">
+						<input type="date">
+					</div>
+				</div>
+			</div>
+	</div>
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
 			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 회원 <b th:text="${ total }" style="color: #ff0000;"></b></button>
@@ -32,7 +57,7 @@
             <table class="dataTable-table table-striped">
                 <thead>
                     <tr>
-                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
                     	<th><a href="#">번호</a></th>
                     	<th><a href="#">아이디</a></th>
                     	<th><a href="#">이름</a></th>
@@ -44,7 +69,7 @@
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="member, stat : ${ memberList }">
+                	<tr th:each="member, stat : ${ memberList }" th:if="${not #lists.isEmpty(memberList)}">
                 		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
                 		<td th:text="${ stat.count }"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
@@ -68,7 +93,7 @@
             <table class="dataTable-table table-striped">
                 <thead>
                     <tr>
-                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
                     	<th><a href="#">번호</a></th>
                     	<th><a href="#">아이디</a></th>
                     	<th><a href="#">이름</a></th>
@@ -104,7 +129,7 @@
             <table class="dataTable-table table-striped">
                 <thead>
                     <tr>
-                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
                     	<th><a href="#">번호</a></th>
                     	<th><a href="#">아이디</a></th>
                     	<th><a href="#">이름</a></th>
@@ -140,7 +165,7 @@
             <table class="dataTable-table table-striped">
                 <thead>
                     <tr>
-                    	<th><input type="checkbox" class="input-checkbox" id="checkAll"></th>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
                     	<th><a href="#">번호</a></th>
                     	<th><a href="#">아이디</a></th>
                     	<th><a href="#">탈퇴/정지 사유</a></th>
@@ -163,6 +188,9 @@
             </div>
 		</div>
 	</div>
+	<th:block layout:fragment="paging">
+		<nav th:replace="/fragments/paging.html :: paging"></nav>
+	</th:block>
     <div class="card mb-4">
     	<div class="card-body">
 	     	<label>선택한 회원 &nbsp;
@@ -176,7 +204,7 @@
 	    	&nbsp;&nbsp;&nbsp;
 	    	<button type="button" class="btn btn-outline-danger" onclick="suspendAcc()"><i class="fa-solid fa-ban"></i> 계정정지</button>
     		&nbsp;&nbsp;&nbsp;
-    		<button type="button" class="btn btn-outline-secondary" onclick="activateAcc()"><i class="fa-solid fa-arrow-rotate-left"></i>정지해제</button>
+    		<button type="button" class="btn btn-outline-secondary" onclick="activateAcc()"><i class="fa-solid fa-arrow-rotate-left"></i> 정지해제</button>
     	</div>
     </div>
     <!-- JS -->

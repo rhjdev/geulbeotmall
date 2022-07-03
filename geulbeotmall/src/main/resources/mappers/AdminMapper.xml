@@ -45,9 +45,20 @@
 		<collection property="susp" resultMap="suspResultMap"/>
 	</resultMap>
 	
-	<select id="getMemberList" resultMap="memberResultMap">
+	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
+		<![CDATA[
 		SELECT
-			   MEMBER_ID
+			  MEMBER_ID
+			 , NAME
+			 , PHONE
+			 , EMAIL
+			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
+			 , LATEST_LOGIN_DATE
+			 , ACC_CREATION_DATE
+		  FROM
+		(
+		SELECT ROWNUM R
+			 , MEMBER_ID
 			 , NAME
 			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
 			 , EMAIL
@@ -56,7 +67,12 @@
 			 , ACC_CREATION_DATE
 		  FROM TBL_MEMBER
 		 WHERE ACC_CLOSING_YN = 'N'
-		 ORDER BY ACC_CREATION_DATE
+		   AND ROWNUM <= #{ currentPageNo } * #{ recordsPerPage }
+		 ORDER BY ACC_CREATION_DATE DESC
+		)
+		WHERE R > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+		
 	</select>
 	
 	<select id="getMemberDetails" resultMap="memberResultMap">
@@ -83,7 +99,7 @@
 		 WHERE A.MEMBER_ID = #{ memberId }
 	</select>
 	
-	<select id="getTotalNumber" resultType="_int">
+	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
 			   COUNT(*)
 		  FROM TBL_MEMBER
