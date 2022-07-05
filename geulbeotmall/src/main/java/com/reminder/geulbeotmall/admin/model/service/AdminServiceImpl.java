@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.admin.model.dao.AdminMapper;
+import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
+import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
 @Service("adminService")
@@ -29,6 +31,16 @@ public class AdminServiceImpl implements AdminService {
 	public MemberDTO getMemberDetails(String memberId) {
 		MemberDTO member = adminMapper.getMemberDetails(memberId);
 		return member;
+	}
+	
+	@Override
+	public int getSuspCount(String memberId) {
+		return adminMapper.getSuspCount(memberId);
+	}
+	
+	@Override
+	public List<SuspDTO> getSuspDetails(String memberId) {
+		return adminMapper.getSuspDetails(memberId);
 	}
 	
 	/**

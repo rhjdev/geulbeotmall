@@ -37,6 +37,7 @@
 		<id property="suspNo" column="SUSP_NO"/>
 		<result property="accSuspCount" column="ACC_SUSP_COUNT"/>
 		<result property="accSuspDesc" column="ACC_SUSP_DESC"/>
+		<result property="accSuspDate" column="ACC_SUSP_DATE"/>
 		<association property="memberId" resultMap="memberResultMap"/>
 	</resultMap>
 	
@@ -48,26 +49,35 @@
 	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
 		<![CDATA[
 		SELECT
-			  MEMBER_ID
-			 , NAME
-			 , PHONE
-			 , EMAIL
-			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
-			 , LATEST_LOGIN_DATE
-			 , ACC_CREATION_DATE
+			   B.MEMBER_ID
+			 , B.NAME
+			 , B.PHONE
+			 , B.EMAIL
+			 , B.ADDRESS
+			 , B.LATEST_LOGIN_DATE
+			 , B.ACC_CREATION_DATE
 		  FROM
 		(
-		SELECT ROWNUM RM
-			 , MEMBER_ID
-			 , NAME
-			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
-			 , EMAIL
-			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
-			 , LATEST_LOGIN_DATE
-			 , ACC_CREATION_DATE
-		  FROM TBL_MEMBER
-		 WHERE ACC_CLOSING_YN = 'N'
-		   AND ROWNUM <= #{ currentPageNo } * #{ recordsPerPage }
+		SELECT A.RANK RK 
+			 , A.MEMBER_ID
+			 , A.NAME
+			 , A.PHONE
+			 , A.EMAIL
+			 , A.ADDRESS
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY ACC_CREATION_DATE) RANK
+		  			 , MEMBER_ID
+			 		 , NAME
+			 		 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+			 		 , EMAIL
+			 		 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
+			 		 , LATEST_LOGIN_DATE
+			 		 , ACC_CREATION_DATE 
+			 	 FROM TBL_MEMBER
+		 		WHERE ACC_CLOSING_YN = 'N') A
+		 WHERE A.RANK <= #{ currentPageNo } * #{ recordsPerPage }
 		]]>
 		<trim prefix="AND">
 		   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
@@ -77,9 +87,8 @@
 		   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
 		</trim>
 		<![CDATA[
-		 ORDER BY ACC_CREATION_DATE
-		)
-		WHERE RM > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		) B
+		WHERE B.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
 		]]>
 	</select>
 	
@@ -101,10 +110,30 @@
 			 , A.ACC_CHANGED_DATE
 			 , A.ACC_CLOSING_DATE
 			 , A.ACC_CLOSING_YN
+			 , C.AUTHORITY_DESC
 		  FROM TBL_MEMBER A
 		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
 		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		 WHERE A.MEMBER_ID = #{ memberId }
+		 GROUP BY A.MEMBER_ID, A.MEMBER_PWD, A.NAME, A.PHONE, A.EMAIL, A.ADDRESS, A.AGREEMENT, A.ACC_INACTIVE_YN, A.TEMP_PWD_YN, A.ACCUM_LOGIN_COUNT, A.LOGIN_FAILED_COUNT, A.LATEST_LOGIN_DATE, A.ACC_CREATION_DATE, A.ACC_CHANGED_DATE, A.ACC_CLOSING_DATE, A.ACC_CLOSING_YN, C.AUTHORITY_DESC
+	</select>
+	
+	<select id="getSuspDetails" resultMap="suspResultMap">
+		SELECT
+			   SUSP_NO
+			 , MEMBER_ID
+			 , ACC_SUSP_COUNT
+			 , ACC_SUSP_DESC
+			 , ACC_SUSP_DATE
+		  FROM (SELECT * FROM TBL_SUSP ORDER BY ACC_SUSP_DATE)
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
+	<select id="getSuspCount" resultType="_int">
+		SELECT
+			   NVL(MAX(ACC_SUSP_COUNT), 0)
+		  FROM TBL_SUSP
+		 WHERE MEMBER_ID = #{ memberId }
 	</select>
 	
 	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">

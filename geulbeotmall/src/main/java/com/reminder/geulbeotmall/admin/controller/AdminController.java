@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
@@ -72,8 +73,12 @@ public class AdminController {
 	
 	@GetMapping("/member/details")
 	public String getMemberDetails(@RequestParam("id") String memberId, Model model) {
-		MemberDTO member = adminService.getMemberDetails(memberId);
-		model.addAttribute("member", member);
+		MemberDTO detail = adminService.getMemberDetails(memberId);
+		List<SuspDTO> susp = adminService.getSuspDetails(memberId);
+		int suspCount = adminService.getSuspCount(memberId);
+		model.addAttribute("detail", detail);
+		model.addAttribute("susp", susp);
+		model.addAttribute("suspCount", suspCount);
 		return "admin/member/details";
 	}
 	

@@ -3,12 +3,94 @@
 <head>
 	<meta charset="UTF-8">
 	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
 </head>
 <body layout:fragment="content">
 	<h1>회원 상세 정보</h1>
 	<hr>
-	<div>
-		<div th:text="${ member.name }"></div>
+	<div class="container content-wrapper">
+	<th:block layout:fragment="toolbar">
+		<div th:replace="/fragments/toolbar.html :: toolbar" style="text-align: center;"></div>
+	</th:block>
+		<div class="infoBox">
+			<form>
+				<ul th:with="role=${ detail.roleList }">
+					<li class="th"><p>구분</p></li>
+					<li class="td" th:switch="${#lists.size(role)}">
+						<input th:case="1" type="text" id="isMember" name="isMember" th:value="일반회원" readonly>
+						<input th:case="2" type="text" id="isAdmin" name="isAdmin" th:value="관리자" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>아이디</p></li>
+					<li class="td">
+						<input type="text" id="memberId" name="memberId" th:value="${ detail.memberId }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>이름</p></li>
+					<li class="td">
+						<input type="text" id="name" name="name" th:value="${ detail.name }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>연락처</p></li>
+					<li class="td" th:with="phone=${ detail.phone }">
+						<input type="text" id="phone" name="phone" th:value="|${#strings.substring(phone, 0, 3)}-${#strings.substring(phone, 3, 7)}-${#strings.substring(phone, 7)}|" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>이메일</p></li>
+					<li class="td">
+						<input type="email" id="email" name="email" th:value="${ detail.email }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>주소</p></li>
+					<li class="td" th:with="address=${ detail.address }">
+						<input type="text" id="address" name="address" th:value="${#strings.replace(address,'$',' ')}" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>마케팅수신동의여부</p></li>
+					<li class="td">
+						<input type="text" id="agreement" name="agreement" th:value="${ detail.agreement }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>최근 로그인</p></li>
+					<li class="td">
+						<input type="text" id="latestLoginDate" name="latestLoginDate" th:value="${#dates.format(detail.latestLoginDate, 'yyyy-MM-dd HH:mm')}" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>계정 가입일</p></li>
+					<li class="td">
+						<input type="text" id="accCreationDate" name="accCreationDate" th:value="${#dates.format(detail.accCreationDate, 'yyyy-MM-dd HH:mm')}" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>누적 경고수 <b th:text="${ suspCount }" style="color: #ff0000;"></b></p></li>
+				</ul>
+				<ul th:each="susp : ${ susp }">
+					<li class="td">
+						<input type="text" id="accSuspDesc" name="accSuspDesc" th:value="|${ susp.accSuspCount }. ${ susp.accSuspDesc }(${#dates.format(susp.accSuspDate, 'yyyy-MM-dd')})|" readonly>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<div class="buttonBox">
+			<button type="button" class="btn btn-dark" onclick="javascript:window.history.go(-1);">뒤로가기</button>
+		</div>
 	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/customtable.js}" type="text/javascript"></script>
+	</th:block>
 </body>
 </html>

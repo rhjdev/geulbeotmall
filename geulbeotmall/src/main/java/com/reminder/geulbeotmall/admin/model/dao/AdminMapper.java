@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
@@ -13,7 +14,11 @@ public interface AdminMapper {
 	List<MemberDTO> getMemberList(Criteria criteria);
 
 	MemberDTO getMemberDetails(String memberId);
-
+	
+	List<SuspDTO> getSuspDetails(String memberId);
+	
+	int getSuspCount(String memberId);
+	
 	int getTotalNumber(Criteria criteria);
 
 	int getRegularNumber(Criteria criteria);
