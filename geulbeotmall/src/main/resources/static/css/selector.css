@@ -1,0 +1,85 @@
+@charset "UTF-8";
+
+.select2 {
+	width: 100% !important;
+	height: 44px !important;
+}
+
+/* 기본 셀렉트 태그와 높낮이 호환 */
+.select2-container {
+	display: inline-table !important;
+}
+
+.select2-container .select2-selection {
+	margin-bottom: 0px;
+}
+
+.select2-container--default .select2-selection--multiple {
+	border: 0 !important;
+	border-radius: 0 !important;
+	height: 100% !important;
+    min-height: 44px !important;
+    margin: 6px 0 !important;
+    display: inline-block !important;
+	width: 100% !important;
+}
+
+/* 선택 태그 */
+.select2-selection__rendered {
+	display: contents !important;
+	text-align: center;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+	background-color: #E5E5E5 !important;
+	border: 0 !important;
+	margin-left: 0.4rem !important;
+	margin-top: 0.6rem !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+	border-right: 0 !important;
+	color: #ff0000 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+	background-color: #fffbe3 !important;
+	border-bottom: 2px solid #6c757d !important;
+	color: #000 !important;
+}
+
+/* 선택된 옵션 표시 */
+.select2-container .select2-dropdown .select2-results ul .select2-results__option--highlighted[aria-selected] {
+  background-color: #e5e5e5;
+}
+
+/* 가로 스크롤 적용 */
+.selection {
+	width: 100% !important;
+	height: 100% !important;
+	position: absolute !important;
+	overflow-x: scroll !important;
+	overflow-y: hidden !important;
+	white-space: nowrap !important;
+}
+
+.section {
+	height: 100% !important;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar {
+	width: 2px;
+	height: 2px;
+	background-color: #e5e5e5;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #00008b;
+}
+
+.optionBox {
+	text-align: center;
+	margin-block-start: 5%;
+    margin-block-end: 3%;
+}

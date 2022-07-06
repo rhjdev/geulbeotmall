@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/selector.css}" rel="stylesheet">
+	    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>상품 등록</h1>
+	<hr>
+	<div class="container content-wrapper">
+		<div class="addBox">
+			<form id="addForm" name="addForm" class="add-form" method="post">
+				<ul>
+					<li class="th"><p>등록 구분</p></li>
+					<li class="td">
+						<select id="addSection" name="addSection" class="dataTable-selector selector">
+							<option value="new">신상품</option>
+							<option value="restock">재입고</option>
+						</select>
+						<input type="text" id="today" name="today" disabled>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>카테고리</p></li>
+					<li class="td">
+						<select id="categoryName" name="categoryName" class="dataTable-selector selector">
+							<option selected disabled>선택</option>
+							<option value="1">프리미엄펜</option>
+							<option value="2">펜/연필</option>
+							<option value="3">마커/컬러링</option>
+							<option value="4">디자인문구</option>
+							<option value="etc">새 카테고리 추가</option>
+						</select>
+						<input type="text" id="addNewCategory" name="addNewCategory" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품명</p></li>
+					<li class="td">
+						<input type="text" id="prodName" name="prodName">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품 설명</p></li>
+					<li class="td">
+						<input type="text" id="prodDesc" name="prodDesc">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>주요 특징</p></li>
+					<li class="td">
+						<select id="prodInfo" name="prodInfo" multiple>
+							<option value="1">유성펜</option>
+							<option value="2">다양한바디컬러</option>
+							<option value="3">고무그립적용</option>
+							<option value="4">중간굵기필기용</option>
+							<option value="5">세밀한필기용</option>
+							<option value="5">세밀한필기용</option>
+							<option value="5">세밀한필기용</option>
+						</select>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>할인율 및 원가</p></li>
+					<li class="td">
+						<select id="discountRate" name="discountRate" class="dataTable-selector selector">
+							<option selected disabled>할인율</option>
+							<option value="0">0%</option>
+							<option value="10">10%</option>
+							<option value="30">30%</option>
+						</select>
+						<input type="number" id="prodPrice" name="prodPrice">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>브랜드</p></li>
+					<li class="td">
+						<select id="prodBrand" name="prodBrand" class="dataTable-selector selector">
+							<option value="1">프리미엄펜</option>
+							<option value="2">펜/연필</option>
+							<option value="3">마커/컬러링</option>
+							<option value="4">디자인문구</option>
+							<option value="etc">새 브랜드 추가</option>
+						</select>
+						<input type="text" id="addNewBrand" name="addNewBrand" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>추가된 옵션</p></li>
+				</ul>
+				<ul>
+					<li class="td">
+						<input type="text" id="accSuspDesc" name="accSuspDesc" disabled>
+					</li>
+				</ul>
+				<hr>
+				<div class="card mb-4">
+   					<div class="card-body">
+						<ul>
+							<li class="th"><p>바디컬러</p></li>
+							<li class="td">
+								<select id="bodyColor" name="bodyColor" multiple>
+									<option value="1">피오니</option>
+									<option value="2">비올라</option>
+								</select>
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>잉크컬러</p></li>
+							<li class="td">
+								<select id="inkColor" name="inkColor" multiple>
+									<option value="1">블랙</option>
+									<option value="2">비올라</option>
+								</select>
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>심두께 및 스펙</p></li>
+							<li class="td">
+								<select id="pointSize" name="pointSize" multiple>
+									<option value="1">0.5mm</option>
+									<option value="2">0.7mm</option>
+									<option value="2">1.0mm</option>
+									<option value="2">1.2mm</option>
+								</select>
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>입고량</p></li>
+							<li class="td">
+								<input type="number" id="amount" name="amount" min="1" max="999">
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>옵션별 추가 금액</p></li>
+							<li class="td">
+								<input type="number" id="charge" name="charge">
+							</li>
+						</ul>
+						<div class="optionBox">
+							<button type="button" class="btn btn-outline-danger" onclick="">다시쓰기</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button" class="btn btn-outline-secondary" onclick="">옵션추가</button>
+						</div>
+   					</div>
+   				</div>
+   				<div class="buttonBox">
+					<button type="button" class="btn btn-dark" onclick="">상품등록</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/selector.js}" type="text/javascript"></script>
+    	<!-- Select2 -->
+    	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	</th:block>
+</body>
+</html>
