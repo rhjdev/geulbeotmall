@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 매퍼 네임스페이스 등록 후 사용해야 함 -->
+<mapper namespace="com.reminder.geulbeotmall.product.model.dao.ProductMapper">
+	<!-- 카테고리 조회용 -->
+	<resultMap id="categoryResultMap" type="com.reminder.geulbeotmall.product.model.dto.CategoryDTO">
+		<id property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY_NAME"/>
+	</resultMap>
+	
+	<!-- 카테고리 목록 조회 -->
+	<select id="getCategoryList" resultMap="categoryResultMap">
+		SELECT * FROM TBL_CATEGORY
+	</select>
+	
+	<!-- 카테고리 이름 조회 -->
+	<select id="checkCategoryName" parameterType="String" resultType="int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_CATEGORY
+		 WHERE REPLACE(TRIM(CATEGORY_NAME), ' ', '') = #{ categoryName }
+	</select>
+	
+	<!-- 카테고리 추가 -->
+	<insert id="addANewCategory">
+		INSERT
+		  INTO TBL_CATEGORY
+		(
+		  CATEGORY_NO
+		, CATEGORY_NAME
+		)
+		VALUES
+		(
+		  SEQ_CATE_NO.NEXTVAL
+		, #{ categoryName }
+		)
+	</insert>
+	
+	<!-- 입고 추가 -->
+	<insert id="addProductStock">
+		INSERT
+		  INTO TBL_STOCK
+		(
+		  STOCK_NO
+		, STOCK_AMOUNT
+		, STOCK_DATE
+		)
+		VALUES
+		(
+		  SEQ_STOCK_NO.NEXTVAL
+		, #{ stockAmount }
+		, SYSDATE
+		)
+	</insert>
+	
+	<!-- 옵션 추가 -->
+	<insert id="addProductOption">
+		<selectKey resultType="_int" keyProperty="stockNo" order="BEFORE">
+		SELECT
+			   SEQ_STOCK_NO.CURRVAL
+		  FROM DUAL
+		</selectKey>
+		INSERT
+		  INTO TBL_OPTION
+		(
+		  OPTION_NO
+		, STOCK_NO
+		, OPT_BODY_COLOR
+		, OPT_INK_COLOR
+		, OPT_POINT_SIZE
+		, OPT_EXTRA_CHARGE
+		)
+		VALUES
+		(
+		  SEQ_OPT_NO.NEXTVAL
+		, #{ stockNo }
+		, #{ bodyColor }
+		, #{ inkColor }
+		, #{ pointSize }
+		, #{ extraCharge }
+		)
+	</insert>
+</mapper>

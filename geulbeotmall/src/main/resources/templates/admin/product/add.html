@@ -28,14 +28,24 @@
 				</ul>
 				<hr>
 				<ul>
+					<li class="th"><p>대표 이미지</p></li>
+					<li class="td">
+						<input class="form-control" type="file" id="thumb" name="thumb">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>추가 이미지</p></li>
+					<li class="td">
+						<input class="form-control" type="file" id="image" name="image">
+					</li>
+				</ul>
+				<hr>
+				<!-- 현재 등록돼 있는 카테고리 목록 호출, 사용자가 추가 가능 -->
+				<ul>
 					<li class="th"><p>카테고리</p></li>
 					<li class="td">
-						<select id="categoryName" name="categoryName" class="dataTable-selector selector">
-							<option selected disabled>선택</option>
-							<option value="1">프리미엄펜</option>
-							<option value="2">펜/연필</option>
-							<option value="3">마커/컬러링</option>
-							<option value="4">디자인문구</option>
+						<select id="categoryName" name="categoryName" class="dataTable-selector selector" onchange="addACategory();">
+							<option th:each="category : ${ category }" th:value="${ category.categoryName }" th:text="${ category.categoryName }"></option>
 							<option value="etc">새 카테고리 추가</option>
 						</select>
 						<input type="text" id="addNewCategory" name="addNewCategory" disabled>
@@ -53,43 +63,39 @@
 						<input type="text" id="prodDesc" name="prodDesc">
 					</li>
 				</ul>
+				<!-- ProductTag ENUM 호출 -->
 				<ul>
 					<li class="th"><p>주요 특징</p></li>
 					<li class="td">
-						<select id="prodInfo" name="prodInfo" multiple>
-							<option value="1">유성펜</option>
-							<option value="2">다양한바디컬러</option>
-							<option value="3">고무그립적용</option>
-							<option value="4">중간굵기필기용</option>
-							<option value="5">세밀한필기용</option>
-							<option value="5">세밀한필기용</option>
-							<option value="5">세밀한필기용</option>
+						<select id="tag" name="tag" multiple>
+							<option th:each="tag : ${T(com.reminder.geulbeotmall.product.model.dto.ProductTag).values()}" th:value="${ tag.getLabel() }" th:text="${ tag.getLabel() }"></option>
 						</select>
 					</li>
 				</ul>
+				<!-- DiscountRate ENUM 호출 -->
 				<ul>
 					<li class="th"><p>할인율 및 원가</p></li>
 					<li class="td">
-						<select id="discountRate" name="discountRate" class="dataTable-selector selector">
-							<option selected disabled>할인율</option>
-							<option value="0">0%</option>
-							<option value="10">10%</option>
-							<option value="30">30%</option>
+						<select id="discount" name="discount" class="dataTable-selector selector">
+							<option th:each="rate : ${T(com.reminder.geulbeotmall.product.model.dto.DiscountRate).values()}" th:value="${ rate.name() }" th:text="|${ rate.getValue() }%|"></option>
 						</select>
 						<input type="number" id="prodPrice" name="prodPrice">
 					</li>
 				</ul>
+				<!-- 현재 등록돼 있는 브랜드 목록 호출, 사용자가 추가 가능 -->
 				<ul>
 					<li class="th"><p>브랜드</p></li>
 					<li class="td">
-						<select id="prodBrand" name="prodBrand" class="dataTable-selector selector">
-							<option value="1">프리미엄펜</option>
-							<option value="2">펜/연필</option>
-							<option value="3">마커/컬러링</option>
-							<option value="4">디자인문구</option>
-							<option value="etc">새 브랜드 추가</option>
+						<select id="brand" name="brand" class="dataTable-selector selector">
+							<option value="1"></option>
 						</select>
 						<input type="text" id="addNewBrand" name="addNewBrand" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>원산지</p></li>
+					<li class="td">
+						<input type="text" id="prodOrigin" name="prodOrigin">
 					</li>
 				</ul>
 				<ul>
@@ -97,38 +103,36 @@
 				</ul>
 				<ul>
 					<li class="td">
-						<input type="text" id="accSuspDesc" name="accSuspDesc" disabled>
+						<input type="text" id="addedOption" name="addedOption" disabled>
 					</li>
 				</ul>
 				<hr>
 				<div class="card mb-4">
    					<div class="card-body">
+   						<!-- ProductBodyColor ENUM 호출 -->
 						<ul>
 							<li class="th"><p>바디컬러</p></li>
 							<li class="td">
 								<select id="bodyColor" name="bodyColor" multiple>
-									<option value="1">피오니</option>
-									<option value="2">비올라</option>
+									<option th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}" th:value="${ body.getValue() }" th:text="${ body.getLabel() }"></option>
 								</select>
 							</li>
 						</ul>
+   						<!-- ProductInkColor ENUM 호출 -->
 						<ul>
 							<li class="th"><p>잉크컬러</p></li>
 							<li class="td">
 								<select id="inkColor" name="inkColor" multiple>
-									<option value="1">블랙</option>
-									<option value="2">비올라</option>
+									<option th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}" th:value="${ ink.getValue() }" th:text="${ ink.getLabel() }"></option>
 								</select>
 							</li>
 						</ul>
+   						<!-- PointSize ENUM 호출 -->
 						<ul>
 							<li class="th"><p>심두께 및 스펙</p></li>
 							<li class="td">
 								<select id="pointSize" name="pointSize" multiple>
-									<option value="1">0.5mm</option>
-									<option value="2">0.7mm</option>
-									<option value="2">1.0mm</option>
-									<option value="2">1.2mm</option>
+									<option th:each="size : ${T(com.reminder.geulbeotmall.product.model.dto.PointSize).values()}" th:value="${ size.getValue() }" th:text="|${ size.getValue() }mm|"></option>
 								</select>
 							</li>
 						</ul>
@@ -141,18 +145,18 @@
 						<ul>
 							<li class="th"><p>옵션별 추가 금액</p></li>
 							<li class="td">
-								<input type="number" id="charge" name="charge">
+								<input type="number" id="extraCharge" name="extraCharge">
 							</li>
 						</ul>
 						<div class="optionBox">
 							<button type="button" class="btn btn-outline-danger" onclick="">다시쓰기</button>
 							&nbsp;&nbsp;&nbsp;
-							<button type="button" class="btn btn-outline-secondary" onclick="">옵션추가</button>
+							<button type="button" class="btn btn-outline-secondary" onclick="addProductOption();">옵션추가</button>
 						</div>
    					</div>
    				</div>
    				<div class="buttonBox">
-					<button type="button" class="btn btn-dark" onclick="">상품등록</button>
+					<button type="button" class="btn btn-dark" onclick="submitProductForm()">상품등록</button>
 				</div>
 			</form>
 		</div>
@@ -160,6 +164,7 @@
 	<!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/selector.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/product.js}" type="text/javascript"></script>
     	<!-- Select2 -->
     	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

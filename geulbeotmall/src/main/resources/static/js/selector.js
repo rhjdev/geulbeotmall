@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	//Select2 적용
-	$('#prodInfo').select2();
+	$('#tag').select2();
 	$('#bodyColor').select2();
 	$('#inkColor').select2();
 	$('#pointSize').select2();
