@@ -86,8 +86,9 @@
 				<ul>
 					<li class="th"><p>브랜드</p></li>
 					<li class="td">
-						<select id="brand" name="brand" class="dataTable-selector selector">
-							<option value="1"></option>
+						<select id="brandName" name="brandName" class="dataTable-selector selector" onchange="addABrand();">
+							<option th:each="brand : ${ brand }" th:value="${ brand.brandName }" th:text="${ brand.brandName }"></option>
+							<option value="etc">새 브랜드 추가</option>
 						</select>
 						<input type="text" id="addNewBrand" name="addNewBrand" disabled>
 					</li>
@@ -103,7 +104,52 @@
 				</ul>
 				<ul>
 					<li class="td">
-						<input type="text" id="addedOption" name="addedOption" disabled>
+						<input type="text" id="addedOption0" name="addedOption1" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption1" name="addedOption1" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption2" name="addedOption2" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption3" name="addedOption3" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption4" name="addedOption4" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption5" name="addedOption5" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption6" name="addedOption6" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption7" name="addedOption7" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption8" name="addedOption8" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption9" name="addedOption9" disabled>
 					</li>
 				</ul>
 				<hr>
@@ -149,9 +195,9 @@
 							</li>
 						</ul>
 						<div class="optionBox">
-							<button type="button" class="btn btn-outline-danger" onclick="">다시쓰기</button>
+							<button type="button" id="deleteOpt" class="btn btn-outline-danger">다시쓰기</button>
 							&nbsp;&nbsp;&nbsp;
-							<button type="button" class="btn btn-outline-secondary" onclick="addProductOption();">옵션추가</button>
+							<button type="button" id="addOpt" class="btn btn-outline-secondary">옵션추가</button>
 						</div>
    					</div>
    				</div>

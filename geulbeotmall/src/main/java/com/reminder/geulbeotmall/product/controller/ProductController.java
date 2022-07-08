@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
 
@@ -41,6 +42,10 @@ public class ProductController {
 		/* 카테고리 목록 호출 */
 		List<CategoryDTO> category = productService.getCategoryList();
 		model.addAttribute("category", category);
+		
+		/* 브랜드 목록 호출 */
+		List<BrandDTO> brand = productService.getBrandList();
+		model.addAttribute("brand", brand);
 	}
 	
 	/**
@@ -70,6 +75,38 @@ public class ProductController {
 			int result = productService.addANewCategory(categoryName);
 			if(result == 1) {
 				log.info("새 카테고리 추가 완료 : {}", categoryName);
+			}
+		}
+		return mv;
+	}
+	
+	/**
+	 * @return 브랜드 중복 검사 및 새 브랜드 추가 결과
+	 */
+	@PostMapping(value="/admin/product/checkBrand", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public ModelAndView checkBrandName(@RequestBody Map<String, String> param, Locale locale) {
+		/* jsonView 적용 */
+		ModelAndView mv = new ModelAndView();
+		MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+		mv.setView(jsonView);
+		
+		/* 브랜드 중복 검사 */
+		String brandName = param.get("brand").replaceAll("\\s", ""); //문자 사이 공백제거 후 비교
+		log.info(brandName);
+		int brandCount = productService.checkBrandName(brandName);
+		log.info("브랜드 중복 조회 결과 : {}", brandCount);
+		
+		if(brandCount > 0) { //이미 존재하는 브랜드
+			String errorMessage = messageSource.getMessage("errorWhileAddingANewBrand", null, locale);
+			mv.addObject("errorMessage", errorMessage);
+			log.info(errorMessage);
+		}
+		
+		if(brandCount == 0) { //새 브랜드 추가
+			int result = productService.addANewBrand(brandName);
+			if(result == 1) {
+				log.info("새 브랜드 추가 완료 : {}", brandName);
 			}
 		}
 		return mv;
