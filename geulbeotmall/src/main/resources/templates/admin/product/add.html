@@ -15,7 +15,7 @@
 	<hr>
 	<div class="container content-wrapper">
 		<div class="addBox">
-			<form id="addForm" name="addForm" class="add-form" method="post">
+			<form id="addForm" name="addForm" class="add-form" method="post" enctype="multipart/form-data">
 				<ul>
 					<li class="th"><p>등록 구분</p></li>
 					<li class="td">
@@ -28,13 +28,13 @@
 				</ul>
 				<hr>
 				<ul>
-					<li class="th"><p>대표 이미지</p></li>
+					<li class="th"><p>대표 썸네일</p></li>
 					<li class="td">
 						<input class="form-control" type="file" id="thumb" name="thumb">
 					</li>
 				</ul>
 				<ul>
-					<li class="th"><p>추가 이미지</p></li>
+					<li class="th"><p>서브 썸네일</p></li>
 					<li class="td">
 						<input class="form-control" type="file" id="image" name="image">
 					</li>
@@ -201,6 +201,12 @@
 						</div>
    					</div>
    				</div>
+				<div class="contentBox">
+	   				<ul>
+						<li class="th"><p>상세 내용</p></li>
+					</ul>
+					<textarea id="detailContent" name="detailContent"></textarea>
+				</div>
    				<div class="buttonBox">
 					<button type="button" class="btn btn-dark" onclick="submitProductForm()">상품등록</button>
 				</div>
@@ -211,6 +217,20 @@
     <th:block layout:fragment="script">
     	<script th:src="@{/js/selector.js}" type="text/javascript"></script>
     	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    	
+    	<!-- CKEditor 4 -->
+	  	<script src="https://cdn.ckeditor.com/4.19.0/standard/ckeditor.js"></script>
+	  	<script type="text/javascript">
+	  	$(function() {
+			let ckeditor_config = {
+					filebrowserUploadMethod : 'form',
+					filebrowserUploadUrl : '/admin/product/add/uploadProductDetailImage',
+					language : 'ko'
+			};
+			CKEDITOR.replace('detailContent', ckeditor_config);
+	  	});
+		</script>
+		
     	<!-- Select2 -->
     	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

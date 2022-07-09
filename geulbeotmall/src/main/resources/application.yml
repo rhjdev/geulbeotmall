@@ -18,3 +18,11 @@ mybatis:
 logging:
   level:
     '[com.reminder.geulbeot]': debug
+
+# image
+resource:
+  handler: /admin/product/add/image/**
+  location: file:///D:/imageUpload/
+image:
+  upload:
+    path: D:\\imageUpload

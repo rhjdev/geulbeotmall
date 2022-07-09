@@ -12,9 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.reminder.geulbeotmall.handler.LoginFailHandler;
+import com.reminder.geulbeotmall.handler.LoginSuccessHandler;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
-
-import lombok.extern.slf4j.Slf4j;
 
 @EnableWebSecurity
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { //Adapter 객체는 필요한 옵션들만 선택적으로 오버라이딩하여 사용 가능
@@ -30,7 +29,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/css/**", "/js/**", "/img/**");
+		web.ignoring().antMatchers("/css/**", "/js/**", "/image/**");
 	}
 
 	@Override
@@ -47,8 +46,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 				.antMatchers("/order/**").authenticated()
 				.antMatchers(HttpMethod.GET, "/order/**").hasRole("MEMBER")
 				.antMatchers(HttpMethod.POST, "order/**").hasRole("ADMIN")
-				.antMatchers("/admin/**").hasRole("ADMIN")
-				.antMatchers("/member/mypage").hasRole("MEMBER")
+				//.antMatchers("/admin/**").hasRole("ADMIN")
+				//.antMatchers("/member/mypage").hasRole("MEMBER")
 				.anyRequest().permitAll()
 			/* 로그인 */
 			.and()
@@ -56,6 +55,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 				.loginPage("/member/signin")											//로그인 페이지
 				.successForwardUrl("/")													//성공 시 랜딩 페이지
 				.failureHandler(loginFailHandler())										//실패 시 핸들러(AuthenticationFailureHandler 타입의 클래스 먼저 설정, 하단에 bean으로 등록, 해당 bean 호출)
+				//.successHandler(loginSuccessHandler())									//성공 시 핸들러
 			/* 로그아웃 */
 			.and()
 				.logout()																//로그아웃 설정
@@ -66,7 +66,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 			/* 인증/인가 */
 			.and()
 				.exceptionHandling()													//예외 처리
-				.accessDeniedPage("/common/denied");									//권한 없는 등 인가되지 않을 시 이동 페이지
+				.accessDeniedPage("/common/denied") 									//권한 없는 등 인가되지 않을 시 이동 페이지
+			/* 에디터 적용 중 X-Frame-Options로 인한 오류 처리
+			 * Refused to display in a frame because it set 'X-Frame-Options' to 'deny'. */
+			.and()
+				.headers()
+				.frameOptions().sameOrigin();
 	}
 	
 	/**
@@ -76,5 +81,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 	public LoginFailHandler loginFailHandler() {
 		return new LoginFailHandler();
 	}
-
+	
+	/**
+	 * 로그인 성공 핸들러
+	 */
+	@Bean
+	public LoginSuccessHandler loginSuccessHandler() {
+		return new LoginSuccessHandler();
+	}
 }
