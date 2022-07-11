@@ -1,3 +1,19 @@
+/* 이미지 미리보기 */
+let fileItems = document.querySelectorAll('[type=file]');
+let imageBox = document.querySelectorAll('.imageBox');
+fileItems.forEach(item => item.addEventListener('change', previewImage));
+
+function previewImage() {
+	let index = Array.from(fileItems).indexOf(this);
+	if(this.files && this.files[0]) {
+		let reader = new FileReader();
+		reader.readAsDataURL(this.files[0]);
+		reader.onload = function() {
+			imageBox[index].innerHTML = "<img src='" + reader.result + "'>";
+		}
+	}
+}
+
 /* 새 카테고리 추가 */
 function addACategory() {
 let category = document.getElementById('categoryName').value;
@@ -107,14 +123,26 @@ function addABrand() {
 }
 
 /* 태그 선택값 확인 */
+let tagArr = "";
 $('#tag').on('change', function(){
-	let tagArr = { value : $('#tag').val() };
+	tagArr = $('#tag').val().join('$');
 	console.log(tagArr);
 });
 
 /* 옵션 추가 */
+let bodyColor = new Array();
+let inkColor = new Array();
+let pointSize = new Array();
+let stockAmount = new Array();
+let extraCharge = new Array();
 let optArr = new Array();
 $('#addOpt').on('click', function(){
+	bodyColor.push($('#bodyColor option:checked').text());
+	inkColor.push($('#inkColor option:checked').text());
+	pointSize.push($('#pointSize option:checked').val());
+	stockAmount.push($('#amount').val());
+	extraCharge.push($('#extraCharge').val());
+	
 	optArr.push({bodyColor : $('#bodyColor option:checked').text(),
 				 inkColor : $('#inkColor option:checked').text(),
 				 pointSize : $('#pointSize option:checked').val(),
@@ -158,20 +186,93 @@ $('#deleteOpt').on('click', function(){
 	}
 });
 
+/* 대표썸네일 */
+let mainThumb = "";
+$('#mainThumb').on('change', function(){
+	mainThumb = $('#mainThumb').val();
+});
+
+/* 서브썸네일 */
+let subThumb = "";
+$('#subThumb').on('change', function(){
+	subThumb = $('#subThumb').val();
+});
+
 function submitProductForm() {
+	
 	//카테고리
 	let category = document.getElementById('categoryName').value;
-	console.log("categoryName : " + category);
 	if(category == 'etc') {
 		category = document.getElementById('addNewCategory').value;
-		console.log("addNewCategory : " + category);
 	}
 	console.log(category);
 	
+	//상품명
+	let prodName = document.getElementById('prodName').value;
+	console.log(prodName);
+	
+	//상품설명
+	let prodDesc = document.getElementById('prodDesc').value;
+	console.log(prodDesc);
+	
+	//주요특징태그
+	console.log(tagArr);
+	
+	//할인율
+	let discountRate = document.getElementById('discount').value;
+	console.log(discountRate);
+	
+	//원가
+	let prodPrice = document.getElementById('prodPrice').value;
+	console.log(prodPrice);
+	
+	//브랜드
+	let brand = document.getElementById('brandName').value;
+	if(brand == 'etc') {
+		brand = document.getElementById('brandName').value;
+	}
+	console.log(brand);
+	
+	//원산지
+	let prodOrigin = document.getElementById('prodOrigin').value;
+	console.log(prodOrigin);
+	
+	//추가된옵션
+	console.log(optArr);
+	
+	//상세내용
+	let prodDetailContent = CKEDITOR.instances['prodDetailContent'].getData();
+	console.log(prodDetailContent);
+	
+	//대표썸네일
+	console.log(mainThumb);
+	//서브썸네일
+	console.log(subThumb);
+	
+	let params = { category : category
+				 , prodName : prodName
+				 , prodDesc : prodDesc
+				 , tagArr : tagArr
+				 , discountRate : discountRate
+				 , prodPrice : prodPrice
+				 , brand : brand
+				 , prodOrigin : prodOrigin
+				 , prodDetailContent : prodDetailContent
+				 , bodyColor : bodyColor
+				 , inkColor : inkColor
+				 , pointSize : pointSize
+				 , stockAmount : stockAmount
+				 , extraCharge : extraCharge
+				 , optArrLength : optArr.length
+				 , mainThumb : mainThumb
+				 , subThumb : subThumb
+				 };
+	
 	$.ajax({
-		url : '/admin/product/addOption',
-		data : JSON.stringify(param),
+		url : '/admin/product/add',
+		data : JSON.stringify(params),
 		type : 'post',
+		traditional : true,
 		beforeSend : function(xhr) {
 			xhr.setRequestHeader("Accept", "application/json");
 			xhr.setRequestHeader("Content-Type", "application/json");

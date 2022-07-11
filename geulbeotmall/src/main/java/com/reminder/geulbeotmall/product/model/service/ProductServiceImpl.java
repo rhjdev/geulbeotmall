@@ -23,6 +23,11 @@ public class ProductServiceImpl implements ProductService {
 	public List<CategoryDTO> getCategoryList() {
 		return productMapper.getCategoryList();
 	}
+	
+	@Override
+	public int checkCategoryNo(String categoryName) {
+		return productMapper.checkCategoryNo(categoryName);
+	}
 
 	@Override
 	public int checkCategoryName(String categoryName) {
@@ -37,6 +42,11 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<BrandDTO> getBrandList() {
 		return productMapper.getBrandList();
+	}
+	
+	@Override
+	public int checkBrandNo(String brandName) {
+		return productMapper.checkBrandNo(brandName);
 	}
 	
 	@Override
@@ -57,5 +67,11 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public int addProductOption(String bodyColor, String inkColor, double pointSize, int extraCharge) {
 		return productMapper.addProductOption(bodyColor, inkColor, pointSize, extraCharge);
+	}
+
+	@Override
+	public int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
+			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent) {
+		return productMapper.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
 	}
 }

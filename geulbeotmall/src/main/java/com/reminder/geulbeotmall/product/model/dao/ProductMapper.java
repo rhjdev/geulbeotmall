@@ -11,12 +11,16 @@ import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 public interface ProductMapper {
 
 	List<CategoryDTO> getCategoryList();
+	
+	int checkCategoryNo(String categoryName);
 
 	int checkCategoryName(String categoryName);
 
 	int addANewCategory(String categoryName);
 
 	List<BrandDTO> getBrandList();
+	
+	int checkBrandNo(String brandName);
 	
 	int checkBrandName(String brandName);
 	
@@ -25,4 +29,7 @@ public interface ProductMapper {
 	int addProductStock(int stockAmount);
 
 	int addProductOption(String bodyColor, String inkColor, double pointSize, int extraCharge);
+
+	int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
+			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent);
 }
