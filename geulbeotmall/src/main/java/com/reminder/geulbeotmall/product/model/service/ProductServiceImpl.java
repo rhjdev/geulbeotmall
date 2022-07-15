@@ -4,10 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 @Service("productService")
 public class ProductServiceImpl implements ProductService {
@@ -73,5 +77,16 @@ public class ProductServiceImpl implements ProductService {
 	public int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
 			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent) {
 		return productMapper.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
+	}
+
+	@Override
+	public int attachProdThumbnail(ProductDTO thumbnail) {
+		return productMapper.attachProdThumbnail(thumbnail);
+	}
+	
+	@Transactional(propagation=Propagation.MANDATORY)
+	@Override
+	public int attachProdContentImage(AttachmentDTO attachment) {
+		return productMapper.attachProdContentImage(attachment);
 	}
 }

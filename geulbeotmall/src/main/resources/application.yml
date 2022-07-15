@@ -9,7 +9,10 @@ spring:
     url: jdbc:oracle:thin:@localhost:1521:xe
     username: C##GBMALL
     password: GBMALL
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 # mybatis config
 mybatis:
   mapper-locations: mappers/**/*.xml
@@ -18,11 +21,3 @@ mybatis:
 logging:
   level:
     '[com.reminder.geulbeot]': debug
-
-# image
-resource:
-  handler: /admin/product/add/image/**
-  location: file:///D:/imageUpload/
-image:
-  upload:
-    path: D:\\imageUpload

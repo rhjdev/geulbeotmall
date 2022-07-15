@@ -148,7 +148,4 @@ public class AdminController {
 		}
 		return result;
 	}
-	
-	@GetMapping("/product/add")
-	public void addProduct() {}
 }

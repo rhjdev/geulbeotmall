@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 @Mapper
 public interface ProductMapper {
@@ -32,4 +34,8 @@ public interface ProductMapper {
 
 	int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
 			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent);
+
+	int attachProdThumbnail(ProductDTO thumbnail);
+
+	int attachProdContentImage(AttachmentDTO attachment);
 }

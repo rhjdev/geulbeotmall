@@ -187,7 +187,7 @@ input[type="search"]::-webkit-search-cancel-button {
 	list-style: none;
 }
 
-.infoBox, .addBox {
+.infoBox, .addBox, .contentBox, .thumbnailBox {
 	width: 100%;
     border-top: 3px solid #000;
     margin-top: 30px;

@@ -149,6 +149,7 @@
 		, ORIG_FILE_NAME
 		, SAVE_FILE_NAME
 		, SAVE_PATH
+		, THUMBNAIL_PATH
 		, FILE_TYPE
 		, ATTACH_STATUS_YN
 		)
@@ -160,13 +161,14 @@
 		, #{ origFileName }
 		, #{ saveFileName }
 		, #{ savePath }
-		, 'THUMB'
+		, #{ thumbnailPath }
+		, #{ fileType }
 		, DEFAULT
 		)
 	</insert>
 	
-	<!-- 상품 디테일이미지 등록 -->
-	<insert id="attachProdDetailImage">
+	<!-- 상품 상세내용이미지 등록 -->
+	<insert id="attachProdContentImage">
 	<selectKey keyProperty="refProdNo" resultType="Integer" order="BEFORE">
 		SELECT
 			   SEQ_PROD_NO.CURRVAL
@@ -181,6 +183,7 @@
 		, ORIG_FILE_NAME
 		, SAVE_FILE_NAME
 		, SAVE_PATH
+		, THUMBNAIL_PATH
 		, FILE_TYPE
 		, ATTACH_STATUS_YN
 		)
@@ -192,7 +195,8 @@
 		, #{ origFileName }
 		, #{ saveFileName }
 		, #{ savePath }
-		, 'CONTENT'
+		, #{ thumbnailPath }
+		, #{ fileType }
 		, DEFAULT
 		)
 	</insert>

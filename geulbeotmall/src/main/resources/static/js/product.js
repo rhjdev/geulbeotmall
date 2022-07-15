@@ -270,13 +270,10 @@ function submitProductForm() {
 	
 	$.ajax({
 		url : '/admin/product/add',
+		contentType: 'application/json',
 		data : JSON.stringify(params),
 		type : 'post',
 		traditional : true,
-		beforeSend : function(xhr) {
-			xhr.setRequestHeader("Accept", "application/json");
-			xhr.setRequestHeader("Content-Type", "application/json");
-		},
 		success : function(data){
 			if(data.errorMessage) {
 				Swal.fire({
