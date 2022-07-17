@@ -12,8 +12,8 @@
 	<h1>회원 상세 정보</h1>
 	<hr>
 	<div class="container content-wrapper">
-	<th:block layout:fragment="toolbar">
-		<div th:replace="/fragments/toolbar.html :: toolbar" style="text-align: center;"></div>
+	<th:block layout:fragment="memberToolbar">
+		<div th:replace="/fragments/toolbar.html :: memberToolbar" style="text-align: center;"></div>
 	</th:block>
 		<div class="infoBox">
 			<form>
@@ -90,7 +90,7 @@
 	</div>
 	<!-- JS -->
     <th:block layout:fragment="script">
-    	<script th:src="@{/js/customtable.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/manageMemberList.js}" type="text/javascript"></script>
 	</th:block>
 </body>
 </html>

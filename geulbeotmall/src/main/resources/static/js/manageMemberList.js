@@ -1,14 +1,14 @@
 /* 전체 선택 */
 $('.checkAll').click(function(){
     if($('.checkAll').is(':checked')) {
-        $('.member').prop('checked', true);
+        $('.item').prop('checked', true);
     } else {
-        $('.member').prop('checked', false);
+        $('.item').prop('checked', false);
     }
 });
 
-$('.member').click(function(){
-    if($('input[name=checkMember]:checked').length == $('.member').length) {
+$('.item').click(function(){
+    if($('input[name=checkItem]:checked').length == $('.item').length) {
         $('.checkAll').prop('checked', true);
     } else {
         $('.checkAll').prop('checked', false);
@@ -18,31 +18,13 @@ $('.member').click(function(){
 /* 탭 이동 시 체크박스 초기화 */
 $('.nav-link').click(function(){
 	$('.checkAll').prop('checked', false);
-	$('.member').prop('checked', false);
+	$('.item').prop('checked', false);
 });
-
-/* 검색어 유무 확인 */
-function checkKeyword() {
-	let keyword = $('input[name=keyword]').val();
-	if(keyword.length == 0) {
-		Swal.fire({
-			icon: 'warning',
-			title: '검색어를 입력하세요',
-			confirmButtonColor: '#00008b',
-			confirmButtonText: '확인'
-		}).then((result) => {
-			if(result.isConfirmed) {
-				window.location.assign('/admin/member/list');
-			}
-		})
-		e.preventDefault(); //페이지 이동 이벤트 막기
-	}
-}
 
 /* 권한관리 */
 function manageAuth() {
 	let optValue = document.getElementById('authValue').value;
-	let checkbox = $('input[name=checkMember]:checked');
+	let checkbox = $('input[name=checkItem]:checked');
 	let detailId = $('input[name=memberId]').val();
 	let memberId = "";
 	let arr = new Array();
@@ -118,7 +100,7 @@ function manageAuth() {
 
 /* 계정정지 */
 function suspendAcc() {
-	let checkbox = $('input[name=checkMember]:checked');
+	let checkbox = $('input[name=checkItem]:checked');
 	let detailId = $('input[name=memberId]').val();
 	let memberId = "";
 	let accSuspDesc = "";
@@ -181,7 +163,9 @@ function suspendAcc() {
 				}
 	  		}
 		})
-	} else {
+	}
+	
+	if(checkbox.length != 1) {
 		Swal.fire({
 			icon: 'warning',
 			title: '1개의 계정을 체크하세요',
@@ -197,7 +181,7 @@ function suspendAcc() {
 
 /* 계정정지해제 */
 function activateAcc() {
-	let checkbox = $('input[name=checkMember]:checked');
+	let checkbox = $('input[name=checkItem]:checked');
 	let arr = new Array();
 	checkbox.each(function(i){
 		let tr = checkbox.parent().parent().eq(i);
