@@ -14,24 +14,30 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
@@ -46,6 +52,10 @@ import net.coobird.thumbnailator.Thumbnails;
 @Slf4j
 @Controller
 public class ProductController {
+	
+	//썸네일 크기
+	public static final int THUMB_WIDTH_SIZE = 300;
+	public static final int THUMB_HEIGHT_SIZE = 300;
 	
 	private final ProductService productService;
 	private final MessageSource messageSource;
@@ -136,142 +146,17 @@ public class ProductController {
 	
 	/**
 	 * 새 상품 및 상품 썸네일 등록
+	 * !Spring Boot 개발 환경에서는 src/main 하위에 webapp 폴더를 직접 생성해야 함!
 	 */
-	@PostMapping("/admin/product/add")
+	@PostMapping(value="/admin/product/add", consumes={MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	@ResponseBody
-	public ModelAndView addProduct(@RequestBody Map<String, Object> params, HttpServletRequest request, HttpServletResponse response, Locale locale) {
+	public ModelAndView addProduct(@RequestPart("params") Map<String, Object> params, @RequestParam(value="files", required=false) List<MultipartFile> files, HttpServletRequest request, HttpServletResponse response, Locale locale) {
 		/* jsonView 적용 */
 		ModelAndView mv = new ModelAndView();
 		MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
 		mv.setView(jsonView);
 		
-		log.info("상품 썸네일 추가 시작");
-		
-		String realPath = request.getSession().getServletContext().getRealPath("/");
-		log.info("src/main/webapp : {}", realPath);
-		
-		String originalUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "original";
-		String thumbnailUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "thumbnail";
-		File originalDirectory = new File(originalUploadPath);
-		File thumbnailDirectory = new File(thumbnailUploadPath);
-		
-		if(!originalDirectory.exists() || !thumbnailDirectory.exists()) { //지정 폴더가 존재하지 않을 시 생성
-			originalDirectory.mkdirs(); //생성할 폴더가 하나이면 mkdir, 상위 폴더도 존재하지 않으면 한 번에 생성하란 의미로 mkdirs를 이용
-			thumbnailDirectory.mkdirs();
-		}
-		
-		
-		/* parsing 된 request 파일을 저장한 뒤
-		 * 파일에 대한 정보는 List에, 다른 파라미터 정보는 모두 Map에 담김 */
-		Map<String, String> parameter = new HashMap<>();
-		List<Map<String, String>> fileList = new ArrayList<>();
-		
-		int maxFileSize = 1024 * 1024 * 10;
-		
-		/* 파일을 업로드할 때 최대 크기, 임시 저장할 폴더의 경로 등을 포함하기 위한 인스턴스 */
-		DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
-		fileItemFactory.setRepository(new File(originalUploadPath));
-		fileItemFactory.setSizeThreshold(maxFileSize);
-		
-		ServletFileUpload fileUpload = new ServletFileUpload();
-		
-		try {
-			List<FileItem> fileItems = fileUpload.parseRequest(request);
-			
-			for(FileItem item : fileItems) {
-				log.info(item.toString());
-			}
-			
-			for(int i=0; i < fileItems.size(); i++) {
-				FileItem item = fileItems.get(i);
-				
-				if(!item.isFormField()) {
-					if(item.getSize() > 0) {
-						String filedName = item.getFieldName();
-						String origFileName = item.getName();
-						
-						int dot = origFileName.lastIndexOf(".");
-						String extension = origFileName.substring(dot);
-						
-						String randomFileName = UUID.randomUUID().toString().replace("-", "") + extension;
-						
-						File storeFile = new File(originalUploadPath + "/" + randomFileName);
-						
-						item.write(storeFile);
-						
-						Map<String, String> fileMap = new HashMap<>();
-						fileMap.put("filedName", filedName);
-						fileMap.put("origFileName", origFileName);
-						fileMap.put("saveFileName", randomFileName);
-						fileMap.put("savePath", originalUploadPath);
-						
-						int width = 0;
-						int height = 0;
-						if("thumbnail".equals(filedName)) {
-							fileMap.put("fileType", "THUMB");
-							
-							width = 200;
-							height = 200;
-						} else {
-							fileMap.put("fileType", "CONTENT");
-						}
-						
-						Thumbnails.of(originalUploadPath + randomFileName)
-								  .size(width, height)
-								  .toFile(thumbnailDirectory + "s_" + randomFileName);
-						
-						fileMap.put("thumbnailPath", "/resources/upload/thumbnail/s_" + randomFileName);
-						
-						fileList.add(fileMap);
-					}
-				} else {
-					parameter.put(item.getFieldName(), new String(item.getString().getBytes("ISO-8859-1"), "UTF-8"));
-				}
-			}
-			
-			log.info("parameter : {}", parameter);
-			log.info("fileList : {}", fileList);
-			
-			ProductDTO thumbnail = new ProductDTO();
-			thumbnail.setAttachmentList(new ArrayList<AttachmentDTO>());
-			List<AttachmentDTO> list = thumbnail.getAttachmentList();
-			for(int i=0; i < fileList.size(); i++) {
-				Map<String, String> file = fileList.get(i);
-				
-				AttachmentDTO tempFileInfo = new AttachmentDTO();
-				tempFileInfo.setOrigFileName(file.get("origFileName"));
-				tempFileInfo.setSaveFileName(file.get("saveFileName"));
-				tempFileInfo.setSavePath(file.get("savePath"));
-				tempFileInfo.setFileType(file.get("fileType"));
-				tempFileInfo.setThumbnailPath(file.get("thumbnailPath"));
-				
-				list.add(tempFileInfo);
-			}
-			
-			log.info("product thumbnail : {}" + thumbnail);
-			
-			int thumbResult = productService.attachProdThumbnail(thumbnail);
-		} catch (Exception e) {
-
-			int count = 0;
-			for(int i=0; i < fileList.size(); i++) {
-				Map<String, String> file = fileList.get(i);
-				
-				File deleteFile = new File(originalUploadPath + "/" + file.get("saveFileName"));
-				boolean isDeleted = deleteFile.delete();
-				
-				if(isDeleted) count++;
-			}
-			
-			if(count == fileList.size()) {
-				log.info("업로드에 실패한 모든 사진 삭제 완료");
-				e.printStackTrace();
-			} else {
-				e.printStackTrace();
-			}
-		}
-		
-		//상품 추가
+		/* 상품 추가 */
 		String categoryName = params.get("category").toString();
 		int categoryNo = productService.checkCategoryNo(categoryName);
 		String prodName = params.get("prodName").toString();
@@ -281,9 +166,25 @@ public class ProductController {
 		int prodPrice = Integer.parseInt(params.get("prodPrice").toString());
 		String brandName = params.get("brand").toString();
 		int brandNo = productService.checkBrandNo(brandName);
+		log.info("brandName : {}", brandName);
+		log.info("brandNo : {}", brandNo);
 		String prodOrigin = params.get("prodOrigin").toString();
 		String prodDetailContent = params.get("prodDetailContent").toString();
-		int result = productService.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
+		
+		//ProductDTO 객체에 값으로 설정
+		ProductDTO product = new ProductDTO();
+		product.setCategoryNo(categoryNo);
+		product.setProdName(prodName);
+		product.setProdDesc(prodDesc);
+		product.setProductTag(productTag);
+		product.setDiscountRate(discountRate);
+		product.setProdPrice(prodPrice);
+		product.setBrandNo(brandNo);
+		product.setProdOrigin(prodOrigin);
+		product.setProdDetailContent(prodDetailContent);
+		
+		//상품 정보 추가
+		int addresult = productService.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
 		
 		int totalOptionNumber = Integer.parseInt(params.get("optArrLength").toString());
 		log.info("사용자가 추가한 총 옵션 개수 : {}", totalOptionNumber);
@@ -317,10 +218,89 @@ public class ProductController {
 			productService.addProductOption(option.getBodyColor(), option.getInkColor(), option.getPointSize(), option.getExtraCharge());
 		}
 		
-		if(result == 1) {
-			mv.addObject("errorMessage", "성공");
+		log.info("상품 썸네일 추가 시작");
+		
+		String realPath = request.getSession().getServletContext().getRealPath("/");
+		log.info("src/main/webapp : {}", realPath);
+		
+		String originalUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "original";
+		String thumbnailUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "thumbnail";
+		File originalDirectory = new File(originalUploadPath);
+		File thumbnailDirectory = new File(thumbnailUploadPath);
+		
+		if(!originalDirectory.exists() || !thumbnailDirectory.exists()) { //지정 폴더가 존재하지 않을 시 생성
+			originalDirectory.mkdirs(); //생성할 폴더가 하나이면 mkdir, 상위 폴더도 존재하지 않으면 한 번에 생성하란 의미로 mkdirs를 이용
+			thumbnailDirectory.mkdirs();
+		}
+		
+		/* 이게 최종적으로 request를 parsing하고 파일을 저장한 뒤 필요한 내용을 담을 리스트와 맵이다.
+		 * 파일에 대한 정보는 리스트에, 다른 파라미터의 정보는 모두 맵에 담을 것이다.
+		 * */
+		Map<String, String> fileMap = new HashMap<>();
+		List<Map<String, String>> fileList = new ArrayList<>();
+		
+		for(MultipartFile file : files) {
+			UUID uuid = UUID.randomUUID(); //랜덤 문자 생성
+			
+			String origFileName = file.getOriginalFilename(); //원본파일명
+			
+			String extension = FilenameUtils.getExtension(origFileName); //확장자
+			String randomFileName = uuid.toString().replace("-", "") + "." + extension; //랜덤파일명
+			
+			try {
+				//원본 크기 파일을 original 폴더에 저장
+				File target = new File(originalUploadPath, randomFileName);
+				byte[] bytes = file.getBytes();
+				FileCopyUtils.copy(bytes, target);
+				
+				String origFileUrl = "/upload/product/original/" + uuid.toString().replace("-", "") + "." + extension;
+				fileMap.put("origFileName", origFileName);
+				fileMap.put("saveFileName", randomFileName);
+				fileMap.put("savePath", origFileUrl);
+				
+				//썸네일 파일을 thumbnail 폴더에 저장
+				Thumbnails.of(originalUploadPath + File.separator + randomFileName) //썸네일로 변환 후 저장
+						  .size(THUMB_WIDTH_SIZE, THUMB_HEIGHT_SIZE)
+						  .toFile(thumbnailUploadPath + File.separator + "thumbnail_" + randomFileName);
+				fileMap.put("thumbnailPath", "/upload/product/thumbnail/thumbnail_" + randomFileName); //웹서버에서 접근 가능한 형태로 썸네일의 저장 경로 작성
+				
+				fileList.add(fileMap);
+				
+				//현재 상품번호 조회
+				int currProdNo = productService.checkCurrProdNo();
+				
+				//product 객체의 AttachmentList 설정
+				product.setAttachmentList(new ArrayList<AttachmentDTO>());
+				List<AttachmentDTO> list = product.getAttachmentList();
+				log.info("fileList size : {}", fileList.size());
+				
+				AttachmentDTO tempFileInfo = new AttachmentDTO();
+				for(int i=0; i < fileList.size(); i++) {
+					tempFileInfo.setRefProdNo(currProdNo);
+					tempFileInfo.setOrigFileName(fileList.get(i).get("origFileName"));
+					tempFileInfo.setSaveFileName(fileList.get(i).get("saveFileName"));
+					tempFileInfo.setSavePath(fileList.get(i).get("savePath"));
+					tempFileInfo.setThumbnailPath(fileList.get(i).get("thumbnailPath"));
+					
+					if(i == 0) { //index 기준으로 첫번째 첨부 이미지는 메인썸네일, 그 다음은 서브썸네일에 해당
+						tempFileInfo.setFileType("THUMB_MAIN");
+					} else {
+						tempFileInfo.setFileType("THUMB_SUB");
+					}
+					
+					
+					list.add(tempFileInfo);
+				}
+				productService.attachProdThumbnail(tempFileInfo);
+			} catch (IOException e) { e.printStackTrace(); }
+		}
+		
+		if(addresult == 1) {
+			String successMessage = messageSource.getMessage("productAddedSuccessfully", null, locale);
+			mv.addObject("successMessage", successMessage);
 		} else {
-			mv.addObject("errorMessage", "오류 발생");
+			String errorMessage = messageSource.getMessage("errorWhileAddingAProduct", null, locale);
+			mv.addObject("errorMessage", errorMessage);
 		}
 		
 		return mv;
@@ -328,6 +308,8 @@ public class ProductController {
 	
 	/**
 	 * 상품 상세내용이미지(CKEditor4 첨부 이미지) 업로드
+	 * !Spring Boot 개발 환경에서는 src/main 하위에 webapp 폴더를 직접 생성해야 함!
+	 * @return 
 	 */
 	@PostMapping("/admin/product/add/contentImageUpload")
 	public void uploadProdContentImage(HttpServletRequest request, HttpServletResponse response, @RequestParam MultipartFile upload) {
@@ -338,8 +320,8 @@ public class ProductController {
 		response.setCharacterEncoding("UTF-8"); //인코딩
 		response.setContentType("text/html; charset=UTF-8");
 		
+		AttachmentDTO attachment = new AttachmentDTO();
 		try {
-			//Spring Boot 개발 환경에서는 src/main 하위에 webapp 폴더를 직접 생성해야 함
 			String realPath = request.getSession().getServletContext().getRealPath("/");
 			log.info("src/main/webapp : {}", realPath);
 			String imageUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "content";
@@ -375,7 +357,6 @@ public class ProductController {
 			printWriter.flush();
 			
 			//DB 전송
-			AttachmentDTO attachment = new AttachmentDTO();
 			attachment.setOrigFileName(origFileName);
 			int getLastSeparator = saveFileName.lastIndexOf("\\");
 			attachment.setSaveFileName(saveFileName.substring(getLastSeparator));
@@ -392,5 +373,68 @@ public class ProductController {
 				if(printWriter != null) { printWriter.close(); }
 			} catch(IOException e) { e.printStackTrace(); }
 		}
+	}
+	
+	/**
+	 * 상품 목록 조회
+	 */
+	@GetMapping("/admin/product/list")
+	public void getProductList(@Valid @ModelAttribute("criteria") Criteria criteria, BindingResult bindingResult, HttpServletRequest request, Model model) {
+		log.info("상품 목록 요청");
+		
+		//전체 상품수 조회
+		int total = productService.getTotalNumber(criteria);
+		log.info("전체 상품수 : {}", total);
+		
+		//전체상품 목록 조회
+		List<ProductDTO> productList = productService.getProductList(criteria);
+		
+		//상품별 메인썸네일 조회
+		List<AttachmentDTO> thumbnailList = new ArrayList<>();
+		for(ProductDTO product : productList) {
+			int prodNo = product.getProdNo();
+			AttachmentDTO thumbnail = productService.getMainThumbnailByProdNo(prodNo);
+			thumbnailList.add(thumbnail);
+		}
+		
+		//상품별 옵션 조회
+		List<OptionDTO> optionList = new ArrayList<>();
+		for(ProductDTO product : productList) {
+			int prodNo = product.getProdNo();
+			List<OptionDTO> options = productService.getOptionListByProdNo(prodNo);
+			
+			for(OptionDTO option : options) {
+				optionList.add(option);
+			}
+		}
+		
+		log.info("상품 목록 조회 완료");
+		
+		model.addAttribute("total", total);
+		model.addAttribute("productList", productList);
+		model.addAttribute("thumbnailList", thumbnailList);
+		model.addAttribute("optionList", optionList);
+		model.addAttribute("pageMaker", new PageDTO(productService.getTotalNumber(criteria), 10, criteria));
+	}
+	
+	/**
+	 * 상품 상세 정보 조회
+	 */
+	@GetMapping("/admin/product/details")
+	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
+		List<CategoryDTO> category = productService.getCategoryList(); //카테고리 목록 호출
+		
+		ProductDTO detail = productService.getProductDetails(prodNo);
+		
+		String[] tagArr = detail.getProductTag().split(",");
+		List<String> tagList = new ArrayList<>();
+		for(int i=0; i < tagArr.length; i++) {
+			tagList.add(tagArr[i]);
+			log.info(tagArr[i]);
+		}
+		
+		model.addAttribute("category", category);
+		model.addAttribute("detail", detail);
+		model.addAttribute("tagList", tagList);
 	}
 }

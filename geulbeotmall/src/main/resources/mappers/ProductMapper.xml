@@ -2,6 +2,58 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- 매퍼 네임스페이스 등록 후 사용해야 함 -->
 <mapper namespace="com.reminder.geulbeotmall.product.model.dao.ProductMapper">
+	<!-- 상품 조회용 -->
+	<resultMap id="productResultMap" type="com.reminder.geulbeotmall.product.model.dto.ProductDTO">
+		<id property="prodNo" column="PROD_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="brandNo" column="BRAND_NO"/>
+		<result property="prodName" column="PROD_NAME"/>
+		<result property="prodDesc" column="PROD_DESC"/>
+		<result property="productTag" column="PRODUCT_TAG"/>
+		<result property="discountRate" column="DISCOUNT_RATE"/>
+		<result property="prodPrice" column="PROD_PRICE"/>
+		<result property="prodOrigin" column="PROD_ORIGIN"/>
+		<result property="prodDetailContent" column="PROD_DETAIL_CONTENT"/>
+		<result property="prodDetailViewCount" column="PROD_DETAIL_VIEW_COUNT"/>
+		<result property="prodEnrollDate" column="PROD_ENROLL_DATE"/>
+		<result property="prodChangeDate" column="PROD_CHANGE_DATE"/>
+		<result property="prodAvailYn" column="PROD_AVAIL_YN"/>
+		<association property="category" resultMap="categoryResultMap"/> <!-- 1:1 -->
+		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<!-- 썸네일 조회용 -->
+	<resultMap id="thumbnailResultMap" type="com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refReviewNo" column="REF_REVW_NO"/>
+		<result property="origFileName" column="ORIG_FILE_NAME"/>
+		<result property="saveFileName" column="SAVE_FILE_NAME"/>
+		<result property="savePath" column="SAVE_PATH"/>
+		<result property="thumbnailPath" column="THUMBNAIL_PATH"/>
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="attachStatusYn" column="ATTACH_STATUS_YN"/>
+	</resultMap>
+	
+	<!-- 옵션 조회용 -->
+	<resultMap id="optionResultMap" type="com.reminder.geulbeotmall.product.model.dto.OptionDTO">
+		<id property="optionNo" column="OPTION_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refStockNo" column="REF_STOCK_NO"/>
+		<result property="bodyColor" column="OPT_BODY_COLOR"/>
+		<result property="inkColor" column="OPT_INK_COLOR"/>
+		<result property="pointSize" column="OPT_POINT_SIZE"/>
+		<result property="extraCharge" column="OPT_EXTRA_CHARGE"/>
+		<association property="stock" resultMap="stockResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<!-- 재고 조회용 -->
+	<resultMap id="stockResultMap" type="com.reminder.geulbeotmall.product.model.dto.StockDTO">
+		<id property="stockNo" column="STOCK_NO"/>
+		<result property="stockAmount" column="STOCK_AMOUNT"/>
+		<result property="stockDate" column="STOCK_DATE"/>
+	</resultMap>
+	
 	<!-- 카테고리 조회용 -->
 	<resultMap id="categoryResultMap" type="com.reminder.geulbeotmall.product.model.dto.CategoryDTO">
 		<id property="categoryNo" column="CATEGORY_NO"/>
@@ -45,7 +97,7 @@
 		)
 		VALUES
 		(
-		  SEQ_CATEGORY_NO.NEXTVAL
+		  (SELECT MAX(CATEGORY_NO)+1 FROM TBL_CATEGORY)
 		, #{ categoryName }
 		)
 	</insert>
@@ -81,10 +133,56 @@
 		)
 		VALUES
 		(
-		  SEQ_BRAND_NO.NEXTVAL
+		  (SELECT MAX(BRAND_NO)+1 FROM TBL_BRAND)
 		, #{ brandName }
 		)
 	</insert>
+	
+	<!-- 상품 등록 -->
+	<insert id="addProduct">
+		INSERT
+		  INTO TBL_PRODUCT
+		(
+		  PROD_NO
+		, CATEGORY_NO
+		, BRAND_NO
+		, PROD_NAME
+		, PROD_DESC
+		, PRODUCT_TAG
+		, DISCOUNT_RATE
+		, PROD_PRICE
+		, PROD_ORIGIN
+		, PROD_DETAIL_CONTENT
+		, PROD_DETAIL_VIEW_COUNT
+		, PROD_ENROLL_DATE
+		, PROD_CHANGE_DATE
+		, PROD_AVAIL_YN
+		)
+		VALUES
+		(
+		  SEQ_PROD_NO.NEXTVAL
+		, #{ categoryNo }
+		, #{ brandNo }
+		, #{ prodName }
+		, #{ prodDesc }
+		, #{ productTag }
+		, #{ discountRate }
+		, #{ prodPrice }
+		, #{ prodOrigin }
+		, #{ prodDetailContent }
+		, DEFAULT
+		, SYSDATE
+		, NULL
+		, DEFAULT
+		)
+	</insert>
+	
+	<!-- 현재 상품번호 조회 -->
+	<select id="checkCurrProdNo" resultType="int">
+		SELECT
+			   SEQ_PROD_NO.CURRVAL
+		  FROM DUAL
+	</select>
 	
 	<!-- 입고 추가 -->
 	<insert id="addProductStock">
@@ -135,11 +233,6 @@
 	
 	<!-- 상품 썸네일 등록 -->
 	<insert id="attachProdThumbnail">
-	<selectKey keyProperty="refProdNo" resultType="Integer" order="BEFORE">
-		SELECT
-			   SEQ_PROD_NO.CURRVAL
-		  FROM DUAL
-	</selectKey>
 		INSERT
 		  INTO TBL_ATTACHMENT
 		(
@@ -169,11 +262,6 @@
 	
 	<!-- 상품 상세내용이미지 등록 -->
 	<insert id="attachProdContentImage">
-	<selectKey keyProperty="refProdNo" resultType="Integer" order="BEFORE">
-		SELECT
-			   SEQ_PROD_NO.CURRVAL
-		  FROM DUAL
-	</selectKey>
 		INSERT
 		  INTO TBL_ATTACHMENT
 		(
@@ -190,51 +278,165 @@
 		VALUES
 		(
 		  SEQ_ATTACH_NO.NEXTVAL
-		, #{ refProdNo }
+		, NULL
 		, NULL
 		, #{ origFileName }
 		, #{ saveFileName }
 		, #{ savePath }
-		, #{ thumbnailPath }
+		, NULL
 		, #{ fileType }
 		, DEFAULT
 		)
 	</insert>
 	
-	<!-- 상품 등록 -->
-	<insert id="addProduct">
-		INSERT
-		  INTO TBL_PRODUCT
+	<!-- 상품 상세내용이미지와 해당 상품번호 연결 -->
+	<update id="updateProdNoContentImage">
+		UPDATE
+			   TBL_ATTACHMENT
+		   SET REF_PROD_NO = (SELECT
+		   							 A.PROD_NO
+		   						FROM TBL_PRODUCT A
+		   						LEFT JOIN TBL_ATTACHMENT B ON(A.PROD_NO = B.REF_PROD_NO)
+		   					   WHERE A.PROD_DETAIL_CONTENT LIKE '%' || B.SAVE_PATH || '%'
+		   					     AND ROWNUM = 1)
+		 WHERE FILE_TYPE = 'CONTENT'
+	</update>
+	
+	<!-- 전체상품 개수 조회 -->
+	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
+		SELECT
+			   COUNT(*)
+		  FROM TBL_PRODUCT A
+		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		 <trim prefix="WHERE">
+		 	   <if test="keyword != null and condition eq 'category'">B.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
+	</select>
+	
+	<!-- 전체상품 목록 조회 -->
+	<select id="getProductList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
+		<![CDATA[
+		SELECT
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+		  FROM
 		(
-		  PROD_NO
-		, CATEGORY_NO
-		, BRAND_NO
-		, PROD_NAME
-		, PROD_DESC
-		, PRODUCT_TAG
-		, DISCOUNT_RATE
-		, PROD_PRICE
-		, PROD_ORIGIN
-		, PROD_DETAIL_CONTENT
-		, PROD_ENROLL_DATE
-		, PROD_CHANGE_DATE
-		, PROD_AVAIL_YN
-		)
-		VALUES
-		(
-		  SEQ_PROD_NO.NEXTVAL
-		, #{ categoryNo }
-		, #{ brandNo }
-		, #{ prodName }
-		, #{ prodDesc }
-		, #{ productTag }
-		, #{ discountRate }
-		, #{ prodPrice }
-		, #{ prodOrigin }
-		, #{ prodDetailContent }
-		, SYSDATE
-		, NULL
-		, DEFAULT
-		)
-	</insert>
+		SELECT D.RANK RK 
+			 , D.PROD_NO
+			 , D.CATEGORY_NAME
+			 , D.BRAND_NAME
+			 , D.PROD_NAME
+			 , D.PROD_DESC
+			 , D.PRODUCT_TAG
+			 , D.DISCOUNT_RATE
+			 , D.PROD_PRICE
+			 , D.PROD_ORIGIN
+			 , D.PROD_DETAIL_CONTENT
+			 , D.PROD_DETAIL_VIEW_COUNT
+			 , D.PROD_ENROLL_DATE
+			 , D.PROD_CHANGE_DATE
+			 , D.PROD_AVAIL_YN
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			  , A.PROD_NO
+					  , B.CATEGORY_NAME
+					  , C.BRAND_NAME
+					  , A.PROD_NAME
+					  , A.PROD_DESC
+					  , A.PRODUCT_TAG
+					  , A.DISCOUNT_RATE
+					  , A.PROD_PRICE
+					  , A.PROD_ORIGIN
+					  , A.PROD_DETAIL_CONTENT
+					  , A.PROD_DETAIL_VIEW_COUNT
+					  , A.PROD_ENROLL_DATE
+					  , A.PROD_CHANGE_DATE
+					  , A.PROD_AVAIL_YN
+			 	  FROM TBL_PRODUCT A
+			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		 		  ) D
+		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+		]]>
+		<trim prefix="AND">
+		   <if test="keyword != null and condition eq 'category'">D.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+		<![CDATA[
+		) E
+		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	
+	<!-- 상품별 메인썸네일 조회 -->
+	<select id="getMainThumbnailByProdNo" resultMap="thumbnailResultMap">
+		SELECT
+			   REF_PROD_NO
+			 , THUMBNAIL_PATH
+		  FROM TBL_ATTACHMENT
+		 WHERE ATTACH_STATUS_YN = 'Y'
+		   AND FILE_TYPE = 'THUMB_MAIN'
+		   AND REF_PROD_NO = #{ prodNo }
+	</select>
+	
+	<!-- 상품별 옵션 조회 -->
+	<select id="getOptionListByProdNo" resultMap="optionResultMap">
+		SELECT
+			   A.OPTION_NO
+			 , A.REF_PROD_NO
+			 , B.STOCK_AMOUNT
+			 , A.OPT_BODY_COLOR
+			 , A.OPT_INK_COLOR
+			 , A.OPT_POINT_SIZE
+			 , A.OPT_EXTRA_CHARGE
+		  FROM TBL_OPTION A
+		  LEFT JOIN TBL_STOCK B ON(A.REF_STOCK_NO = B.STOCK_NO)
+		 WHERE A.REF_PROD_NO = #{ prodNo }
+	</select>
+	
+	<!-- 상품 상세 조회수 증가 -->
+	<update id="incrementProdDetailViewCount">
+		UPDATE
+			   TBL_PRODUCT A
+		   SET A.PROD_DETAIL_VIEW_COUNT = (SELECT
+		   									      B.PROD_DETAIL_VIEW_COUNT
+		   									 FROM TBL_PRODUCT B
+		   									WHERE B.PROD_NO = #{ prodNo }
+		   								   ) + 1
+		 WHERE A.PROD_NO = #{ prodNo }
+	</update>
+	
+	<!-- 상품 상세정보 조회 -->
+	<select id="getProductDetails" resultMap="productResultMap">
+		SELECT
+			   A.PROD_NO
+			 , B.CATEGORY_NAME
+			 , C.BRAND_NAME
+			 , A.PROD_NAME
+			 , A.PROD_DESC
+			 , A.PRODUCT_TAG
+			 , A.DISCOUNT_RATE
+			 , A.PROD_PRICE
+			 , A.PROD_ORIGIN
+			 , A.PROD_DETAIL_CONTENT
+			 , A.PROD_DETAIL_VIEW_COUNT
+			 , A.PROD_ENROLL_DATE
+			 , A.PROD_CHANGE_DATE
+			 , A.PROD_AVAIL_YN
+		  FROM TBL_PRODUCT A
+		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		 WHERE A.PROD_NO = #{ prodNo }
+	</select>
 </mapper>

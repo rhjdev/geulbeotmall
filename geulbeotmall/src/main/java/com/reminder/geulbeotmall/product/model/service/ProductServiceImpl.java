@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
+import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
@@ -76,17 +76,53 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
 			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent) {
-		return productMapper.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
+		int result = productMapper.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
+		productMapper.updateProdNoContentImage(); //상품 상세내용이미지와 해당 상품번호 연결
+		return result;
 	}
 
 	@Override
-	public int attachProdThumbnail(ProductDTO thumbnail) {
-		return productMapper.attachProdThumbnail(thumbnail);
+	public int attachProdThumbnail(AttachmentDTO attachment) {
+		return productMapper.attachProdThumbnail(attachment);
 	}
 	
-	@Transactional(propagation=Propagation.MANDATORY)
 	@Override
 	public int attachProdContentImage(AttachmentDTO attachment) {
 		return productMapper.attachProdContentImage(attachment);
+	}
+
+	@Override
+	public int checkCurrProdNo() {
+		return productMapper.checkCurrProdNo();
+	}
+
+	@Override
+	public ProductDTO getProductDetails(int prodNo) {
+		ProductDTO productDetail = null;
+		int count = productMapper.incrementProdDetailViewCount(prodNo); //상품상세조회수 증가
+		if(count > 0) {
+			productDetail = productMapper.getProductDetails(prodNo); //증가 후 상세내용 조회
+		}
+		return productDetail;
+	}
+
+	@Override
+	public int getTotalNumber(Criteria criteria) {
+		return productMapper.getTotalNumber(criteria);
+	}
+
+	@Override
+	public List<ProductDTO> getProductList(Criteria criteria) {
+		return productMapper.getProductList(criteria);
+	}
+
+	@Override
+	public AttachmentDTO getMainThumbnailByProdNo(int prodNo) {
+		return productMapper.getMainThumbnailByProdNo(prodNo);
+	}
+
+	@Override
+	public List<OptionDTO> getOptionListByProdNo(int prodNo) {
+		return productMapper.getOptionListByProdNo(prodNo);
 	}
 }

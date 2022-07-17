@@ -6,7 +6,7 @@ import lombok.Data;
 public class AttachmentDTO {
 	
 	private int attachmentNo;		//첨부파일번호
-	private int refProductNo;		//상품번호
+	private int refProdNo;		    //상품번호
 	private int refReviewNo;		//리뷰번호
 	private String origFileName;	//원본파일명
 	private String saveFileName;	//저장파일명

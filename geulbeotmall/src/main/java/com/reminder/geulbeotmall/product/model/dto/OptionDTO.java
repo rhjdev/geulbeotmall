@@ -16,4 +16,5 @@ public class OptionDTO {
 	private String inkColor;
 	private double pointSize;
 	private int extraCharge;
+	private StockDTO stock;
 }

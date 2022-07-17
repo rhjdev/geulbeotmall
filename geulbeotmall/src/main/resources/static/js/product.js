@@ -186,18 +186,6 @@ $('#deleteOpt').on('click', function(){
 	}
 });
 
-/* 대표썸네일 */
-let mainThumb = "";
-$('#mainThumb').on('change', function(){
-	mainThumb = $('#mainThumb').val();
-});
-
-/* 서브썸네일 */
-let subThumb = "";
-$('#subThumb').on('change', function(){
-	subThumb = $('#subThumb').val();
-});
-
 function submitProductForm() {
 	
 	//카테고리
@@ -229,7 +217,7 @@ function submitProductForm() {
 	//브랜드
 	let brand = document.getElementById('brandName').value;
 	if(brand == 'etc') {
-		brand = document.getElementById('brandName').value;
+		brand = document.getElementById('addNewBrand').value;
 	}
 	console.log(brand);
 	
@@ -244,10 +232,18 @@ function submitProductForm() {
 	let prodDetailContent = CKEDITOR.instances['prodDetailContent'].getData();
 	console.log(prodDetailContent);
 	
-	//대표썸네일
-	console.log(mainThumb);
-	//서브썸네일
-	console.log(subThumb);
+	//FormData 객체 생성
+	let formData = new FormData();
+	
+	let attached = $('.files');
+	console.log(attached.length);
+	for(let i=0; i < attached.length; i++) {
+		if(attached[i].files.length > 0) {
+			for(let j=0; j < attached[i].files.length; j++) {
+				formData.append("files", $('.files')[i].files[j]);
+			}
+		}
+	}
 	
 	let params = { category : category
 				 , prodName : prodName
@@ -264,14 +260,16 @@ function submitProductForm() {
 				 , stockAmount : stockAmount
 				 , extraCharge : extraCharge
 				 , optArrLength : optArr.length
-				 , mainThumb : mainThumb
-				 , subThumb : subThumb
 				 };
+	
+	formData.append("params", new Blob([JSON.stringify(params)], {type : 'application/json'}));
 	
 	$.ajax({
 		url : '/admin/product/add',
-		contentType: 'application/json',
-		data : JSON.stringify(params),
+		data : formData,
+		processData: false,
+		contentType: false,
+		enctype: 'multipart/form-data',
 		type : 'post',
 		traditional : true,
 		success : function(data){
@@ -284,6 +282,20 @@ function submitProductForm() {
 				}).then((result) => {
 					if(result.isConfirmed) {
 						return;
+					}
+				})
+			}
+			
+			if(data.successMessage) {
+				Swal.fire({
+					icon: 'success',
+					title: data.successMessage,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				}).then((result) => {
+					if(result.isConfirmed) {
+						window.location.reload(); //페이지 새로고침
+						window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
 					}
 				})
 			}

@@ -19,9 +19,12 @@ public class ProductDTO {
 	private int discountRate;		  //할인율
 	private int prodPrice;			  //상품원가
 	private String prodOrigin;		  //원산지
-	private String prodDetailContent; //상품상세
+	private String prodDetailContent; //상품상세내용
+	private int prodDetailViewCount;  //상품상세조회수
 	private Date prodEnrollDate;	  //상품등록일자
 	private Date prodChangeDate;	  //상품수정일자
 	private char prodAvailYn;		  //상품판매여부
 	private List<AttachmentDTO> attachmentList;
+	private CategoryDTO category;
+	private BrandDTO brand;
 }
