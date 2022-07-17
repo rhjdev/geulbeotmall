@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/selector.css}" rel="stylesheet">
+	    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+	</th:block>
+</head>
+<bod layout:fragment="content">
+	<h1>상품 상세 정보</h1>
+	<hr>
+	<div class="container content-wrapper">
+	<th:block layout:fragment="productToolbar">
+		<div th:replace="/fragments/toolbar.html :: productToolbar" style="text-align: center;"></div>
+	</th:block>
+		<div class="infoBox">
+			<form>
+				<ul>
+					<li class="th"><p>판매여부</p></li>
+					<li class="td" th:switch="${ detail.prodAvailYn }">
+						<input th:case="Y" type="text" id="isOnSale" name="isOnSale" th:value="판매중" readonly>
+						<input th:case="N" type="text" id="stoppedSelling" name="stoppedSelling" th:value="판매중지" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>상품번호</p></li>
+					<li class="td">
+						<input type="text" id="prodNo" name="prodNo" th:value="${ detail.prodNo }" readonly>
+					</li>
+				</ul>
+				
+				<!-- 현재 등록돼 있는 카테고리 목록을 선택지로 호출, 사용자가 추가 가능 -->
+				<ul>
+					<li class="th"><p>카테고리</p></li>
+					<li class="td">
+						<select id="categoryName" name="categoryName" class="dataTable-selector selector" onchange="addACategory();">
+							<option th:each="category : ${ category }" th:value="${ category.categoryName }" th:text="${ category.categoryName }"></option>
+							<option value="etc">새 카테고리 추가</option>
+						</select>
+						<input type="text" id="addNewCategory" name="addNewCategory" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품명</p></li>
+					<li class="td">
+						<input type="text" id="prodName" name="prodName" th:value="${ detail.prodName }">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품 설명</p></li>
+					<li class="td">
+						<input type="text" id="prodDesc" name="prodDesc" th:value="${ detail.prodDesc }">
+					</li>
+				</ul>
+				<!-- ProductTag ENUM 호출 -->
+				<ul>
+					<li class="th"><p>주요 특징</p></li>
+					<li class="td">
+						<select id="tag" name="tag" multiple>
+							<th:block th:each="tag : ${T(com.reminder.geulbeotmall.product.model.dto.ProductTag).values()}">
+								<option th:value="${ tag.getLabel() }" th:text="${ tag.getLabel() }" th:selected="${ tagList[0] } == ${ tag.getLabel() }"></option>
+							</th:block>
+						</select>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<div class="buttonBox">
+			<button type="button" class="btn btn-dark" onclick="javascript:window.history.go(-1);">뒤로가기</button>
+		</div>
+	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/manageProductList.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/selector.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    	
+    	<!-- Select2 -->
+    	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	</th:block>
+</body>
+</html>
