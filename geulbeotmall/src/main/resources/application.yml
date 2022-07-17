@@ -21,3 +21,4 @@ mybatis:
 logging:
   level:
     '[com.reminder.geulbeot]': debug
+    # content-type 확인용 '[org.apache.coyote.http11]': debug
