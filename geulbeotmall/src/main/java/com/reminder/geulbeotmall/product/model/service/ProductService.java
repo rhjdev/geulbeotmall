@@ -2,6 +2,8 @@ package com.reminder.geulbeotmall.product.model.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
@@ -44,10 +46,34 @@ public interface ProductService {
 	ProductDTO getProductDetails(int prodNo);
 
 	int getTotalNumber(Criteria criteria);
+	
+	int getOnSaleNumber(Criteria criteria);
+	
+	int getStopSaleNumber(Criteria criteria);
+	
+	int getOnDiscountNumber(Criteria criteria);
+	
+	int getSoldOutNumber(Criteria criteria);
 
 	List<ProductDTO> getProductList(Criteria criteria);
+	
+	List<ProductDTO> getOnSaleOnly(Criteria criteria);
+	
+	List<ProductDTO> getStopSaleOnly(Criteria criteria);
+	
+	List<ProductDTO> getOnDiscountOnly(Criteria criteria);
+	
+	List<ProductDTO> getSoldOutOnly(Criteria criteria);
 
 	AttachmentDTO getMainThumbnailByProdNo(int prodNo);
+	
+	AttachmentDTO getSubThumbnailByProdNo(int prodNo);
 
 	List<OptionDTO> getOptionListByProdNo(int prodNo);
+
+	String searchSaleYnByProdNo(int prodNo);
+
+	int stopSellingAProduct(int prodNo);
+
+	int putAProductOnSale(int prodNo);
 }

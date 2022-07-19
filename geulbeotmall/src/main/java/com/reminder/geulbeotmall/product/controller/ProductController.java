@@ -384,10 +384,25 @@ public class ProductController {
 		
 		//전체 상품수 조회
 		int total = productService.getTotalNumber(criteria);
-		log.info("전체 상품수 : {}", total);
+		//판매중 상품수 조회
+		int onSale = productService.getOnSaleNumber(criteria);
+		//판매중지 상품수 조회
+		int stopSale = productService.getStopSaleNumber(criteria);
+		//할인중 상품수 조회
+		int onDiscount = productService.getOnDiscountNumber(criteria);
+		//품절 상품수 조회
+		int soldOut = productService.getSoldOutNumber(criteria);
 		
 		//전체상품 목록 조회
 		List<ProductDTO> productList = productService.getProductList(criteria);
+		//판매중 상품 목록 조회
+		List<ProductDTO> onSaleOnly = productService.getOnSaleOnly(criteria);
+		//판매중지 상품 목록 조회
+		List<ProductDTO> stopSaleOnly = productService.getStopSaleOnly(criteria);
+		//할인중 상품 목록 조회
+		List<ProductDTO> onDiscountOnly = productService.getOnDiscountOnly(criteria);
+		//품절 상품 목록 조회
+		List<ProductDTO> soldOutOnly = productService.getSoldOutOnly(criteria);
 		
 		//상품별 메인썸네일 조회
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
@@ -411,30 +426,96 @@ public class ProductController {
 		log.info("상품 목록 조회 완료");
 		
 		model.addAttribute("total", total);
+		model.addAttribute("onSale", onSale);
+		model.addAttribute("stopSale", stopSale);
+		model.addAttribute("onDiscount", onDiscount);
+		model.addAttribute("soldOut", soldOut);
+		
 		model.addAttribute("productList", productList);
+		model.addAttribute("onSaleOnly", onSaleOnly);
+		model.addAttribute("stopSaleOnly", stopSaleOnly);
+		model.addAttribute("onDiscountOnly", onDiscountOnly);
+		model.addAttribute("soldOutOnly", soldOutOnly);
 		model.addAttribute("thumbnailList", thumbnailList);
 		model.addAttribute("optionList", optionList);
 		model.addAttribute("pageMaker", new PageDTO(productService.getTotalNumber(criteria), 10, criteria));
 	}
 	
 	/**
-	 * 상품 상세 정보 조회
+	 * 상품 상세 정보 조회 및 수정
 	 */
-	@GetMapping("/admin/product/details")
+	@GetMapping("/admin/product/edit")
 	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
-		List<CategoryDTO> category = productService.getCategoryList(); //카테고리 목록 호출
+		/* 카테고리 목록 호출 */
+		List<CategoryDTO> category = productService.getCategoryList();
+		/* 브랜드 목록 호출 */
+		List<BrandDTO> brand = productService.getBrandList();
 		
+		/* 상품 상세 정보 호출 */
 		ProductDTO detail = productService.getProductDetails(prodNo);
-		
+		/* 상세 정보 중 태그값 가공 */
 		String[] tagArr = detail.getProductTag().split(",");
-		List<String> tagList = new ArrayList<>();
+		Map<Integer, String> tagMap = new HashMap<>(); //타임리프 반복문이 중첩 사용될 예정이기에 임시 index 용도로 활용할 Integer 값을 key로 담아 Map 타입 선언
 		for(int i=0; i < tagArr.length; i++) {
-			tagList.add(tagArr[i]);
-			log.info(tagArr[i]);
+			tagMap.put(i, tagArr[i]);
+			//log.info(tagMap.get(i));
 		}
+		/* 상세 정보 중 옵션값 가공 */
+		List<OptionDTO> option = productService.getOptionListByProdNo(prodNo);
+		
+		//상품 썸네일 조회
+		AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+		AttachmentDTO subThumb = productService.getSubThumbnailByProdNo(prodNo);
 		
 		model.addAttribute("category", category);
+		model.addAttribute("brand", brand);
 		model.addAttribute("detail", detail);
-		model.addAttribute("tagList", tagList);
+		model.addAttribute("tagMap", tagMap);
+		model.addAttribute("option", option);
+		model.addAttribute("mainThumb", mainThumb);
+		model.addAttribute("subThumb", subThumb);
 	}
+	
+	/**
+	 * 상품 판매여부 변경
+	 */
+	@PostMapping(value="/admin/product/manageSale", produces="application/json; charset=UTF-8")
+	@ResponseBody //생략 시 이동할 VIEW를 찾게 되므로 String 값 자체를 보내기 위해서는 반드시 붙여써야 함
+	public String changeAvailability(@RequestParam Map<String, Object> params, HttpServletRequest request) {
+		log.info("상품 판매여부 수정 시작");
+		String optValue = params.get("optValue").toString(); //선택값
+		String selected = "";
+		if(Integer.parseInt(optValue) == 2) { //판매중지
+			selected = "N";
+		} else if(Integer.parseInt(optValue) == 1) { //판매중
+			selected = "Y";
+		}
+		String[] prodList = request.getParameterValues("arr"); //상품번호
+		int count = 0;
+		String result = "";
+		
+		log.info("선택된 총 상품 개수 : {}", prodList.length);
+		for(int i=0; i < prodList.length; i++) {
+			String current = productService.searchSaleYnByProdNo(Integer.parseInt(prodList[i]));
+			log.info("현재 판매여부 : {}", current);
+			log.info("선택한 판매여부 : {}", selected);
+			
+			if(current.equals("Y") && selected.equals("Y")) {
+				result = "상품번호" + prodList[i] +"(은)는 이미 판매 중인 상품입니다";
+			} else if(current.equals("N") && selected.equals("N")) {
+				result = "상품번호" + prodList[i] +"(은)는 이미 판매 중지된 상품입니다";
+			} else if(current.equals("Y") && selected.equals("N")) { //현재 판매중에서 판매중지로 변경
+				count += productService.stopSellingAProduct(Integer.parseInt(prodList[i]));
+			} else { //현재 판매중지에서 판매중으로 변경
+				count += productService.putAProductOnSale(Integer.parseInt(prodList[i]));
+			}
+			
+			if(prodList.length == count) {
+				result = "성공";
+			}
+			log.info(result);
+		}
+		return result;
+	}
+	
 }

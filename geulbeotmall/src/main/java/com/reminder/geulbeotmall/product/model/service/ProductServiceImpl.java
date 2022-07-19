@@ -2,6 +2,8 @@ package com.reminder.geulbeotmall.product.model.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -110,19 +112,79 @@ public class ProductServiceImpl implements ProductService {
 	public int getTotalNumber(Criteria criteria) {
 		return productMapper.getTotalNumber(criteria);
 	}
-
+	
+	@Override
+	public int getOnSaleNumber(Criteria criteria) {
+		return productMapper.getOnSaleNumber(criteria);
+	}
+	
+	@Override
+	public int getStopSaleNumber(Criteria criteria) {
+		return productMapper.getStopSaleNumber(criteria);
+	}
+	
+	@Override
+	public int getOnDiscountNumber(Criteria criteria) {
+		return productMapper.getOnDiscountNumber(criteria);
+	}
+	
+	@Override
+	public int getSoldOutNumber(Criteria criteria) {
+		return productMapper.getSoldOutNumber(criteria);
+	}
+	
 	@Override
 	public List<ProductDTO> getProductList(Criteria criteria) {
 		return productMapper.getProductList(criteria);
+	}
+	
+	@Override
+	public List<ProductDTO> getOnSaleOnly(Criteria criteria) {
+		return productMapper.getOnSaleOnly(criteria);
+	}
+	
+	@Override
+	public List<ProductDTO> getStopSaleOnly(Criteria criteria) {
+		return productMapper.getStopSaleOnly(criteria);
+	}
+	
+	@Override
+	public List<ProductDTO> getOnDiscountOnly(Criteria criteria) {
+		return productMapper.getOnDiscountOnly(criteria);
+	}
+	
+	@Override
+	public List<ProductDTO> getSoldOutOnly(Criteria criteria) {
+		return productMapper.getSoldOutOnly(criteria);
 	}
 
 	@Override
 	public AttachmentDTO getMainThumbnailByProdNo(int prodNo) {
 		return productMapper.getMainThumbnailByProdNo(prodNo);
 	}
+	
+	@Override
+	public AttachmentDTO getSubThumbnailByProdNo(int prodNo) {
+		return productMapper.getSubThumbnailByProdNo(prodNo);
+	}
 
 	@Override
 	public List<OptionDTO> getOptionListByProdNo(int prodNo) {
 		return productMapper.getOptionListByProdNo(prodNo);
+	}
+
+	@Override
+	public String searchSaleYnByProdNo(int prodNo) {
+		return productMapper.searchSaleYnByProdNo(prodNo);
+	}
+
+	@Override
+	public int stopSellingAProduct(int prodNo) {
+		return productMapper.stopSellingAProduct(prodNo);
+	}
+
+	@Override
+	public int putAProductOnSale(int prodNo) {
+		return productMapper.putAProductOnSale(prodNo);
 	}
 }

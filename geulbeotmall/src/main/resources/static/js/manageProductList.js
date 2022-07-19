@@ -22,7 +22,7 @@ $('.nav-link').click(function(){
 });
 
 /* 판매여부관리 */
-function manageSaleYn() {
+function manageSale() {
 	let optValue = document.getElementById('saleValue').value;
 	let checkbox = $('input[name=checkItem]:checked');
 	let detailNo = $('input[name=prodNo]').val();
@@ -33,16 +33,15 @@ function manageSaleYn() {
 		checkbox.each(function(i){
 			let tr = checkbox.parent().parent().eq(i);
 			let td = tr.children();
-			prodNo = td.eq(2).text();
+			prodNo = td.eq(1).text(); //td 태그 중 1번 index에 해당하는 text
 			arr.push(prodNo);
 		});
-		
 	}
-	//1-2. 전체목록에서 권한변경 시도 중 선택된 체크박스가 없음
+	//1-2. 전체목록에서 판매여부변경 시도 중 선택된 체크박스가 없음
 	if(prodNo == "") {
 		Swal.fire({
 			icon: 'warning',
-			title: '1개 이상의 계정을 체크하세요',
+			title: '1개 이상의 상품을 체크하세요',
 			confirmButtonColor: '#00008b',
 			confirmButtonText: '확인'
 		}).then((result) => {
@@ -51,7 +50,7 @@ function manageSaleYn() {
 			}
 		})
 	}
-	//2. 상세정보에서 권한변경
+	//2. 상세정보에서 판매여부변경
 	if(detailNo) {
 		prodNo = detailNo;
 		console.log(detailNo);
@@ -61,7 +60,7 @@ function manageSaleYn() {
 	console.log(arr);
 	
 	$.ajax({
-		url : '/admin/member/manageAuth',
+		url : '/admin/product/manageSale',
 		type : 'post',
 		traditional : true, //배열 넘기기 위한 세팅
 		dataType : 'text',
@@ -73,7 +72,7 @@ function manageSaleYn() {
 			if(result == '성공'){
 				Swal.fire({
 					icon: 'success',
-					title: '권한 변경 완료되었습니다',
+					title: '판매여부가 변경되었습니다',
 					confirmButtonColor: '#00008b',
 					confirmButtonText: '확인'
 				}).then((result) => {
@@ -96,4 +95,9 @@ function manageSaleYn() {
 		},
 		error : function(status, error){ console.log(status, error); }
 	});
+}
+
+/* 새로고침 */
+function refreshList() {
+	window.location.assign('/admin/product/list');
 }
