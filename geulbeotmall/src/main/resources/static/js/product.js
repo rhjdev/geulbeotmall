@@ -1,10 +1,11 @@
-/* 이미지 미리보기 */
+/* 썸네일 미리보기 및 클릭 시 삭제 */
 let fileItems = document.querySelectorAll('[type=file]');
 let imageBox = document.querySelectorAll('.imageBox');
+
 fileItems.forEach(item => item.addEventListener('change', previewImage));
 
 function previewImage() {
-	let index = Array.from(fileItems).indexOf(this);
+	let index = Array.from(fileItems).indexOf(this); //fileItems 기준으로 index 생성
 	if(this.files && this.files[0]) {
 		let reader = new FileReader();
 		reader.readAsDataURL(this.files[0]);
@@ -13,6 +14,15 @@ function previewImage() {
 		}
 	}
 }
+
+$('.imageBox').on('click', function(){
+	let index = Array.from(imageBox).indexOf(this); //imageBox 기준으로 index 생성
+	if(index == 0) {
+		$('#mainThumb').click();
+	} else {
+		$('#subThumb').click();
+	}
+});
 
 /* 새 카테고리 추가 */
 function addACategory() {
@@ -136,7 +146,7 @@ let pointSize = new Array();
 let stockAmount = new Array();
 let extraCharge = new Array();
 let optArr = new Array();
-$('#addOpt').on('click', function(){
+$('#addOpt').on('click', function(){ //상품 등록
 	bodyColor.push($('#bodyColor option:checked').text());
 	inkColor.push($('#inkColor option:checked').text());
 	pointSize.push($('#pointSize option:checked').val());
@@ -172,6 +182,54 @@ $('#addOpt').on('click', function(){
 	}
 });
 
+
+let lastOpt = 0;
+let value = "";
+for(let i=0; i < 10; i++) {
+	value = $('#addedOption' + [i]).val();
+	if(value) {
+		lastOpt++;
+	}
+}
+console.log("lastOpt : " + lastOpt);
+
+$('#addNextOpt').on('click', function(){ //상품 수정
+	//현재 조회된 옵션의 총 개수 파악
+	
+	bodyColor.push($('#bodyColor option:checked').text());
+	inkColor.push($('#inkColor option:checked').text());
+	pointSize.push($('#pointSize option:checked').val());
+	stockAmount.push($('#amount').val());
+	extraCharge.push($('#extraCharge').val());
+	
+	optArr.push({bodyColor : $('#bodyColor option:checked').text(),
+				 inkColor : $('#inkColor option:checked').text(),
+				 pointSize : $('#pointSize option:checked').val(),
+				 stockAmount : $('#amount').val(),
+				 extraCharge : $('#extraCharge').val()}
+	);
+	console.log(optArr);
+	
+	if(optArr.length > (10-lastOpt)) { //0부터 시작한 index, 최대 10개까지만 수용
+		Swal.fire({
+			icon: 'warning',
+			title: '옵션 추가는 최대 10개입니다',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				return;
+			}
+		})
+	}
+	
+	//뒤이어 상단의 추가된 옵션 목록으로 반영
+	for(let j=0; j < (10-lastOpt); j++) {
+		$('#addedOption' + [lastOpt+j]).val("바디컬러_" + optArr[j].bodyColor + " | 잉크컬러_" + optArr[j].inkColor + " | 심두께및스펙_" + optArr[j].pointSize + " | 추가금액_" + optArr[j].extraCharge + "원(" + optArr[j].stockAmount + "개)");
+		$('#addedOption' + [lastOpt+j]).parent().parent().attr('hidden', false); //ul 태그 hidden 속성 비활성화
+	}
+});
+
 /* 옵션 초기화 */
 $('#deleteOpt').on('click', function(){
 	for(let i=0; i < 10; i++) {
@@ -186,8 +244,8 @@ $('#deleteOpt').on('click', function(){
 	}
 });
 
+/* 상품등록 폼 제출 */
 function submitProductForm() {
-	
 	//카테고리
 	let category = document.getElementById('categoryName').value;
 	if(category == 'etc') {
@@ -303,3 +361,5 @@ function submitProductForm() {
 		error : function(status, error){ console.log(status, error); }
 	});
 }
+
+/* 상품수정 폼 제출(발생한 수정사항에 대해서만 업데이트) */

@@ -7,6 +7,7 @@
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
 	    <link th:href="@{/css/selector.css}" rel="stylesheet">
+	    <link th:href="@{/css/thumbnail.css}" rel="stylesheet">
 	    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
 	</th:block>
 </head>
@@ -91,7 +92,7 @@
 				</ul>
 				<ul>
 					<li class="td">
-						<input type="text" id="addedOption0" name="addedOption1" disabled>
+						<input type="text" id="addedOption0" name="addedOption0" disabled>
 					</li>
 				</ul>
 				<ul hidden="hidden">
@@ -209,14 +210,14 @@
 						<li class="th"><p>서브 썸네일</p></li>
 						<li class="thumbTd">
 							<div class="imageBox">
-								<label for="subThumb" class="subLabel">
+								<label for="subThumb" class="thumbLabel">
 									<i class="fa-solid fa-image" style="font-size: 300%;"></i>
 								</label>
 							</div>
 						</li>
 					</ul>
-								<input type="file" id="mainThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
-								<input type="file" id="subThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+					<input type="file" id="mainThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+					<input type="file" id="subThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
 				</div>
    				<div class="buttonBox">
 					<button type="button" class="btn btn-dark" onclick="submitProductForm()">상품등록</button>

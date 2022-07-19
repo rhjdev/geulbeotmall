@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/selector.css}" rel="stylesheet">
+	    <link th:href="@{/css/thumbnail.css}" rel="stylesheet">
+	    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>상품 수정</h1>
+	<hr>
+	<div class="container content-wrapper">
+	<th:block layout:fragment="productToolbar">
+		<div th:replace="/fragments/toolbar.html :: productToolbar" style="text-align: center;"></div>
+	</th:block>
+		<div class="infoBox">
+			<form>
+				<ul>
+					<li class="th"><p>판매여부</p></li>
+					<li class="td" th:switch="${ detail.prodAvailYn }">
+						<input th:case="Y" type="text" id="isOnSale" name="isOnSale" th:value="판매중" readonly>
+						<input th:case="N" type="text" id="stoppedSelling" name="stoppedSelling" th:value="판매중지" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>상품번호</p></li>
+					<li class="td">
+						<input type="text" id="prodNo" name="prodNo" th:value="${ detail.prodNo }" style="width: 40.5%;" readonly>
+						<input type="text" id="prodEnrollDate" name="prodEnrollDate" th:value="'등록일 : ' + ${#dates.format(detail.prodEnrollDate, 'yyyy-MM-dd')}" style="width: 58%; margin-left: 2.5%;" disabled>
+						<input type="hidden" id="today" name="today" disabled>
+					</li>
+				</ul>
+				
+				<!-- 현재 등록돼 있는 카테고리 목록을 선택지로 호출, 사용자가 추가 가능 -->
+				<ul>
+					<li class="th"><p>카테고리</p></li>
+					<li class="td">
+						<select id="categoryName" name="categoryName" class="dataTable-selector selector" onchange="addACategory();" th:selected="${ detail.category.categoryName }">
+							<option th:each="category : ${ category }" th:value="${ category.categoryName }" th:text="${ category.categoryName }"></option>
+							<option value="etc">새 카테고리 추가</option>
+						</select>
+						<input type="text" id="addNewCategory" name="addNewCategory" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품명</p></li>
+					<li class="td">
+						<input type="text" id="prodName" name="prodName" th:value="${ detail.prodName }">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품 설명</p></li>
+					<li class="td">
+						<input type="text" id="prodDesc" name="prodDesc" th:value="${ detail.prodDesc }">
+					</li>
+				</ul>
+				<!-- ProductTag ENUM 호출 -->
+				<ul>
+					<li class="th"><p>주요 특징</p></li>
+					<li class="td">
+						<select id="tag" name="tag" multiple>
+							<th:block th:each="tag : ${T(com.reminder.geulbeotmall.product.model.dto.ProductTag).values()}">
+								<!-- 상품 정보상에 저장돼 있는 태그 목록을 selected하여 출력 -->
+								<th:block th:each="tagMap : ${ tagMap }" th:if="${ tagMap.value } == ${ tag.getLabel() }">
+									<option th:value="${ tag.getLabel() }" th:text="${ tag.getLabel() }" th:selected="${ tagMap.value } == ${ tag.getLabel() }"></option>
+								</th:block>
+								<!-- selected 되지 않은 대상만 선택지로 출력하여 중복 선택 제한 -->
+								<option th:with="tagMap=${ tagMap }" th:if="!${#maps.containsValue(tagMap, tag.getLabel())}" th:value="${ tag.getLabel() }" th:text="${ tag.getLabel() }"></option>
+							</th:block>
+						</select>
+					</li>
+				</ul>
+				<!-- DiscountRate ENUM 호출 -->
+				<ul>
+					<li class="th"><p>할인율 및 원가</p></li>
+					<li class="td">
+						<select id="discount" name="discount" class="dataTable-selector selector">
+							<option th:each="rate : ${T(com.reminder.geulbeotmall.product.model.dto.DiscountRate).values()}" th:value="${ rate.getValue() }" th:text="|${ rate.getValue() }%|" th:selected="${ detail.discountRate }"></option>
+						</select>
+						<input type="number" id="prodPrice" name="prodPrice" th:value="${ detail.prodPrice }">
+					</li>
+				</ul>
+				<!-- 현재 등록돼 있는 브랜드 목록 호출, 사용자가 추가 가능 -->
+				<ul>
+					<li class="th"><p>브랜드</p></li>
+					<li class="td">
+						<select id="brandName" name="brandName" class="dataTable-selector selector" onchange="addABrand();" th:selected="${ detail.brand.brandName }">
+							<option th:each="brand : ${ brand }" th:value="${ brand.brandName }" th:text="${ brand.brandName }"></option>
+							<option value="etc">새 브랜드 추가</option>
+						</select>
+						<input type="text" id="addNewBrand" name="addNewBrand" disabled>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>원산지</p></li>
+					<li class="td">
+						<input type="text" id="prodOrigin" name="prodOrigin" th:value="${ detail.prodOrigin }">
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>추가된 옵션</p></li>
+				</ul>
+				<!-- 옵션1. 넘어온 list가 빈 값이 아닌 경우 value 반영 -->
+				<ul>
+					<li class="td">
+						<th:block th:if="${not #lists.isEmpty(option)}">
+							<input type="text" id="addedOption0" name="addedOption0" th:value="'바디컬러_' + ${ option[0].bodyColor } + ' | ' + '잉크컬러_' + ${ option[0].inkColor } + ' | ' + '심두께및스펙_' + ${ option[0].pointSize } + ' | ' + '추가금액_' + ${ option[0].extraCharge } + '원(' + ${ option[0].stock.stockAmount } + '개)'" disabled>
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(option)}">
+							<input type="text" id="addedOption0" name="addedOption0" disabled>
+						</th:block>
+					</li>
+				</ul>
+				<!-- 옵션2~10. 넘어온 list에 해당 순서의 value가 존재하면 조회 -->
+				<ul th:if="${#lists.size(option) > 1}">
+					<li class="td">
+						<input type="text" id="addedOption1" name="addedOption1" th:value="'바디컬러_' + ${ option[1].bodyColor } + ' | ' + '잉크컬러_' + ${ option[1].inkColor } + ' | ' + '심두께및스펙_' + ${ option[1].pointSize } + ' | ' + '추가금액_' + ${ option[1].extraCharge } + '원(' + ${ option[1].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<!-- 옵션2~10. 아닌 경우는 '옵션추가' 버튼 통해 수동 반영 가능 -->
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption1" name="addedOption1" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 2}">
+					<li class="td">
+						<input type="text" id="addedOption2" name="addedOption2" th:value="'바디컬러_' + ${ option[2].bodyColor } + ' | ' + '잉크컬러_' + ${ option[2].inkColor } + ' | ' + '심두께및스펙_' + ${ option[2].pointSize } + ' | ' + '추가금액_' + ${ option[2].extraCharge } + '원(' + ${ option[2].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption2" name="addedOption2" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 3}">
+					<li class="td">
+						<input type="text" id="addedOption3" name="addedOption3" th:value="'바디컬러_' + ${ option[3].bodyColor } + ' | ' + '잉크컬러_' + ${ option[3].inkColor } + ' | ' + '심두께및스펙_' + ${ option[3].pointSize } + ' | ' + '추가금액_' + ${ option[3].extraCharge } + '원(' + ${ option[3].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption3" name="addedOption3" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 4}">
+					<li class="td">
+						<input type="text" id="addedOption4" name="addedOption4" th:value="'바디컬러_' + ${ option[4].bodyColor } + ' | ' + '잉크컬러_' + ${ option[4].inkColor } + ' | ' + '심두께및스펙_' + ${ option[4].pointSize } + ' | ' + '추가금액_' + ${ option[4].extraCharge } + '원(' + ${ option[4].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption4" name="addedOption4" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 5}">
+					<li class="td">
+						<input type="text" id="addedOption5" name="addedOption5" th:value="'바디컬러_' + ${ option[5].bodyColor } + ' | ' + '잉크컬러_' + ${ option[5].inkColor } + ' | ' + '심두께및스펙_' + ${ option[5].pointSize } + ' | ' + '추가금액_' + ${ option[5].extraCharge } + '원(' + ${ option[5].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption5" name="addedOption5" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 6}">
+					<li class="td">
+						<input type="text" id="addedOption6" name="addedOption6" th:value="'바디컬러_' + ${ option[6].bodyColor } + ' | ' + '잉크컬러_' + ${ option[6].inkColor } + ' | ' + '심두께및스펙_' + ${ option[6].pointSize } + ' | ' + '추가금액_' + ${ option[6].extraCharge } + '원(' + ${ option[6].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption6" name="addedOption6" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 7}">
+					<li class="td">
+						<input type="text" id="addedOption7" name="addedOption7" th:value="'바디컬러_' + ${ option[7].bodyColor } + ' | ' + '잉크컬러_' + ${ option[7].inkColor } + ' | ' + '심두께및스펙_' + ${ option[7].pointSize } + ' | ' + '추가금액_' + ${ option[7].extraCharge } + '원(' + ${ option[7].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption7" name="addedOption7" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 8}">
+					<li class="td">
+						<input type="text" id="addedOption8" name="addedOption8" th:value="'바디컬러_' + ${ option[8].bodyColor } + ' | ' + '잉크컬러_' + ${ option[8].inkColor } + ' | ' + '심두께및스펙_' + ${ option[8].pointSize } + ' | ' + '추가금액_' + ${ option[8].extraCharge } + '원(' + ${ option[8].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption8" name="addedOption8" disabled>
+					</li>
+				</ul>
+				<ul th:if="${#lists.size(option) > 9}">
+					<li class="td">
+						<input type="text" id="addedOption9" name="addedOption9" th:value="'바디컬러_' + ${ option[9].bodyColor } + ' | ' + '잉크컬러_' + ${ option[9].inkColor } + ' | ' + '심두께및스펙_' + ${ option[9].pointSize } + ' | ' + '추가금액_' + ${ option[9].extraCharge } + '원(' + ${ option[9].stock.stockAmount } + '개)'" disabled>
+					</li>
+				</ul>
+				<ul hidden="hidden">
+					<li class="td">
+						<input type="text" id="addedOption9" name="addedOption9" disabled>
+					</li>
+				</ul>
+				<hr>
+				<div class="card mb-4">
+   					<div class="card-body">
+   						<!-- ProductBodyColor ENUM 호출 -->
+						<ul>
+							<li class="th"><p>바디컬러</p></li>
+							<li class="td">
+								<select id="bodyColor" name="bodyColor" multiple>
+									<option th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}" th:value="${ body.getValue() }" th:text="${ body.getLabel() }"></option>
+								</select>
+							</li>
+						</ul>
+   						<!-- ProductInkColor ENUM 호출 -->
+						<ul>
+							<li class="th"><p>잉크컬러</p></li>
+							<li class="td">
+								<select id="inkColor" name="inkColor" multiple>
+									<option th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}" th:value="${ ink.getValue() }" th:text="${ ink.getLabel() }"></option>
+								</select>
+							</li>
+						</ul>
+   						<!-- PointSize ENUM 호출 -->
+						<ul>
+							<li class="th"><p>심두께 및 스펙</p></li>
+							<li class="td">
+								<select id="pointSize" name="pointSize" multiple>
+									<option th:each="size : ${T(com.reminder.geulbeotmall.product.model.dto.PointSize).values()}" th:value="${ size.getValue() }" th:text="|${ size.getValue() }mm|"></option>
+								</select>
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>입고량</p></li>
+							<li class="td">
+								<input type="number" id="amount" name="amount" min="1" max="999">
+							</li>
+						</ul>
+						<ul>
+							<li class="th"><p>옵션별 추가 금액</p></li>
+							<li class="td">
+								<input type="number" id="extraCharge" name="extraCharge">
+							</li>
+						</ul>
+						<div class="optionBox">
+							<button type="button" id="deleteOpt" class="btn btn-outline-danger">다시쓰기</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button" id="addNextOpt" class="btn btn-outline-secondary">옵션추가</button>
+						</div>
+   					</div>
+   				</div>
+   				<div class="contentBox">
+	   				<ul>
+						<li class="th"><p>상세 내용</p></li>
+					</ul>
+					<textarea id="prodDetailContent" name="prodDetailContent" th:text="${ detail.prodDetailContent }"></textarea>
+				</div>
+				<div class="thumbnailBox">
+					<ul>
+						<li class="th"><p>대표 썸네일</p></li>
+						<li class="thumbTd">
+							<div class="imageBox">
+								<th:block th:if="${ mainThumb }">
+									<img th:src="${ mainThumb.thumbnailPath }">
+								</th:block>
+								<th:block th:if="!${ mainThumb }">
+									<label for="mainThumb" class="thumbLabel">
+										<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+									</label>
+								</th:block>
+							</div>
+						</li>
+					</ul>
+					<ul>
+						<li class="th"><p>서브 썸네일</p></li>
+						<li class="thumbTd">
+							<div class="imageBox">
+								<th:block th:if="${ subThumb }">
+									<img th:src="${ subThumb.thumbnailPath }">
+								</th:block>
+								<th:block th:if="!${ subThumb }">
+									<label for="subThumb" class="thumbLabel">
+										<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+									</label>
+								</th:block>
+							</div>
+						</li>
+					</ul>
+					<input type="file" id="mainThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+					<input type="file" id="subThumb" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+				</div>
+				<div class="buttonBox">
+					<button type="button" class="btn btn-dark" onclick="submitEditProdForm()">상품수정</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/manageProductList.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/selector.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    	
+    	<!-- CKEditor4 -->
+	  	<script src="https://cdn.ckeditor.com/4.19.0/standard/ckeditor.js"></script>
+	  	<script type="text/javascript">
+	  	$(function() {
+			let ckeditor_config = {
+					filebrowserUploadMethod : 'form',
+					filebrowserUploadUrl : '/admin/product/add/contentImageUpload',
+					language : 'ko'
+			};
+			CKEDITOR.replace('prodDetailContent', ckeditor_config);
+	  	});
+		</script>
+    	
+    	<!-- Select2 -->
+    	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	</th:block>
+</body>
+</html>
