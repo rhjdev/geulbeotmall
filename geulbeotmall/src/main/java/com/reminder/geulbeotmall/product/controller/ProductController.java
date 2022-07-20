@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
@@ -41,6 +40,7 @@ import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductBodyColor;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.dto.StockDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
@@ -54,8 +54,8 @@ import net.coobird.thumbnailator.Thumbnails;
 public class ProductController {
 	
 	//썸네일 크기
-	public static final int THUMB_WIDTH_SIZE = 300;
-	public static final int THUMB_HEIGHT_SIZE = 300;
+	public static final int THUMB_WIDTH_SIZE = 540;
+	public static final int THUMB_HEIGHT_SIZE = 540;
 	
 	private final ProductService productService;
 	private final MessageSource messageSource;
@@ -445,7 +445,7 @@ public class ProductController {
 	 * 상품 상세 정보 조회 및 수정
 	 */
 	@GetMapping("/admin/product/edit")
-	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
+	public void editProductDetails(@RequestParam("no") int prodNo, Model model) {
 		/* 카테고리 목록 호출 */
 		List<CategoryDTO> category = productService.getCategoryList();
 		/* 브랜드 목록 호출 */
@@ -463,7 +463,7 @@ public class ProductController {
 		/* 상세 정보 중 옵션값 가공 */
 		List<OptionDTO> option = productService.getOptionListByProdNo(prodNo);
 		
-		//상품 썸네일 조회
+		/* 상품 썸네일 조회 */
 		AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
 		AttachmentDTO subThumb = productService.getSubThumbnailByProdNo(prodNo);
 		
@@ -518,4 +518,45 @@ public class ProductController {
 		return result;
 	}
 	
+	@GetMapping("/product/details")
+	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
+		/* 상품 상세 정보 호출 */
+		ProductDTO detail = productService.getProductDetails(prodNo);
+		
+		/* 상품 썸네일 조회 */
+		AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+		AttachmentDTO subThumb = productService.getSubThumbnailByProdNo(prodNo);
+		
+		/* 상세 정보 중 옵션값 가공 */
+		List<OptionDTO> option = productService.getOptionListByProdNo(prodNo);
+		List<String> bodyColor = new ArrayList<>();
+		for(OptionDTO o : option) { //바디컬러 중복값 제거
+			if(bodyColor.contains(o.getBodyColor())) {
+				continue;
+			} 
+			bodyColor.add(o.getBodyColor());
+		}
+		List<String> inkColor = new ArrayList<>();
+		for(OptionDTO o : option) { //잉크컬러 중복값 제거
+			if(inkColor.contains(o.getInkColor())) {
+				continue;
+			} 
+			inkColor.add(o.getInkColor());
+		}
+		List<String> pointSize = new ArrayList<>();
+		for(OptionDTO o: option) { //심두께 중복값 제거
+			if(pointSize.contains(String.valueOf(o.getPointSize()))) {
+				continue;
+			}
+			pointSize.add(String.valueOf(o.getPointSize()));
+		}
+		
+		model.addAttribute("detail", detail);
+		model.addAttribute("option", option);
+		model.addAttribute("bodyColor", bodyColor);
+		model.addAttribute("inkColor", inkColor);
+		model.addAttribute("pointSize", pointSize);
+		model.addAttribute("mainThumb", mainThumb);
+		model.addAttribute("subThumb", subThumb);
+	}
 }

@@ -1,7 +1,6 @@
-/* 썸네일 미리보기 및 클릭 시 삭제 */
+/* 썸네일 미리보기 및 클릭 시 재선택 */
 let fileItems = document.querySelectorAll('[type=file]');
 let imageBox = document.querySelectorAll('.imageBox');
-
 fileItems.forEach(item => item.addEventListener('change', previewImage));
 
 function previewImage() {
@@ -15,14 +14,14 @@ function previewImage() {
 	}
 }
 
-$('.imageBox').on('click', function(){
+function reselectImage() {
 	let index = Array.from(imageBox).indexOf(this); //imageBox 기준으로 index 생성
 	if(index == 0) {
 		$('#mainThumb').click();
 	} else {
 		$('#subThumb').click();
 	}
-});
+};
 
 /* 새 카테고리 추가 */
 function addACategory() {
@@ -147,14 +146,75 @@ let stockAmount = new Array();
 let extraCharge = new Array();
 let optArr = new Array();
 $('#addOpt').on('click', function(){ //상품 등록
-	bodyColor.push($('#bodyColor option:checked').text());
-	inkColor.push($('#inkColor option:checked').text());
-	pointSize.push($('#pointSize option:checked').val());
+	
+	//바디컬러는 상품에 따라 0개, 1개, 2개 이상일 수 있으므로 넘어온 값 가공 먼저 진행
+	let bodyColorValue = "";
+	if(!$('#bodyColor option:checked').text()) { //0개
+		bodyColorValue = "(해당없음)";
+	} else if($('#bodyColor option:checked').length > 1) { //2개 이상
+		for(let option of document.getElementById('bodyColor').options) {
+			if(option.selected) {
+				bodyColorValue += option.text + "$";
+			}
+		}
+	} else { //1개
+		bodyColorValue = $('#bodyColor option:checked').text();
+	}
+	//console.log(bodyColorValue);
+	
+	//잉크컬러 또한 상품에 따라 0개, 1개, 2개 이상일 수 있으므로 값 가공 먼저 진행
+	let inkColorValue = "";
+	if(!$('#inkColor option:checked').text()) { //0개
+		inkColorValue = "(해당없음)";
+	} else if($('#inkColor option:checked').length > 1) { //2개 이상
+		for(let option of document.getElementById('inkColor').options) {
+			if(option.selected) {
+				inkColorValue += option.text + "$";
+			}
+		}
+	} else {
+		inkColorValue = $('#inkColor option:checked').text();
+	}
+	//console.log(inkColorValue);
+	
+	//심두께 NaN 체크
+	let pointSizeValue = "";
+	if(isNaN($('#pointSize option:checked').val())) { //NaN
+		pointSizeValue = "(해당없음)";
+	} else if($('#pointSize option:checked').length > 1) {
+		for(let option of document.getElementById('pointSize').options) { //2개 이상
+			if(option.selected) {
+				pointSizeValue += option.value + "$";
+			}
+		}
+	} else { //1개
+		pointSizeValue = $('#pointSize option:checked').val();
+	}
+	//console.log(pointSizeValue);
+	
+	//입고량 체크
+	if($('#amount').val() == 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: '최소 입고량은 1개입니다',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				$('#deleteOpt').click(); //목록 반영된 내용 삭제
+				return;
+			}
+		})
+	}
+	
+	bodyColor.push(bodyColorValue);
+	inkColor.push(inkColorValue);
+	pointSize.push(pointSizeValue);
 	stockAmount.push($('#amount').val());
 	extraCharge.push($('#extraCharge').val());
 	
-	optArr.push({bodyColor : $('#bodyColor option:checked').text(),
-				 inkColor : $('#inkColor option:checked').text(),
+	optArr.push({bodyColor : bodyColorValue,
+				 inkColor : inkColorValue,
 				 pointSize : $('#pointSize option:checked').val(),
 				 stockAmount : $('#amount').val(),
 				 extraCharge : $('#extraCharge').val()}
@@ -363,3 +423,22 @@ function submitProductForm() {
 }
 
 /* 상품수정 폼 제출(발생한 수정사항에 대해서만 업데이트) */
+
+/* 상품상세페이지 URL 공유 */
+function shareCurrentPage() {
+	let url = '';
+	let textarea = document.createElement("textarea");
+	document.body.appendChild(textarea);
+	url = window.document.location.href;
+	textarea.value = url;
+	textarea.select();
+	document.execCommand("copy");
+	document.body.removeChild(textarea);
+	Swal.fire({
+	  position: 'top-end',
+	  icon: 'success',
+	  title: 'URL이 복사되었습니다',
+	  showConfirmButton: false,
+	  timer: 1500
+	})
+}

@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
 <head>
 	<meta charset="UTF-8">
 	<title>글벗문구</title>
+	<!-- CSS -->
+	<th:block layout:fragment="css">
+		<link th:href="@{/css/product.css}" rel="stylesheet">
+	</th:block>
 </head>
-<body>
-
+<body layout:fragment="content">
+	<div class="container content-wrapper">
+		<!-- <th:block th:with="color=${ color }">
+			<i class="fa-solid fa-circle" th:style="${ color }"></i>
+		</th:block>
+		<th:block th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}">
+			<i class="fa-solid fa-circle" th:style="${ body.getColor() }"></i>
+			<b th:style="${ body.getColor() }" th:text="${ body.getLabel() }"></b>
+		</th:block> -->
+		<div class="thumbnailBox">
+			<div class="zoom-wrapper">
+				<img th:data-zoom-image="${ mainThumb.savePath }" th:src="${ mainThumb.thumbnailPath }">
+			</div>
+		</div>
+		<div class="infoBox">
+			<div class="shareBox">
+				<ul>
+					<li><a href="#" onclick="shareCurrentPage(); return false;"><i class="fa-solid fa-link"></i> URL</a></li>
+				</ul>
+			</div>
+			<div class="title-wrapper">
+				<a href="#">[[${ detail.brand.brandName }]] <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+				<h2>[[${ detail.prodName }]]</h2>
+			</div>
+			<div>
+				<!-- ProductBodyColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
+				<ul>
+					<li class="th"><p>바디컬러</p></li>
+					<li class="td">
+						<th:block th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}">
+							<span th:each="bodyColor : ${ bodyColor }" th:if="${ bodyColor == body.getLabel() }">
+								<i class="fa-solid fa-circle" th:style="${ body.getColor() }"></i>
+								&nbsp;[[${ bodyColor }]]
+							</span>
+						</th:block>
+					</li>
+				</ul>
+				<!-- ProductInkColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
+				<ul>
+					<li class="th"><p>잉크컬러</p></li>
+					<li class="td">
+						<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
+							<span th:each="inkColor : ${ inkColor }" th:if="${ inkColor == ink.getLabel() }">
+								<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
+								&nbsp;[[${ inkColor }]]
+							</span>
+						</th:block>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>심두께 및 스펙</p></li>
+					<li class="td">
+						<th:block th:each="pointSize : ${ pointSize }" th:switch="${ pointSize }">
+							<hr th:case="0.3" style="width: 40px; height: 0.5px; background-color: #000; opacity: 100;">
+							<hr th:case="0.4" style="width: 40px; height: 0.7px; background-color: #000; opacity: 100;">
+							<hr th:case="0.5" style="width: 40px; height: 1px; background-color: #000; opacity: 100;">
+							<hr th:case="0.7" style="width: 40px; height: 1.5px; background-color: #000; opacity: 100;">
+							<hr th:case="0.9" style="width: 40px; height: 2px; background-color: #000; opacity: 100;">
+							<hr th:case="1.0" style="width: 40px; height: 2.2px; background-color: #000; opacity: 100;">
+							<hr th:case="1.2" style="width: 40px; height: 2.5px; background-color: #000; opacity: 100;">
+						</th:block>
+						<span th:each="pointSize : ${ pointSize }">&nbsp;&nbsp;&nbsp;[(${ pointSize })]mm</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    </th:block>
 </body>
 </html>
