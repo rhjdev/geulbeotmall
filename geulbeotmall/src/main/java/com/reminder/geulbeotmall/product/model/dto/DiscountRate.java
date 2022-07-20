@@ -5,7 +5,8 @@ public enum DiscountRate {
 	
 	ZERO(0),
 	TEN(10),
-	THIRTY(30);
+	THIRTY(30),
+	FORTY(40);
 	
 	/* DiscountRate.ZERO 형식으로 쓰이도록 선언 */
 	

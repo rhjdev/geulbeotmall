@@ -2,10 +2,13 @@ package com.reminder.geulbeotmall.product.model.dto;
 
 public enum PointSize {
 	
-	FIRST(0.5),
-	SECOND(0.7),
-	THIRD(1.0),
-	FOURTH(1.2);
+	FIRST(0.3),
+	SECOND(0.4),
+	THIRD(0.5),
+	FOURTH(0.7),
+	FIFTH(0.9),
+	SIXTH(1.0),
+	SEVENTH(1.2);
 	
 	private final double value;
 	
