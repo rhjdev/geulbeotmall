@@ -1,25 +1,28 @@
 /* 썸네일 미리보기 및 클릭 시 재선택 */
 let fileItems = document.querySelectorAll('[type=file]');
+let thumbTd = document.querySelectorAll('.thumbTd');
 let imageBox = document.querySelectorAll('.imageBox');
 fileItems.forEach(item => item.addEventListener('change', previewImage));
 
 function previewImage() {
 	let index = Array.from(fileItems).indexOf(this); //fileItems 기준으로 index 생성
+	//console.log(index);
 	if(this.files && this.files[0]) {
 		let reader = new FileReader();
 		reader.readAsDataURL(this.files[0]);
 		reader.onload = function() {
 			imageBox[index].innerHTML = "<img src='" + reader.result + "'>";
 		}
+	} else {
+		thumbTd.forEach(item => item.addEventListener('click', reselectImage));
 	}
 }
 
 function reselectImage() {
-	let index = Array.from(imageBox).indexOf(this); //imageBox 기준으로 index 생성
+	let index = Array.from(thumbTd).indexOf(this); //thumbTd 기준으로 index 생성
+	//console.log(index);
 	if(index == 0) {
-		$('#mainThumb').click();
-	} else {
-		$('#subThumb').click();
+		fileItems[index].click();	
 	}
 };
 

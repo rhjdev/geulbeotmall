@@ -76,4 +76,6 @@ public interface ProductService {
 	int stopSellingAProduct(int prodNo);
 
 	int putAProductOnSale(int prodNo);
+
+	int deleteProduct(int prodNo);
 }

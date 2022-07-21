@@ -97,6 +97,59 @@ function manageSale() {
 	});
 }
 
+function deleteProduct() {
+	let checkbox = $('input[name=checkItem]:checked');
+	let prodNo = "";
+	if(checkbox.length == 1) {
+		let tr = checkbox.parent().parent().eq(0);
+		let td = tr.children();
+		prodNo = td.eq(1).text(); //td 태그 중 1번 index에 해당하는 text
+		
+		Swal.fire({
+		icon: 'warning',
+		title: '선택한 상품을 삭제하시겠습니까?',
+		confirmButtonColor: '#00008b',
+		confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				$.ajax({
+					url : '/admin/product/deleteProduct',
+					type : 'post',
+					traditional : true,
+					dataType : 'text',
+					data : { no : prodNo },
+					success : function(result){
+						if(result == '성공') {
+							Swal.fire({
+								icon: 'success',
+								title: '상품이 삭제되었습니다',
+								confirmButtonColor: '#00008b',
+								confirmButtonText: '확인'
+							}).then((result) => {
+								if(result.isConfirmed) {
+									history.go(0);
+								}
+							})
+						}
+					},
+					error : function(status, error){ console.log(status, error); }
+				});
+			}
+		})
+	} else {
+		Swal.fire({
+			icon: 'warning',
+			title: '1개의 상품을 체크하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				history.go(0);
+			}
+		})
+	}
+}
+
 /* 새로고침 */
 function refreshList() {
 	window.location.assign('/admin/product/list');

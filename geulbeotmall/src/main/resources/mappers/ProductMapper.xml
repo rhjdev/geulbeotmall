@@ -305,7 +305,7 @@
 	<!-- 전체상품 개수 조회 -->
 	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
+			   COUNT(DISTINCT A.PROD_NAME)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -324,7 +324,7 @@
 	<!-- 판매중 상품 개수 조회 -->
 	<select id="getOnSaleNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
+			   COUNT(DISTINCT A.PROD_NAME)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -344,7 +344,7 @@
 	<!-- 판매중지 상품 개수 조회 -->
 	<select id="getStopSaleNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
+			   COUNT(DISTINCT A.PROD_NAME)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -364,7 +364,7 @@
 	<!-- 할인중 상품 개수 조회 -->
 	<select id="getOnDiscountNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
+			   COUNT(DISTINCT A.PROD_NAME)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -384,7 +384,7 @@
 	<!-- 품절 상품 개수 조회 -->
 	<select id="getSoldOutNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
+			   COUNT(DISTINCT A.PROD_NAME)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -716,4 +716,36 @@
 		     , PROD_CHANGE_DATE = SYSDATE
 		 WHERE PROD_NO = #{ prodNo }
 	</update>
+	
+	<!-- 상품 목록에서 완전삭제 *잘못된 정보가 게재된 경우에 한함* -->
+	<delete id="deleteOption"> <!-- 1.옵션 삭제 -->
+		DELETE
+		  FROM TBL_OPTION A
+		 WHERE A.REF_PROD_NO = (SELECT
+		 							   B.PROD_NO
+		 						  FROM TBL_PRODUCT B
+		 						 WHERE A.REF_PROD_NO = B.PROD_NO
+		 						   AND B.PROD_NO = #{ prodNo })
+	</delete>
+	<delete id="deleteOptionStock"> <!-- 2.해당 옵션의 입고량 삭제 -->
+		DELETE
+		  FROM TBL_STOCK A
+		 WHERE A.STOCK_NO NOT IN (SELECT
+		 							     B.REF_STOCK_NO
+		 							FROM TBL_OPTION B)
+	</delete>
+	<delete id="deleteAttachment"> <!-- 3.첨부파일 삭제 -->
+		DELETE
+		  FROM TBL_ATTACHMENT A
+		 WHERE A.REF_PROD_NO = (SELECT
+		 							   B.PROD_NO
+		 						  FROM TBL_PRODUCT B
+		 						 WHERE A.REF_PROD_NO = B.PROD_NO
+		 						   AND B.PROD_NO = #{ prodNo })
+	</delete>
+	<delete id="deleteProduct"> <!-- 4. 상품 삭제 -->
+		DELETE
+		  FROM TBL_PRODUCT
+		 WHERE PROD_NO = #{ prodNo }
+	</delete>
 </mapper>

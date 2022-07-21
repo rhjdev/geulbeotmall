@@ -42,6 +42,7 @@
 .infoBox {
 	float: right;
 	width: 50%;
+	font-size: 14px;
 }
 
 .title-wrapper {
@@ -92,11 +93,37 @@
 }
 
 .td i {
-	transform : scale(1.5);
+	transform : scale(1.6);
 }
 
-.td span {
-    margin-inline-end: 10%;
+.color-wrapper ul {
+	height: auto;
+}
+
+.color-th {
+	align-items: center;
+}
+
+.color-td {
+	display: list-item;
+}
+
+.color-span {
+	float: left;
+	width: 25%;
+	height: 44px;
+	line-height: 44px;
+	word-break: normal;
+}
+
+.tag-span {
+	display: inline-block;
+	line-height: 36px;
+	padding: 0 15px;
+	margin-inline-end: 4px;
+	background-color: #f9f9f9;
+	width: -moz-fit-content;
+	width: fit-content;
 }
 
 a {

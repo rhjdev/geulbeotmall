@@ -187,4 +187,12 @@ public class ProductServiceImpl implements ProductService {
 	public int putAProductOnSale(int prodNo) {
 		return productMapper.putAProductOnSale(prodNo);
 	}
+
+	@Override
+	public int deleteProduct(int prodNo) {
+		productMapper.deleteOption(prodNo);
+		productMapper.deleteOptionStock();
+		productMapper.deleteAttachment(prodNo);
+		return productMapper.deleteProduct(prodNo);
+	}
 }

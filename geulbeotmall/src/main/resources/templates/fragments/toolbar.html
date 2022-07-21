@@ -49,6 +49,8 @@
      	<!-- 판매여부변경 버튼은 상품목록/상세조회 페이지 모두 보여짐 -->
      	&nbsp;
      	<button type="button" class="btn btn-outline-primary" onclick="manageSale()"><i class="fa-solid fa-arrow-right-arrow-left"></i> 변경</button>
+    	&nbsp;&nbsp;&nbsp;
+    	<button type="button" class="btn btn-outline-danger" onclick="deleteProduct()"><i class="fa-solid fa-ban"></i> 완전삭제</button>
     	
     	<!-- URL 파라미터로서 keyword가 존재할 때만 새로고침 버튼 보이기 -->
     	<th:block th:if="${#request.getParameter('keyword') != null}">

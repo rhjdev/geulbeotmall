@@ -40,7 +40,6 @@ import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
-import com.reminder.geulbeotmall.product.model.dto.ProductBodyColor;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.dto.StockDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
@@ -518,6 +517,18 @@ public class ProductController {
 		return result;
 	}
 	
+	/**
+	 * 상품 목록에서 완전삭제
+	 */
+	@PostMapping(value="/admin/product/deleteProduct", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String deleteProduct(@RequestParam("no") int prodNo, Model model) {
+		String result = "";
+		int count = productService.deleteProduct(prodNo);
+		if(count == 1) { result = "성공"; }
+		return result;
+	}
+	
 	@GetMapping("/product/details")
 	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
 		/* 상품 상세 정보 호출 */
@@ -530,18 +541,44 @@ public class ProductController {
 		/* 상세 정보 중 옵션값 가공 */
 		List<OptionDTO> option = productService.getOptionListByProdNo(prodNo);
 		List<String> bodyColor = new ArrayList<>();
-		for(OptionDTO o : option) { //바디컬러 중복값 제거
-			if(bodyColor.contains(o.getBodyColor())) {
-				continue;
+		for(OptionDTO o : option) { //바디컬러 단일-세트상품별 값 가공 및 중복값 제거
+			if(o.getBodyColor().equals("(해당없음)")) { //조회된 바디컬러가 0개인 경우
+				bodyColor.add("(해당없음)");
+			}
+			if(o.getBodyColor().contains("$")) { //조회된 바디컬러가 2개 이상인 경우(세트상품)
+				String[] colors = o.getBodyColor().split("\\$");
+				for(int i=0; i < colors.length; i++) {
+					if(!bodyColor.contains(colors[i])) {
+						//log.info(colors[i]);
+						bodyColor.add(colors[i]);
+					}
+				}
+			} else {
+				if(bodyColor.contains(o.getBodyColor())) {
+					continue;
+				}
+				bodyColor.add(o.getBodyColor());
 			} 
-			bodyColor.add(o.getBodyColor());
 		}
 		List<String> inkColor = new ArrayList<>();
-		for(OptionDTO o : option) { //잉크컬러 중복값 제거
-			if(inkColor.contains(o.getInkColor())) {
-				continue;
+		for(OptionDTO o : option) { //잉크컬러 단일-세트상품별 값 가공 및 중복값 제거
+			//log.info(o.getInkColor());
+			if(o.getInkColor().equals("(해당없음)")) { //조회된 잉크컬러가 0개인 경우
+				inkColor.add("(해당없음)");
+			} else if(o.getInkColor().contains("$")) { //조회된 잉크컬러가 2개 이상인 경우(세트상품)
+				String[] colors = o.getInkColor().split("\\$");
+				for(int i=0; i < colors.length; i++) {
+					if(!inkColor.contains(colors[i])) {
+						//log.info(colors[i]);
+						inkColor.add(colors[i]);
+					}
+				}
+			} else {
+				if(inkColor.contains(o.getInkColor())) {
+					continue;
+				}
+				inkColor.add(o.getInkColor());
 			} 
-			inkColor.add(o.getInkColor());
 		}
 		List<String> pointSize = new ArrayList<>();
 		for(OptionDTO o: option) { //심두께 중복값 제거
@@ -551,11 +588,21 @@ public class ProductController {
 			pointSize.add(String.valueOf(o.getPointSize()));
 		}
 		
+		List<String> tagList = new ArrayList<>();
+		for(OptionDTO o : option) {
+			String[] tags = detail.getProductTag().split("\\[|\\]|,| "); //여러 개의 구분자를 사용하기 위해서는 버티컬바(|)로 구분 필요, 대괄호는 이스케이프 문자 적용 대상
+			for(int i=0; i < tags.length; i++) {
+				tagList.add(tags[i]);
+				//log.info(tags[i]);
+			}
+		}
+		
 		model.addAttribute("detail", detail);
 		model.addAttribute("option", option);
 		model.addAttribute("bodyColor", bodyColor);
 		model.addAttribute("inkColor", inkColor);
 		model.addAttribute("pointSize", pointSize);
+		model.addAttribute("tagList", tagList);
 		model.addAttribute("mainThumb", mainThumb);
 		model.addAttribute("subThumb", subThumb);
 	}

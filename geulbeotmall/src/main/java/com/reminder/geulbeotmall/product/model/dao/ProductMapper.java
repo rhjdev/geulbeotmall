@@ -82,4 +82,12 @@ public interface ProductMapper {
 	int stopSellingAProduct(int prodNo);
 
 	int putAProductOnSale(int prodNo);
+	
+	void deleteOption(int prodNo);
+	
+	void deleteOptionStock();
+	
+	void deleteAttachment(int prodNo);
+
+	int deleteProduct(int prodNo);
 }
