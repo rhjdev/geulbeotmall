@@ -10,16 +10,9 @@
 </head>
 <body layout:fragment="content">
 	<div class="container content-wrapper">
-		<!-- <th:block th:with="color=${ color }">
-			<i class="fa-solid fa-circle" th:style="${ color }"></i>
-		</th:block>
-		<th:block th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}">
-			<i class="fa-solid fa-circle" th:style="${ body.getColor() }"></i>
-			<b th:style="${ body.getColor() }" th:text="${ body.getLabel() }"></b>
-		</th:block> -->
 		<div class="thumbnailBox">
 			<div class="zoom-wrapper">
-				<img th:data-zoom-image="${ mainThumb.savePath }" th:src="${ mainThumb.thumbnailPath }">
+				<img id="thumbnail" th:src="${ mainThumb.thumbnailPath }" th:data-zoom-image="${ mainThumb.savePath }">
 			</div>
 		</div>
 		<div class="infoBox">
@@ -32,52 +25,169 @@
 				<a href="#">[[${ detail.brand.brandName }]] <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
 				<h2>[[${ detail.prodName }]]</h2>
 			</div>
-			<div>
+			<div class="color-wrapper">
 				<!-- ProductBodyColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
-				<ul>
-					<li class="th"><p>바디컬러</p></li>
-					<li class="td">
-						<th:block th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}">
-							<span th:each="bodyColor : ${ bodyColor }" th:if="${ bodyColor == body.getLabel() }">
-								<i class="fa-solid fa-circle" th:style="${ body.getColor() }"></i>
-								&nbsp;[[${ bodyColor }]]
-							</span>
-						</th:block>
-					</li>
-				</ul>
+				<!-- list에 '(해당없음)'이 포함된 경우는 바디컬러 0개이므로 출력에서 제외 -->
+				<th:block th:with="bodyColor=${ bodyColor }" th:unless="${#lists.contains(bodyColor, '(해당없음)')}">
+					<ul>
+						<li class="th color-th"><p>바디컬러</p></li>
+						<li class="td color-td">
+							<th:block th:each="body : ${T(com.reminder.geulbeotmall.product.model.dto.ProductBodyColor).values()}">
+								<span class="color-span" th:each="bodyColor : ${ bodyColor }" th:if="${ bodyColor == body.getLabel() }">
+									<i class="fa-solid fa-circle" th:style="${ body.getColor() }"></i>
+									&nbsp;[[${ bodyColor }]]
+								</span>
+							</th:block>
+						</li>
+					</ul>
+				</th:block>
 				<!-- ProductInkColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
 				<ul>
-					<li class="th"><p>잉크컬러</p></li>
-					<li class="td">
+					<li class="th color-th"><p>잉크컬러</p></li>
+					<li class="td color-td">
 						<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
-							<span th:each="inkColor : ${ inkColor }" th:if="${ inkColor == ink.getLabel() }">
+							<span class="color-span" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index < 7 }">
 								<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
 								&nbsp;[[${ inkColor }]]
 							</span>
 						</th:block>
+						<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
+							<span class="color-span color-hide" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index > 7 }" style="display: none;">
+								<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
+								&nbsp;[[${ inkColor }]]
+							</span>
+						</th:block>
+						<th:block th:with="inkColor=${ inkColor }" th:if="${#lists.size(inkColor) > 7}">
+							<span class="color-more"><a href="#" style="color: #6c757d;" onclick="return false;">더보기</a></span>
+						</th:block>
 					</li>
 				</ul>
+			</div>
+			<div class="size-wrapper">
 				<ul>
 					<li class="th"><p>심두께 및 스펙</p></li>
 					<li class="td">
 						<th:block th:each="pointSize : ${ pointSize }" th:switch="${ pointSize }">
-							<hr th:case="0.3" style="width: 40px; height: 0.5px; background-color: #000; opacity: 100;">
-							<hr th:case="0.4" style="width: 40px; height: 0.7px; background-color: #000; opacity: 100;">
-							<hr th:case="0.5" style="width: 40px; height: 1px; background-color: #000; opacity: 100;">
-							<hr th:case="0.7" style="width: 40px; height: 1.5px; background-color: #000; opacity: 100;">
-							<hr th:case="0.9" style="width: 40px; height: 2px; background-color: #000; opacity: 100;">
-							<hr th:case="1.0" style="width: 40px; height: 2.2px; background-color: #000; opacity: 100;">
-							<hr th:case="1.2" style="width: 40px; height: 2.5px; background-color: #000; opacity: 100;">
+							<hr class="point" th:case="0.3" style="height: 0.5px;">
+							<hr class="point" th:case="0.4" style="height: 0.7px;">
+							<hr class="point" th:case="0.5" style="height: 1.0px;">
+							<hr class="point" th:case="0.7" style="height: 1.5px;">
+							<hr class="point" th:case="0.9" style="height: 2.0px;">
+							<hr class="point" th:case="1.0" style="height: 2.2px;">
+							<hr class="point" th:case="1.2" style="height: 2.5px;">
 						</th:block>
 						<span th:each="pointSize : ${ pointSize }">&nbsp;&nbsp;&nbsp;[(${ pointSize })]mm</span>
 					</li>
 				</ul>
+			</div>
+			<div class="tag-wrapper">
+				<ul>
+					<li class="th"><p>주요 특징</p></li>
+					<li class="td" style="display: block;">
+						<th:block th:each="tag : ${ tagList }">
+							<span class="tag-span">[[${ tag }]]</span>
+						</th:block>
+					</li>
+				</ul>
+			</div>
+			<hr>
+			<div class="price-wrapper">
+				<ul>
+					<li class="th"><p>판매가</p></li>
+					<!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+					<li class="td" th:if="${detail.discountRate} == 0">
+						<span>[[${#numbers.formatInteger(detail.prodPrice, 3, 'COMMA')}]]원</span> <!-- 세 자리마다 구분자 삽입 -->
+					</li>
+                	<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+					<li class="td" th:if="${detail.discountRate} > 0">
+                		<del><span>[[${#numbers.formatInteger((detail.prodPrice), 3, 'COMMA')}]]원</span></del>
+                		<span>&nbsp;&nbsp;[[${#numbers.formatInteger(detail.prodPrice - (detail.prodPrice * detail.discountRate / 100), 3, 'COMMA')}]]원</span>
+                		<span>&nbsp;&nbsp;[[${ detail.discountRate }]]%</span>
+					</li>
+				</ul>
+			</div>
+			<div class="brand-wrapper">
+				<ul>
+					<li class="th"><p>원산지/판매원</p></li>
+					<li class="td"><span>[[${ detail.prodOrigin }]] / [[${ detail.brand.brandName }]]</span></li>
+				</ul>
+			</div>
+			<div class="delivery-wrapper">
+				<ul>
+					<li class="th"><p>배송 정보</p></li>
+					<li class="td">
+						<span>16시 이전 주문 시 당일출고(공휴일,토/일요일제외)</span>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송비</p></li>
+					<li class="td">
+						<span>3,000원 (2만원 이상 주문 시 무료 배송)</span>
+					</li>
+				</ul>
+			</div>
+			<hr>
+			<div class="selector-wrapper">
+				<ul>
+					<li class="th"><p>옵션 선택</p></li>
+					<li class="td">
+						<div id="optionSelector" class="dropdown" tabindex="0">
+							<span class="current" style="line-height: 40px;">선택하세요</span>
+							<div class="list">
+								<ul>
+								<th:block th:with="option=${ option }" th:if="${#lists.size(option) == 1}">
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }">[[${ detail.prodName }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+								</th:block>
+								<th:block th:with="option=${ option }" th:if="${#lists.size(option) > 1}">
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }">[[${ option.bodyColor }]]/[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+								</th:block>
+								</ul>
+							</div>
+							<i class="fa-solid fa-chevron-down"></i>
+						</div>
+					</li>
+				</ul>
+				<form id="productOrderForm" name="productOrderForm" action="">
+					<div id="selectedOption">
+						<div class="getHiddenPrice" th:value="${ detail.prodPrice - (detail.prodPrice * detail.discountRate / 100) }" th:text="|${#numbers.formatInteger((detail.prodPrice - (detail.prodPrice * detail.discountRate / 100)), 3, 'COMMA')}원|" hidden="hidden"></div>
+					</div>
+					<div id="sumTotal">
+						<span>총 상품금액</span>
+						<span id="totalPrice">0</span>
+						원
+					</div>
+					<div class="buttonBox">
+						<button type="button" class="btn" id="cartBtn">장바구니</button>
+						<button type="button" class="btn btn-dark" id="buyBtn">바로구매</button>
+						<button type="button" class="btn" id="wishBtn"><i class="fa-regular fa-heart"></i> 찜</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="container content-wrapper">
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail" type="button" role="tab" aria-controls="detail" aria-selected="true">상품상세정보</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">상품리뷰</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<!-- 상품상세정보 -->
+			<div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">[(${ detail.prodDetailContent })]
 			</div>
 		</div>
 	</div>
 	<!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    	<!-- ElevateZoom-Plus -->
+		<script type="text/javascript" src="https://cdn.rawgit.com/igorlino/elevatezoom-plus/1.1.6/src/jquery.ez-plus.js"></script>
+		<script>
+		$('#thumbnail').ezPlus({scrollZoom: true});
+		</script>
     </th:block>
 </body>
 </html>

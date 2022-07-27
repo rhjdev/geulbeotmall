@@ -96,6 +96,23 @@
 	transform : scale(1.6);
 }
 
+select {
+    display: block;
+    border: 1px solid #E5E5E5;
+    width: 100%;
+    height: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 6px 0;
+}
+
+.td select {
+	width: 100%;
+	height: 100%;
+	border: 1px solid #E5E5E5;
+	border-radius: 0;
+}
+
 .color-wrapper ul {
 	height: auto;
 }
@@ -106,6 +123,7 @@
 
 .color-td {
 	display: list-item;
+	height: 100%;
 }
 
 .color-span {
@@ -114,6 +132,16 @@
 	height: 44px;
 	line-height: 44px;
 	word-break: normal;
+}
+
+.color-more {
+	line-height: 44px;
+}
+
+.point {
+	width: 40px;
+	background-color: #000;
+	opacity: 100;
 }
 
 .tag-span {
@@ -126,7 +154,254 @@
 	width: fit-content;
 }
 
+.price-wrapper span {
+	font-size: 18px;
+	font-weight: bold;
+	color: #ff0000;
+}
+
+.price-wrapper del span {
+	font-weight: normal;
+	color: #000;
+}
+
+.dropdown {
+	display: block;
+    border: 1px solid #E5E5E5;
+    width: 100%;
+    height: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 6px 0;
+}
+
+.dropdown.open:after {
+	transform: rotate(-180deg);
+}
+
+.dropdown .list {
+	position: absolute; /* 상단의 div와 크기 맞춤 */
+	left: -1px;
+	right: -1px;
+	top: 100%; /* 상단의 div 높이에서 이어짐 */
+	margin-top: 0;
+	padding: 0;
+	max-height: 200px;
+	overflow: auto;
+	box-sizing: border-box;
+	background-color: #fff;
+	border: 1px solid #E5E5E5;
+	transition: all 0.15s cubic-bezier(0.25, 0, 0.25, 1.75), opacity 0.1s linear;
+	transform: scale(1);
+	transform-origin: 50% 0;
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+	z-index: 999;
+}
+.dropdown .list:hover .option:not(:hover) {
+	background-color: transparent!important;
+}
+
+.dropdown.open .list {
+	transform: scale(1);
+	opacity: 1;
+	pointer-events: auto;
+	overflow: auto;
+}
+.dropdown.open .list ul {
+	display: contents;
+}
+
+.dropdown i {
+	position: absolute;
+	transform : scale(0.7);
+	right: 0;
+	margin-inline-end: 20px !important;
+	line-height: 40px;
+}
+
+.dropdown span {
+	cursor: default;
+}
+
+.dropdown.open .option {
+	cursor: pointer;
+}
+
+.dropdown .option {
+	padding: 10px 20px 10px 20px;
+	line-height: 20px;
+	font-size:14px;
+	font-weight:400;
+	text-align:left;
+	white-space:normal;
+	cursor:default;
+	outline:none;
+	transition:all 0.2s;
+}
+
+.dropdown .option img {display:inline-block;margin:0 5px 2px 0;width:16px;height:16px;vertical-align:middle;}
+.dropdown .option:hover, .dropdown .option:focus {
+	background-color: #f9f9f9 !important;
+	border-bottom: 2px solid #6c757d;
+}
+.dropdown .option.selected:focus {
+	background: #f9f9f9;
+	border-bottom: 2px solid #6c757d;
+}
+
+#selectedOption {
+	margin-top: 30px;
+}
+
+.selectedInfo {
+	display: -webkit-box;
+	width: 100%;
+	padding: 18px 20px;
+	background-color: #f9f9f9;
+	border-bottom: 1px solid #E5E5E5;
+}
+
+.selectedAmount {
+	width: 50px;
+	height: 32px;
+	text-align: center;
+	border-top: 1px solid #E5E5E5;
+	border-bottom: 1px solid #E5E5E5;
+	border-left: 0;
+	border-right: 0;
+}
+
+#selectedName {
+	width: 50%;
+	line-height: 30px;
+}
+
+/* input[type=number] spinner 숨기기 */
+.selectedAmount::-webkit-inner-spin-button,
+.selectedAmount::-webkit-outer-spin-button {
+	-webkit-appearance: none; 
+	margin: 0;
+}
+
+.selectedPrice {
+	width: 30%;
+	right: 0;
+	text-align: center;
+	line-height: 30px;
+}
+
+.countBox {
+	display: inline-flex;
+	width: 40%;
+	margin: 0 auto;
+}
+
+.countBox button {
+	background-color: #fff;
+	border: 1px solid #E5E5E5;
+}
+
+.button-delete {
+	width: 20%;
+	border: 1px solid #E5E5E5;
+	line-height: 30px;
+}
+	
+.button-delete i {
+	padding: 0 4px;
+	background-color: #fff;
+}
+
+/* zoom */
+.zoomContainer {
+	position: absolute;
+	z-index: 20 !important;
+}
+.zoomLens {
+	position: absolute;
+	width: 540px;
+	height: 540px;
+	border: 0 !important;
+	cursor: pointer !important;
+}
+
+.zoomWindowContainer {
+	width: 540px !important;
+}
+
+.zoomWindow {
+	z-index: 100;
+	position: absolute;
+	width: 540px !important;
+	height: 540px !important;
+	border: 0 !important;
+	left: 570px !important;
+}
+
+#sumTotal {
+	font-size: 1.2rem;
+	text-align: right;
+	margin-block-start: 3%;
+}
+
+#totalPrice {
+	display: inline-block;
+	width: 26%;
+	font-size: 1.9rem;
+	font-weight: 700;
+	text-align: right;
+}
+
+/* 버튼 */
+.buttonBox {
+    display: flex;
+    margin-block-start: 10%;
+    margin-block-end: 10%;
+}
+
+.buttonBox button {
+    width: 50%;
+    height: 44px;
+    box-shadow: none !important;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 0;
+}
+
+.buttonBox .btn:hover {
+	opacity: 93%;
+}
+
+#cartBtn {
+	background-color: #6c757d;
+	color: #fff;
+}
+
+#buyBtn {
+	margin-inline-start: 3%;
+}
+
+#wishBtn {
+	width: 15%;
+	margin-inline-start: 3%;
+	border: 1px solid #E5E5E5;
+}
+
+#wishBtn:hover {
+	border-color: #000;
+}
+
+.fa-heart:hover {
+	color: #ff0000;
+}
+
 a {
 	color: #000;
 	text-decoration: none;
+}
+
+a:hover {
+	color: #ff0000;
 }

@@ -445,3 +445,161 @@ function shareCurrentPage() {
 	  timer: 1500
 	})
 }
+
+/* 색상 더보기 버튼 */
+$('.color-more').on('click', function(){
+	$('.color-hide').attr('style', 'display: inline-block');
+	$('.color-more a').toggleClass('active');
+	if($('.color-more a').hasClass('active')) {
+		$('.color-more a').text('닫기');
+	} else {
+		$('.color-hide').attr('style', 'display: none');
+		$('.color-more a').text('더보기');
+	}
+});
+
+/* 옵션 드롭다운 */
+$('.dropdown').on('click', function() {
+	$('.dropdown').not($(this)).removeClass('open');
+	$(this).toggleClass('open');
+	if ($(this).hasClass('open')){
+		$(this).find('.option').attr('tabindex', 0);
+		$(this).find('.selected').focus();
+	} else {
+		$(this).find('.option').removeAttr('tabindex');
+		$(this).focus();
+	}
+});
+
+
+/* 드롭다운 옵션 선택 시 */
+let selectedIdx = 0;
+$('.dropdown .option').on('click', function() {
+	$(this).closest('.list').find('.selected').removeClass('selected');
+	$(this).addClass('selected');
+	//이미 선택된 옵션인지 확인
+	if($('#selectedName').text() === $('.selected').text()) {
+		Swal.fire({
+			icon: 'warning',
+			title: '이미 선택된 옵션입니다',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				return;
+			}
+		})
+		return;
+	}
+	
+	$('#selectedOption').append(
+		'<div class="selectedInfo">' +
+			'<div id="selectedName" class="selectedName' + selectedIdx + '"></div>' +
+			'<div class="countBox">' +
+				'<button type="button" class="button-down" disabled><i class="fa-solid fa-minus"></i></button>' +
+				'<input type="number" class="selectedAmount" name="selectedAmount" value="1">' +
+				'<button type="button" class="button-up" class="button-up"><i class="fa-solid fa-plus"></i></button>' +
+			'</div>' +
+			'<div class="selectedPrice"></div>' +
+			'<a href="#" class="button-delete" onclick="reset(); return false;"><i class="fa-solid fa-xmark"></i></a>' +
+		'</div>'
+	)
+	
+	let prodName = $('.selected').text(); //상품명
+	$('.selectedName' + selectedIdx).text(prodName);
+	
+	let hiddenPriceValue = $('.getHiddenPrice').attr('value'); //판매가 value
+	let hiddenPriceText = $('.getHiddenPrice').text(); //판매가 text
+	$('.selectedPrice').text(hiddenPriceText);
+	$('.selectedPrice').attr('value', hiddenPriceValue);
+	
+	//let text = $(this).data('display-text') || $(this).html();
+	//$(this).closest('.dropdown').find('.current').html(text); //선택값 반영
+	//$(this).closest('.dropdown').prev('select').val($(this).data('value')).trigger('change');
+	selectedIdx++;
+	
+	sumTotalPrice();
+});
+
+/* 수량 증가 */
+$(document).on('click', '.countBox .button-up', function(){ //up 버튼
+	let selectedAmount = $(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(); //input
+	//console.log("selectedAmount : " + selectedAmount);
+	let count = parseInt(selectedAmount);
+	count++;
+	if(count > 1) {
+		$(this).closest('div.selectedInfo').find('.button-down').prop('disabled', false);
+	}
+	$(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(count); //증가한 수량 대입
+	
+	//수량에 따른 판매가 계산
+	let originalPrice = $('.getHiddenPrice').attr('value');
+	let price = parseInt(originalPrice);
+	let result = count * price;
+	$(this).closest('div.selectedInfo').find('.selectedPrice').attr('value', result);
+	$(this).closest('div.selectedInfo').find('.selectedPrice').text(result.toLocaleString('ko-KR') + "원"); //원화 단위로 출력
+	sumTotalPrice();
+});
+
+/* 수량 감소 */
+$(document).on('click', '.countBox .button-down', function(){ //down 버튼
+	let selectedAmount = $(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(); //input
+	//console.log("selectedAmount : " + selectedAmount);
+	let count = parseInt(selectedAmount);
+	count--;
+	console.log(count);
+	if(count == 1) {
+		$(this).closest('div.selectedInfo').find('.button-down').prop('disabled', true);
+	}
+	$(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(count); //감소한 수량 대입
+	
+	//수량에 따른 판매가 계산
+	let originalPrice = $('.getHiddenPrice').attr('value');
+	let price = parseInt(originalPrice);
+	let result = count * price;
+	$(this).closest('div.selectedInfo').find('.selectedPrice').attr('value', result);
+	$(this).closest('div.selectedInfo').find('.selectedPrice').text(result.toLocaleString('ko-KR') + "원"); //원화 단위로 출력
+	sumTotalPrice();
+});
+
+/* 상품 주문 : 옵션 선택 */
+let orderOption = new Array();
+let optionNo = ""; //주문용 번호
+
+/* 수량 변경 */
+$(document).on('change', 'input[name=selectedAmount]', function(){ //input 값 변경
+	let selectedAmount = $(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(); //input
+	let count = parseInt(selectedAmount);
+	if(count > 1) {
+		$(this).closest('div.selectedInfo').find('.button-down').prop('disabled', false);
+	} else if(count == 1) {
+		$(this).closest('div.selectedInfo').find('.button-down').prop('disabled', true);
+	}
+	
+	//수량에 따른 판매가 계산
+	let originalPrice = $('.getHiddenPrice').attr('value');
+	let price = parseInt(originalPrice);
+	let result = count * price;
+	$(this).closest('div.selectedInfo').find('.selectedPrice').attr('value', result);
+	$(this).closest('div.selectedInfo').find('.selectedPrice').text(result.toLocaleString('ko-KR') + "원"); //원화 단위로 출력
+	
+	sumTotalPrice();
+});
+
+function sumTotalPrice() {
+	let total = 0;
+	document.querySelectorAll('.selectedPrice').forEach(function(item){
+		let price = parseInt(item.getAttribute('value'));
+		total +=  price;
+		console.log(item.getAttribute('value'));
+		console.log(total);
+	});
+	$('#totalPrice').text(total.toLocaleString('ko-KR'));
+}
+
+function reset() {
+	let btn = document.querySelector('.button-delete');
+	let div = btn.closest('.selectedInfo');
+	div.remove();
+	sumTotalPrice(); //합계 금액 다시 계산
+};
