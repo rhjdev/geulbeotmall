@@ -18,14 +18,17 @@ public interface MemberMapper {
 	int insertRole(RoleDTO role);				//회원 권한 등록
 	
 	/* 로그인 */
-	void updateFailCountReset(String username);	//성공 시 로그인 실패 횟수 리셋
+	void updateAccumLoginCount(String username);	//성공 시 로그인 횟수 누적
 	
-	void updateFailCount(String username);		//실패 시 로그인 실패 횟수 증가
+	void updateLatestLoginDate(String username);	//성공 시 최근 로그인 일시 업데이트
 	
-	int checkLoginFailureCount(String username);//로그인 실패 횟수 조회
+	void resetLoginFailedCount(String username);	//성공 시 로그인 실패 횟수 리셋
+	
+	void updateLoginFailedCount(String username);	//실패 시 로그인 실패 횟수 증가
+	
+	int checkLoginFailedCount(String username);		//로그인 실패 횟수 조회
 	
 	MemberDTO findMemberById(String username);
 
 	void deactivateUsername(String username);
-
 }

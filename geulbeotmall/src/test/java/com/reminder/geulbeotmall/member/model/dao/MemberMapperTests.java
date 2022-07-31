@@ -81,8 +81,8 @@ public class MemberMapperTests {
 		String password = "1234";
 		
 		//when
-		memberMapper.updateFailCount(username);
-		int count = memberMapper.checkLoginFailureCount(username);
+		memberMapper.updateLoginFailedCount(username);
+		int count = memberMapper.checkLoginFailedCount(username);
 		
 		//then
 		assertEquals(1, count);

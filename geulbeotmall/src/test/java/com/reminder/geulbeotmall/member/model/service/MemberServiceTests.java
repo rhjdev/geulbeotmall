@@ -71,5 +71,19 @@ public class MemberServiceTests {
 		assertEquals(1, count);
 	}
 	
-	
+	@Test
+	@DisplayName("로그인 실패 시 카운팅 증가 여부 서비스 테스트")
+	public void testLoginFailed() {
+		
+		//given
+		String username = "user01";
+		String password = "1234";
+		
+		//when
+		memberService.updateLoginFailedCount(username);
+		int count = memberService.checkLoginFailedCount(username);
+		
+		//then
+		assertEquals(1, count);
+	}
 }

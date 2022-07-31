@@ -15,12 +15,15 @@ public interface MemberService extends UserDetailsService {
 	
 	boolean signUpMember(MemberDTO member) throws Exception;
 	
-	void updateFailCountReset(String username);
+	void updateAccumLoginCount(String username);
 	
-	void updateFailCount(String username);
+	void updateLatestLoginDate(String username);
+	
+	void resetLoginFailedCount(String username);
+	
+	void updateLoginFailedCount(String username);
 
-	int checkLoginFailureCount(String username);
+	int checkLoginFailedCount(String username);
 
 	void deactivateUsername(String username);
-
 }

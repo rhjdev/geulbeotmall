@@ -10,14 +10,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/member")
+@SessionAttributes({"loginMember"})
 public class MemberController {
 	
 	private final MemberService memberService;
@@ -50,11 +51,11 @@ public class MemberController {
 	/**
 	 * 커스터마이징한 유효성 검증 추가
 	 */
-	@InitBinder
-	public void init(WebDataBinder binder) {
-		log.info("init binder : {}", binder);
-		binder.addValidators(signUpValidator);
-	}
+//	@InitBinder
+//	public void init(WebDataBinder binder) {
+//		log.info("init binder : {}", binder);
+//		binder.addValidators(signUpValidator);
+//	}
 	
 	/**
 	 * 아이디 중복 검사
@@ -128,7 +129,8 @@ public class MemberController {
 	public void signInForm() {}
 	
 	@PostMapping("signin")
-	public void signInMember(@RequestParam(required=false) String errorMessage, Model model) {
+	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+		model.addAttribute("loginMember", user.getMemberId()); //상단의 @SessionAttributes 어노테이션을 타고 session상에 현재 회원 정보 저장
 		model.addAttribute("errorMessage", errorMessage);
 	}
 	
@@ -136,5 +138,10 @@ public class MemberController {
 	public void mypage(@AuthenticationPrincipal UserImpl user) {
 		//로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
+	}
+	
+	@GetMapping("signout")
+	public void signOut(SessionStatus status) {
+		status.setComplete(); //@SessionAttributes 어노테이션과 함께 session에 저장했던 속성 삭제
 	}
 }

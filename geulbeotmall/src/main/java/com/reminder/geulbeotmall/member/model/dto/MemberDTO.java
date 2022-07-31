@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
 import lombok.Data;
 
@@ -42,6 +43,7 @@ public class MemberDTO {
 	private int loginFailedCount;	//로그인연속실패횟수
 	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss SSS")
 	private Date latestLoginDate;	//최근로그인일시
+	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss SSS")
 	private Date accCreationDate;	//계정가입일자
 	private Date accChangedDate;	//계정수정일자
 	private Date accClosingDate;	//계정탈퇴일자

@@ -1,9 +1,7 @@
 package com.reminder.geulbeotmall.member.model.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -111,21 +109,30 @@ public class MemberServiceImpl implements MemberService {
 		
 		return user;
 	}
-
+	
 	@Override
-	public void updateFailCountReset(String username) {
-		memberMapper.updateFailCountReset(username);
+	public void updateAccumLoginCount(String username) {
+		memberMapper.updateAccumLoginCount(username);
+	}
+	
+	@Override
+	public void updateLatestLoginDate(String username) {
+		memberMapper.updateLatestLoginDate(username);
 	}
 
 	@Override
-	public void updateFailCount(String username) {
-		memberMapper.updateFailCount(username);
+	public void resetLoginFailedCount(String username) {
+		memberMapper.resetLoginFailedCount(username);
 	}
 
 	@Override
-	public int checkLoginFailureCount(String username) {
-		int count = memberMapper.checkLoginFailureCount(username);
-		return count;
+	public void updateLoginFailedCount(String username) {
+		memberMapper.updateLoginFailedCount(username);
+	}
+
+	@Override
+	public int checkLoginFailedCount(String username) {
+		return memberMapper.checkLoginFailedCount(username);
 	}
 
 	@Override
