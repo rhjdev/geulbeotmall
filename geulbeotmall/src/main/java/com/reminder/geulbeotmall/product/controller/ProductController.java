@@ -589,10 +589,12 @@ public class ProductController {
 		}
 		
 		List<String> tagList = new ArrayList<>();
-		for(OptionDTO o : option) {
+		for(OptionDTO o : option) { //태그 중복값 제거
 			String[] tags = detail.getProductTag().split("\\[|\\]|,| "); //여러 개의 구분자를 사용하기 위해서는 버티컬바(|)로 구분 필요, 대괄호는 이스케이프 문자 적용 대상
 			for(int i=0; i < tags.length; i++) {
-				tagList.add(tags[i]);
+				if(!tagList.contains(tags[i])) {
+					tagList.add(tags[i]);
+				}
 				//log.info(tags[i]);
 			}
 		}

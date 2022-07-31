@@ -90,4 +90,6 @@ public interface ProductMapper {
 	void deleteAttachment(int prodNo);
 
 	int deleteProduct(int prodNo);
+
+	int searchProdNoByOptionNo(int optionNo);
 }

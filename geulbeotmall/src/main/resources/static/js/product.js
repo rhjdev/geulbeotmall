@@ -471,12 +471,12 @@ $('.dropdown').on('click', function() {
 	}
 });
 
-
 /* 드롭다운 옵션 선택 시 */
 let selectedIdx = 0;
 $('.dropdown .option').on('click', function() {
 	$(this).closest('.list').find('.selected').removeClass('selected');
 	$(this).addClass('selected');
+	
 	//이미 선택된 옵션인지 확인
 	if($('#selectedName').text() === $('.selected').text()) {
 		Swal.fire({
@@ -494,7 +494,7 @@ $('.dropdown .option').on('click', function() {
 	
 	$('#selectedOption').append(
 		'<div class="selectedInfo">' +
-			'<div id="selectedName" class="selectedName' + selectedIdx + '"></div>' +
+			'<div id="selectedName" class="selectedName selectedName' + selectedIdx + '"></div>' +
 			'<div class="countBox">' +
 				'<button type="button" class="button-down" disabled><i class="fa-solid fa-minus"></i></button>' +
 				'<input type="number" class="selectedAmount" name="selectedAmount" value="1">' +
@@ -562,10 +562,6 @@ $(document).on('click', '.countBox .button-down', function(){ //down 버튼
 	sumTotalPrice();
 });
 
-/* 상품 주문 : 옵션 선택 */
-let orderOption = new Array();
-let optionNo = ""; //주문용 번호
-
 /* 수량 변경 */
 $(document).on('change', 'input[name=selectedAmount]', function(){ //input 값 변경
 	let selectedAmount = $(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(); //input
@@ -602,4 +598,49 @@ function reset() {
 	let div = btn.closest('.selectedInfo');
 	div.remove();
 	sumTotalPrice(); //합계 금액 다시 계산
+};
+
+let orderOptionNo = new Array(); //주문용 번호
+let orderOptionQt = new Array(); //주문용 수량
+function setOrderList() {
+	//일치하는 옵션 고유번호 확인
+	document.querySelectorAll('.selectedName').forEach(function(currentValue, currentIndex) {
+		let searchName = currentValue.innerText;
+		let options = document.querySelectorAll('.option');
+		for(let i=0; i < options.length; i++) {
+			if(options[i].innerText === searchName) {
+				//console.log(options[i].value);
+				orderOptionNo.push(options[i].value);
+			}
+		}
+	});
+	//옵션별 선택 수량 확인
+	document.querySelectorAll('.selectedAmount').forEach(function(currentValue) {
+		//console.log(currentValue.value);
+		orderOptionQt.push(currentValue.value);
+	});
+}
+
+/* 장바구니 담기 */
+function addToCart() {
+	setOrderList();
+	console.log(orderOptionNo);
+	console.log(orderOptionQt);
+	
+	$.ajax({
+		url : '/cart/mycart/add',
+		type : 'post',
+		traditional : true, //배열 넘기기 위한 세팅
+		dataType : 'text',
+		data : {
+			orderOptionNo : orderOptionNo,
+			orderOptionQt : orderOptionQt
+		},
+		success : function(result){
+			if(result == '성공'){
+				alert('성공');
+			}
+		},
+		error : function(status, error){ console.log(status, error); }
+	});
 };

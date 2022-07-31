@@ -624,6 +624,7 @@
 		SELECT
 			   REF_PROD_NO
 			 , THUMBNAIL_PATH
+			 , SAVE_PATH
 		  FROM TBL_ATTACHMENT
 		 WHERE ATTACH_STATUS_YN = 'Y'
 		   AND FILE_TYPE = 'THUMB_MAIN'
@@ -635,6 +636,7 @@
 		SELECT
 			   REF_PROD_NO
 			 , THUMBNAIL_PATH
+			 , SAVE_PATH
 		  FROM TBL_ATTACHMENT
 		 WHERE ATTACH_STATUS_YN = 'Y'
 		   AND FILE_TYPE = 'THUMB_SUB'
@@ -654,6 +656,14 @@
 		  FROM TBL_OPTION A
 		  LEFT JOIN TBL_STOCK B ON(A.REF_STOCK_NO = B.STOCK_NO)
 		 WHERE A.REF_PROD_NO = #{ prodNo }
+	</select>
+	
+	<!-- 옵션번호 관련 상품번호 조회 -->
+	<select id="searchProdNoByOptionNo" resultType="_int">
+		SELECT
+			   REF_PROD_NO
+		  FROM TBL_OPTION
+		 WHERE OPTION_NO = #{ optionNo }
 	</select>
 	
 	<!-- 상품 상세 조회수 증가 -->
