@@ -11,20 +11,35 @@
     <nav class="py-2 border-bottom">
         <div class="container d-flex flex-wrap">
             <ul class="nav me-auto">
-                <li class="nav-item"><span class="nav-menu nav-link link-secondary px-3"></span></li>
+            	<th:block sec:authorize="isAuthenticated()">
+                	<li class="nav-item"><span sec:authentication="principal.name" class="nav-menu nav-link link-secondary px-3"></span></li> <!-- UserImpl 클래스 통해 회원 정보 호출 -->
+                </th:block>
             </ul>
             <ul class="nav">
+            	<!-- 로그인(관리자) -->
+            	<th:block sec:authorize="hasRole('ADMIN')">
+	                <li class="nav-item"><a th:href="@{/admin/dashboard}" class="nav-menu nav-link link-secondary px-3">관리자페이지</a></li>
+            	</th:block>
+            	<!-- 로그인(회원) -->
+            	<th:block sec:authorize="isAuthenticated()">
+		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
+                	<li class="nav-item"><a th:href="@{/member/mypage}" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
+            	</th:block>
             	<!-- 비로그인 -->
             	<th:block sec:authorize="isAnonymous()">
 	                <li class="nav-item"><a th:href="@{/member/signin}" class="nav-menu nav-link link-secondary px-3">로그인</a></li>
 	                <li class="nav-item"><a th:href="@{/member/signup}" class="nav-menu nav-link link-secondary px-3">회원가입</a></li>
             	</th:block>
-            	<!-- 로그인(회원) -->
-            	<th:block sec:authorize="isAuthenticated()">
-	                <li class="nav-item"><a href="#" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
-		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
+            	<th:block sec:authorize="permitAll">
+	                <li class="nav-item"><a th:href="@{/cart/mycart}" class="nav-menu nav-link link-secondary px-3">장바구니
+	                <th:block th:if="${session.countCartItem} == null">
+		                <em class="cartCnt">0</em>
+	                </th:block>
+	                <th:block th:if="${session.countCartItem} != null">
+		                <em th:text="${session.countCartItem}" class="cartCnt">[[${session.countCartItem}]]</em>
+	                </th:block>
+	                </a></li>
             	</th:block>
-                <li class="nav-item"><a href="#" class="nav-menu nav-link link-secondary px-3">장바구니<em class="cartCnt">10</em></a></li>
             </ul>
         </div>
     </nav>
