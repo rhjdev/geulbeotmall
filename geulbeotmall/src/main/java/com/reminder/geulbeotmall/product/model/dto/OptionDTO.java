@@ -17,4 +17,5 @@ public class OptionDTO {
 	private double pointSize;
 	private int extraCharge;
 	private StockDTO stock;
+	private ProductDTO product;
 }

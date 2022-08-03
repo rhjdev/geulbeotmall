@@ -1,7 +1,6 @@
 package com.reminder.geulbeotmall.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,20 +10,24 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.reminder.geulbeotmall.handler.LoginFailHandler;
+import com.reminder.geulbeotmall.handler.LoginFailureHandler;
 import com.reminder.geulbeotmall.handler.LoginSuccessHandler;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
 
-@EnableWebSecurity
+@EnableWebSecurity //스프링 시큐리티 설정 활성화
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { //Adapter 객체는 필요한 옵션들만 선택적으로 오버라이딩하여 사용 가능
 	
 	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
+	private final LoginSuccessHandler loginSuccessHandler;
+	private final LoginFailureHandler loginFailureHandler;
 	
 	@Autowired
-	public SpringSecurityConfiguration(MemberService memberService, PasswordEncoder passwordEncoder) {
+	public SpringSecurityConfiguration(MemberService memberService, PasswordEncoder passwordEncoder, LoginSuccessHandler loginSuccessHandler, LoginFailureHandler loginFailureHandler) {
 		this.memberService = memberService;
 		this.passwordEncoder = passwordEncoder;
+		this.loginSuccessHandler = loginSuccessHandler;
+		this.loginFailureHandler = loginFailureHandler;
 	}
 	
 	@Override
@@ -42,20 +45,24 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 		http
 			/* 요청 권한 체크 */
 			.csrf().disable()
-			.authorizeHttpRequests()
+			.authorizeRequests()
 				.antMatchers("/order/**").authenticated()
 				.antMatchers(HttpMethod.GET, "/order/**").hasRole("MEMBER")
-				.antMatchers(HttpMethod.POST, "order/**").hasRole("ADMIN")
-				//.antMatchers("/admin/**").hasRole("ADMIN")
-				//.antMatchers("/member/mypage").hasRole("MEMBER")
+				.antMatchers(HttpMethod.POST, "/order/**").hasRole("ADMIN")
+				.antMatchers("/admin/member/**").hasRole("ADMIN")
+				.antMatchers("/admin/product/**").hasRole("ADMIN")
+				.antMatchers("/admin/**").hasRole("ADMIN")
+				.antMatchers("/member/mypage").hasRole("MEMBER")
 				.anyRequest().permitAll()
 			/* 로그인 */
 			.and()
 				.formLogin()															//로그인 설정
 				.loginPage("/member/signin")											//로그인 페이지
 				.successForwardUrl("/")													//성공 시 랜딩 페이지
-				.failureHandler(loginFailHandler())										//실패 시 핸들러(AuthenticationFailureHandler 타입의 클래스 먼저 설정, 하단에 bean으로 등록, 해당 bean 호출)
-				//.successHandler(loginSuccessHandler())									//성공 시 핸들러
+				.failureHandler(loginFailureHandler)									//실패 시 핸들러, AuthenticationFailureHandler를 implements한 해당 클래스에서 @Component 선언
+				.successHandler(loginSuccessHandler)									//성공 시 핸들러, AuthenticationSuccessHandler를 implements한 해당 클래스에서 @Component 선언
+				.usernameParameter("username")
+				.passwordParameter("password")
 			/* 로그아웃 */
 			.and()
 				.logout()																//로그아웃 설정
@@ -72,21 +79,5 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 			.and()
 				.headers()
 				.frameOptions().sameOrigin();
-	}
-	
-	/**
-	 * 로그인 실패 핸들러 
-	 */
-	@Bean
-	public LoginFailHandler loginFailHandler() {
-		return new LoginFailHandler();
-	}
-	
-	/**
-	 * 로그인 성공 핸들러
-	 */
-	@Bean
-	public LoginSuccessHandler loginSuccessHandler() {
-		return new LoginSuccessHandler();
 	}
 }

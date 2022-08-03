@@ -1,5 +1,6 @@
 package com.reminder.geulbeotmall.cart.model.dto;
 
+import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 
@@ -19,4 +20,5 @@ public class CartDTO {
 	private int quantity;
 	private ProductDTO product;
 	private OptionDTO option;
+	private BrandDTO brand;
 }

@@ -1,7 +1,11 @@
 package com.reminder.geulbeotmall.member.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.cart.model.dao.CartMapper;
+import com.reminder.geulbeotmall.cart.model.dto.CartDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
@@ -30,22 +36,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/member")
-@SessionAttributes({"loginMember"})
+@SessionAttributes({"loginMember", "geulbeotCart"})
 public class MemberController {
 	
 	private final MemberService memberService;
 	private final MessageSource messageSource;
 	private final SignUpValidator signUpValidator;
+	private final CartMapper cartMapper;
 	
+	/* MessageSource
+	 * 1. ContextConfiguration 통해 Bean 등록
+	 * 2. classpath 하위에 messages 폴더 및 properties 파일 생성
+	 */
 	@Autowired
-	public MemberController(MemberService memberService, MessageSource messageSource, SignUpValidator signUpValidator) {
+	public MemberController(MemberService memberService, MessageSource messageSource, SignUpValidator signUpValidator, CartMapper cartMapper) {
 		this.memberService = memberService;
 		this.messageSource = messageSource;
 		this.signUpValidator = signUpValidator;
-		/* MessageSource
-		 * 1. ContextConfiguration 통해 Bean 등록
-		 * 2. classpath 하위에 messages 폴더 및 properties 파일 생성
-		 */
+		this.cartMapper = cartMapper;
 	}
 	
 	/**
@@ -130,7 +138,6 @@ public class MemberController {
 	
 	@PostMapping("signin")
 	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
-		model.addAttribute("loginMember", user.getMemberId()); //상단의 @SessionAttributes 어노테이션을 타고 session상에 현재 회원 정보 저장
 		model.addAttribute("errorMessage", errorMessage);
 	}
 	

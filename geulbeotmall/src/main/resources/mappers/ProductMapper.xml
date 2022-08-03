@@ -658,7 +658,7 @@
 		 WHERE A.REF_PROD_NO = #{ prodNo }
 	</select>
 	
-	<!-- 옵션번호 관련 상품번호 조회 -->
+	<!-- 옵션번호 기준 상품번호 조회 -->
 	<select id="searchProdNoByOptionNo" resultType="_int">
 		SELECT
 			   REF_PROD_NO

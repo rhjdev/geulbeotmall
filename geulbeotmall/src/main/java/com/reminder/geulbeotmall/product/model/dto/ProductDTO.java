@@ -27,4 +27,5 @@ public class ProductDTO {
 	private List<AttachmentDTO> attachmentList;
 	private CategoryDTO category;
 	private BrandDTO brand;
+	private OptionDTO option;
 }
