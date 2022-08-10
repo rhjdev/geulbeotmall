@@ -2,6 +2,7 @@ package com.reminder.geulbeotmall.cart.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
@@ -21,6 +23,7 @@ import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +44,14 @@ public class CartController {
 	}
 	
 	@GetMapping("/cart/mycart")
-	public void getMyCart(Model model) {}
+	public void getMyCart(HttpSession session, Model model) {
+		String loginMember = (String) session.getAttribute("loginMember");
+		if(loginMember != null) {
+			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+			model.addAttribute("loginMember", loginMember);
+			model.addAttribute("memberCart", memberCart);
+		}
+	}
 	
 	@PostMapping(value="/cart/mycart/add", produces="application/json; charset=UTF-8")
 	@ResponseBody
@@ -69,12 +79,18 @@ public class CartController {
 			OptionDTO optionInfoByOptionNo = cartMapper.searchOptionInfoByOptionNo(Integer.parseInt(optionNoArr[i]));
 			ProductDTO productInfoByOptionNo = cartMapper.searchProductInfoByOptionNo(Integer.parseInt(optionNoArr[i]));
 			BrandDTO brandInfoByOptionNo = cartMapper.searchBrandInfoByOptionNo(Integer.parseInt(optionNoArr[i]));
+			AttachmentDTO mainThumb = productMapper.getMainThumbnailByProdNo(prodNoByOptionNo);
+			AttachmentDTO subThumb = productMapper.getSubThumbnailByProdNo(prodNoByOptionNo);
+			List<AttachmentDTO> attachmentList = new ArrayList<>();
+			attachmentList.add(mainThumb);
+			attachmentList.add(subThumb);
 			cartDTO.setProdNo(prodNoByOptionNo);
 			cartDTO.setOptionNo(Integer.parseInt(optionNoArr[i]));
 			cartDTO.setQuantity(Integer.parseInt(optionQtArr[i]));
 			cartDTO.setOption(optionInfoByOptionNo);
 			cartDTO.setProduct(productInfoByOptionNo);
 			cartDTO.setBrand(brandInfoByOptionNo);
+			cartDTO.setAttachmentList(attachmentList);
 			log.info("cartDTO : {}", cartDTO);
 			
 			/* 비회원용 장바구니: session 장바구니 불러오기 */
@@ -107,8 +123,6 @@ public class CartController {
 				log.info("요청한 사용자의 id : {}", loginMember);
 				List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember); //DB에 저장된 회원의 기존 장바구니 호출
 				
-				int memberCartNo = cartMapper.getMemberCartNo(loginMember);
-				cartDTO.setCartNo(memberCartNo);
 				cartDTO.setMemberId(loginMember);
 				if(memberCart == null) {
 					memberCart = new ArrayList<>();
@@ -120,10 +134,11 @@ public class CartController {
 						log.info("memberCart.get(j).getOptionNo() : {}", memberCart.get(j).getOptionNo());
 						log.info("Integer.parseInt(optionNoArr[i]) : {}", Integer.parseInt(optionNoArr[i]));
 						if(memberCart.get(j).getOptionNo() == Integer.parseInt(optionNoArr[i])) {
-							int sum = memberCart.get(j).getQuantity() > 0? (memberCart.get(j).getQuantity() + cartDTO.getQuantity()) : cartDTO.getQuantity();
+							int sum = memberCart.get(j).getQuantity() > 0 ? (memberCart.get(j).getQuantity() + cartDTO.getQuantity()) : cartDTO.getQuantity();
 							memberCart.get(j).setQuantity(sum);
 							cartDTO.setQuantity(sum);
-							cartMapper.updateQuantityInCart(cartDTO);
+							cartMapper.updateQuantityInCart(cartDTO.getMemberId(), cartDTO.getQuantity(), cartDTO.getOptionNo());
+							session.setAttribute("geulbeotCart", memberCart);
 							continue LoopA;
 						}
 					}
@@ -131,10 +146,8 @@ public class CartController {
 					cartMapper.addToCart(cartDTO);
 				}
 				log.info("추가 후 회원 장바구니 size : {}", memberCart.size());
-				
 				session.setAttribute("geulbeotCart", memberCart);
 				session.setAttribute("countCartItem", memberCart.size());
-				model.addAttribute("memberCart", memberCart);
 			}
 		}
 		
@@ -143,6 +156,43 @@ public class CartController {
 		if(result.isEmpty()) {
 			result = "성공";
 		}
-		return  result;
+		return result;
+	}
+	
+	/**
+	 * 장바구니 수량 변경
+	 */
+	@PostMapping(value="/cart/mycart/modify", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public void changeQuantity(@RequestBody Map<String, String> param, HttpSession session) {
+		String quantity = param.get("quantity");
+		String optionNo = param.get("optionNo");
+		log.info("변경 수량 : {}", quantity);
+		log.info("해당 옵션 : {}", optionNo);
+		
+		String loginMember = (String) session.getAttribute("loginMember");
+		
+		if(loginMember == null) { //비회원용 장바구니
+			log.info("비회원용 session 장바구니 호출");
+			List<CartDTO> nonmemberCart = (List<CartDTO>) session.getAttribute("geulbeotCart");
+			for(int i=0; i < nonmemberCart.size(); i++) {
+				if(Integer.parseInt(optionNo) == nonmemberCart.get(i).getOptionNo()) {
+					nonmemberCart.get(i).setQuantity(Integer.parseInt(quantity));
+				} else {
+					continue;
+				}
+			}
+			log.info("수량 변경된 비회원용 session 장바구니 : {}", nonmemberCart);
+		} else { //회원용 장바구니
+			log.info("회원용 장바구니 호출");
+			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+			for(int i=0; i < memberCart.size(); i++) {
+				if(Integer.parseInt(optionNo) == memberCart.get(i).getOptionNo()) {
+					cartMapper.updateQuantityInCart(loginMember, Integer.parseInt(quantity), Integer.parseInt(optionNo));
+				} else {
+					continue;
+				}
+			}
+		}
 	}
 }

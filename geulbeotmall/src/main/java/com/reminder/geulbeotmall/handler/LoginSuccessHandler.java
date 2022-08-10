@@ -80,11 +80,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 			for(int j=0; j < memberCart.size(); j++) {
 				if(geulbeotCart.get(i).getOptionNo() == memberCart.get(j).getOptionNo()) { //이미 담겨 있는 상품은 기존 목록에서 수량만 증가
 					memberCart.get(j).setQuantity(cartDTO.getQuantity());
-					cartMapper.updateQuantityInCart(cartDTO);
+					cartMapper.updateQuantityInCart(cartDTO.getMemberId(), cartDTO.getQuantity(), cartDTO.getOptionNo());
 					continue LoopA;
 				}
 			}
-			cartDTO.setCartNo(cartMapper.getMemberCartNo(username));
 			cartDTO.setMemberId(username);
 			memberCart.add(cartDTO);
 			cartMapper.addToCart(cartDTO);

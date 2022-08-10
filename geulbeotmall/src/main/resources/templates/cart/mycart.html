@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>장바구니 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/mycart.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>장바구니</h2>
+    </div>
+    <div class="container cart-wrapper">
+	    <div class="step">
+	    	<span class="step-active">STEP1. 장바구니</span><i class="fa-solid fa-angle-right"></i>
+	    	<span>STEP2. 주문/결제</span><i class="fa-solid fa-angle-right"></i>
+	    	<span>STEP3. 주문완료</span>
+	    </div>
+	    <div class="dataTable-container">
+		    <table class="myCart-table dataTable-table">
+		    	<thead>
+		    		<tr>
+		    			<th><input type="checkbox" class="input-checkbox checkAll"></th>
+		    			<th colspan="2"><span>상품명(옵션)</span></th>
+		    			<th><span>상품금액</span></th>
+		    			<th><span>수량</span></th>
+		    			<th><span>주문금액</span></th>
+		    			<th><span>업체</span></th>
+		    			<th><span>배송비</span></th>
+		    			<th><span>주문</span></th>
+		    		</tr>
+		    	</thead>
+		    	
+		    	<!-- 비로그인 장바구니 -->
+		    	<th:block sec:authorize="isAnonymous()">
+		    	<tbody>
+		    		<tr th:each="cartItem : ${ session.geulbeotCart }" th:if="${not #lists.isEmpty(cartItem)}">
+		    			<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+		    			<td><img th:src="${ cartItem.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+		    			<!-- 상품명(옵션) -->
+		    			<td class="option-area" th:value="${ cartItem.optionNo }">
+			    			<a th:href="@{/product/details/(no=${cartItem.product.prodNo})}">[[${ cartItem.product.prodName }]]</a>
+			    			<p>
+		    					<span>[[${ cartItem.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ cartItem.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(cartItem.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ cartItem.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(cartItem.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+		    			</td>
+		    			
+		    			<!-- 상품금액(세 자리마다 구분자 삽입) -->
+		    			<!-- A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+		    			<th:block th:if="${cartItem.product.discountRate} == 0">
+			    			<td class="prodPrice" th:value="${ cartItem.product.prodPrice }">[[${#numbers.formatInteger(cartItem.product.prodPrice, 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			<!-- B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+		    			<th:block th:if="${cartItem.product.discountRate} > 0">
+		    				<td>
+		    					<del><span>[[${#numbers.formatInteger(cartItem.product.prodPrice, 3, 'COMMA')}]]원</span></del><br>
+		    					<span class="prodPrice" th:value="${ cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100) }">[[${#numbers.formatInteger(cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100), 3, 'COMMA')}]]원</span>
+			    			</td>
+		    			</th:block>
+		    			
+		    			<!-- 수량 -->
+		    			<td>
+			    			<div class="countBox">
+								<button type="button" class="button-down"><i class="fa-solid fa-minus"></i></button>
+								<input type="number" class="selectedAmount" name="selectedAmount" th:value="${ cartItem.quantity }">
+								<button type="button" class="button-up"><i class="fa-solid fa-plus"></i></button>
+							</div>
+							<div class="changeBox">
+			    				<button type="button" class="button-modify">변경</button>
+							</div>
+		    			</td>
+		    			
+		    			<!-- 주문금액(세 자리마다 구분자 삽입) -->
+		    			<th:block th:if="${cartItem.product.discountRate} == 0">
+		    				<td class="orderPrice">[[${#numbers.formatInteger((cartItem.product.prodPrice * cartItem.quantity), 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			<th:block th:if="${cartItem.product.discountRate} > 0">
+		    				<td class="orderPrice">[[${#numbers.formatInteger(((cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100)) * cartItem.quantity), 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			
+		    			<td>[[${ cartItem.brand.brandName }]]</td>
+		    			<td>3,000원</td>
+		    			<td>
+		    			<div class="buttonBox">
+		    				<a href="#"><button type="button" class="button-order btn btn-sm btn-dark">바로주문</button></a>
+		    				<button type="button" class="button-delete btn btn-sm btn-outline-light">삭제</button>
+		    			</div>
+		    			</td>
+		    		</tr>
+		    		<tr class="noitem" th:unless="${not #lists.isEmpty(session.geulbeotCart)}">
+                		<td colspan="9">
+	                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+	                		<div>장바구니에 담긴 상품이 없습니다.</div>
+                		</td>
+                	</tr>
+		    	</tbody>
+		    	</th:block>
+		    	
+		    	<!-- 로그인 장바구니(DB 연동) -->
+		    	<th:block sec:authorize="isAuthenticated()">
+		    	<tbody>
+		    		<tr th:each="cartItem : ${ memberCart }" th:if="${not #lists.isEmpty(cartItem)}">
+		    			<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+		    			<td><img th:src="${ cartItem.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+		    			<!-- 상품명(옵션) -->
+		    			<td class="option-area" th:value="${ cartItem.optionNo }">
+			    			<a th:href="@{/product/details/(no=${cartItem.product.prodNo})}">[[${ cartItem.product.prodName }]]</a>
+			    			<p>
+		    					<span>[[${ cartItem.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ cartItem.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(cartItem.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ cartItem.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(cartItem.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+		    			</td>
+		    			
+		    			<!-- 상품금액(세 자리마다 구분자 삽입) -->
+		    			<!-- A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+		    			<th:block th:if="${cartItem.product.discountRate} == 0">
+			    			<td class="prodPrice" th:value="${ cartItem.product.prodPrice }">[[${#numbers.formatInteger(cartItem.product.prodPrice, 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			<!-- B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+		    			<th:block th:if="${cartItem.product.discountRate} > 0">
+		    				<td>
+		    					<del><span>[[${#numbers.formatInteger(cartItem.product.prodPrice, 3, 'COMMA')}]]원</span></del><br>
+		    					<span class="prodPrice" th:value="${ cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100) }">[[${#numbers.formatInteger(cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100), 3, 'COMMA')}]]원</span>
+			    			</td>
+		    			</th:block>
+		    			
+		    			<!-- 수량 -->
+		    			<td>
+			    			<div class="countBox">
+								<button type="button" class="button-down"><i class="fa-solid fa-minus"></i></button>
+								<input type="number" class="selectedAmount" name="selectedAmount" th:value="${ cartItem.quantity }">
+								<button type="button" class="button-up"><i class="fa-solid fa-plus"></i></button>
+							</div>
+							<div class="changeBox">
+			    				<button type="button" class="button-modify">변경</button>
+							</div>
+		    			</td>
+		    			
+		    			<!-- 주문금액(세 자리마다 구분자 삽입) -->
+		    			<th:block th:if="${cartItem.product.discountRate} == 0">
+		    				<td class="orderPrice">[[${#numbers.formatInteger((cartItem.product.prodPrice * cartItem.quantity), 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			<th:block th:if="${cartItem.product.discountRate} > 0">
+		    				<td class="orderPrice">[[${#numbers.formatInteger(((cartItem.product.prodPrice - (cartItem.product.prodPrice * cartItem.product.discountRate / 100)) * cartItem.quantity), 3, 'COMMA')}]]원</td>
+		    			</th:block>
+		    			
+		    			<td>[[${ cartItem.brand.brandName }]]</td>
+		    			<td>3,000원</td>
+		    			<td>
+		    			<div class="buttonBox">
+		    				<a href="#"><button type="button" class="button-order btn btn-sm btn-dark">바로주문</button></a>
+		    				<button type="button" class="button-delete btn btn-sm btn-outline-light">삭제</button>
+		    			</div>
+		    			</td>
+		    		</tr>
+		    		<tr class="noitem" th:unless="${#lists.size(memberCart)} > 0">
+                		<td colspan="9">
+	                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+	                		<div>장바구니에 담긴 상품이 없습니다.</div>
+                		</td>
+                	</tr>
+		    	</tbody>
+		    	</th:block>
+		    </table>
+	    </div>
+	    <div class="total-area">
+	    	<ul>
+		    	<li class="order-price">
+		    		<span>상품금액</span>
+		    		<b>0</b>
+		    		원
+		    	</li>
+		    	<i class="fa-solid fa-minus"></i>
+		    	<li class="discount-amount">
+		    		<span>할인금액</span>
+		    		<b>0</b>
+		    		원
+		    	</li>
+		    	<i class="fa-solid fa-plus"></i>
+		    	<li class="delivery-fee">
+		    		<span>배송비</span>
+		    		<b>0</b>
+		    		원
+		    	</li>
+		    	<i class="fa-solid fa-equals"></i>
+		    	<li class="total-price">
+		    		<span>총 결제금액</span>
+		    		<b>0</b>
+		    		원
+		    	</li>
+	    	</ul>
+	    </div>
+    </div>
+    <!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/order.js}" type="text/javascript"></script>
+    </th:block>
+</body>
+</html>
