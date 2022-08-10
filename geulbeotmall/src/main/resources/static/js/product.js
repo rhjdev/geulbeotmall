@@ -498,7 +498,7 @@ $('.dropdown .option').on('click', function() {
 			'<div class="countBox">' +
 				'<button type="button" class="button-down" disabled><i class="fa-solid fa-minus"></i></button>' +
 				'<input type="number" class="selectedAmount" name="selectedAmount" value="1">' +
-				'<button type="button" class="button-up" class="button-up"><i class="fa-solid fa-plus"></i></button>' +
+				'<button type="button" class="button-up"><i class="fa-solid fa-plus"></i></button>' +
 			'</div>' +
 			'<div class="selectedPrice"></div>' +
 			'<a href="#" class="button-delete" onclick="reset(); return false;"><i class="fa-solid fa-xmark"></i></a>' +
@@ -562,7 +562,7 @@ $(document).on('click', '.countBox .button-down', function(){ //down 버튼
 	sumTotalPrice();
 });
 
-/* 수량 변경 */
+/* 수량 입력 */
 $(document).on('change', 'input[name=selectedAmount]', function(){ //input 값 변경
 	let selectedAmount = $(this).closest('div.selectedInfo').find('input[name=selectedAmount]').val(); //input
 	let count = parseInt(selectedAmount);
@@ -638,7 +638,57 @@ function addToCart() {
 		},
 		success : function(result){
 			if(result == '성공'){
+				Swal.fire({
+					icon: 'success',
+					title: '장바구니에 담았습니다',
+					text: '장바구니로 이동하시겠습니까?',
+					showCloseButton: true,
+					showDenyButton: true,
+					denyButtonColor: '#6c757d',
+					denyButtonText: '취소',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '이동',
+					reverseButtons: true
+				}).then((result) => {
+					if(result.isConfirmed) {
+						window.location.href='/cart/mycart';
+					}
+				})
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				}).then((result) => {
+					if(result.isConfirmed) {}
+				})
+			}
+		},
+		error : function(status, error){ console.log(status, error); }
+	});
+};
+
+/* 바로 구매하기 */
+function orderProduct() {
+	setOrderList();
+	console.log(orderOptionNo);
+	console.log(orderOptionQt);
+	
+	$.ajax({
+		url : '/cart/order',
+		type : 'post',
+		traditional : true,
+		dataType : 'text',
+		data : {
+			orderOptionNo : orderOptionNo,
+			orderOptionQt : orderOptionQt
+		},
+		success : function(result){
+			if(result == '성공') {
 				alert('성공');
+			} else if(result == '로그인') {
+				window.location.href='/member/signin';
 			}
 		},
 		error : function(status, error){ console.log(status, error); }

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+    	<link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/mycart.css}" rel="stylesheet">
+	</th:block>
+	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>주문/결제</h2>
+    </div>
+    <div class="container order-wrapper">
+	    <div class="step">
+	    	<span>STEP1. 장바구니</span><i class="fa-solid fa-angle-right"></i>
+	    	<span class="step-active">STEP2. 주문/결제</span><i class="fa-solid fa-angle-right"></i>
+	    	<span>STEP3. 주문완료</span>
+	    </div>
+		<div class="orderBox">
+			<form id="orderForm" name="orderForm" class="order-form" method="post">
+				<fieldset>
+					<legend>주문자 정보</legend>
+				</fieldset>
+				<table>
+					<tbody>
+						<tr th:with="member=${ member }">
+							<th>주문자</th>
+							<td><input type="text" id="memberId" name="memberId" th:value="${ member.memberId }" readonly></td>
+							<th>휴대폰 번호</th>
+							<td><input type="text" id="phone" name="phone" th:value="${ member.phone }" readonly></td>
+							<th>이메일</th>
+							<td><input type="text" id="email" name="email" th:value="${ member.email }" readonly></td>
+						</tr>
+					</tbody>
+				</table>
+				<fieldset class="getMemberAddress">
+					<legend>배송지 정보</legend>
+					<label for="getMemberAddress"> <!-- label for 속성과 input id 연결 -->
+						<input type="checkbox" class="input-checkbox check" id="getMemberAddress" name="getMemberAddress">
+						주문자 정보와 동일
+					</label>
+				</fieldset>
+				<table class="delivery-table">
+					<colgroup>
+						<col style="width: 10%;">
+						<col>
+					</colgroup>
+					<thead>
+						<tr>
+							<td colspan="2">
+								<div class="delivery-list">
+									<input type="radio" id="savedAddress" name="delivery-item">
+									<label for="savedAddress">기본 배송지</label>
+									<input type="radio" id="setNewAddress" name="delivery-item" checked>
+									<label for="setNewAddress">신규 배송지</label>
+									<input type="radio" id="getRecentAddress" name="delivery-item">
+									<label for="getRecentAddress">최근 배송지</label>
+								</div>
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>이름</th> <!-- 한글만 입력 -->
+							<td>
+								<input type="text" name="hiddenName" th:value="${ member.name }" hidden="hidden">
+								<input type="text" onKeyup="this.value = this.value.replace(/[^가-힣.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="rcvrName" name="rcvrName" autocomplete="off" placeholder="이름 입력" title="이름 입력" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')">
+							</td>
+						</tr>
+						<tr>
+							<th>휴대폰 번호</th> <!-- 숫자만 입력 -->
+							<td>
+								<input type="text" name="hiddenPhone" th:value="${ member.phone }" hidden="hidden">
+								<input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="rcvrPhone" autocomplete="off" name="rcvrPhone" placeholder="숫자만 입력(-제외)" title="휴대폰 번호 입력" oninvalid="this.setCustomValidity('휴대폰 번호 입력')" oninput="setCustomValidity('')" maxlength="11">
+							</td>
+						</tr>
+						<tr>
+							<th>주소</th>
+							<td>
+								<div class="address-info">
+									<input type="text" name="hiddenAddress" th:value="${ member.address }" hidden="hidden">
+									<input type="button" onclick="DaumPostcode()" class="btn-outline-dark" id="searchPostalCode" style="width: 40%;" value="우편번호검색"></input>
+									<input type="text" id="postalCode" name="postalCode" readonly>
+									<input type="text" id="address" name="address" readonly>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<td>
+							<div class="address-detail">
+								<input type="text" id="detailAddress" name="detailAddress" placeholder="상세 주소 입력">
+							</div>
+							</td>
+						</tr>
+						<tr>
+							<th>배송메모</th>
+							<td style="text-align: start !important;">
+								<div style="display: flex;">
+									<div id="optionSelector" class="dropdown" tabindex="0">
+										<span class="current" style="line-height: 40px;">배송메모 선택</span>
+										<div class="list">
+											<ul>
+												<li class="option">배송 전 연락 바랍니다.</li>
+												<li class="option">부재 시 경비실에 맡겨주세요.</li>
+												<li class="option">부재 시 문 앞에 놓아주세요.</li>
+												<li class="option">부재 시 휴대폰으로 연락주세요.</li>
+												<li class="option">문 앞에 놓아주세요.</li>
+												<li class="option">직접 입력</li>
+											</ul>
+										</div>
+										<i class="fa-solid fa-chevron-down"></i>
+									</div>
+									<input type="text" id="typeOwnMessage" name="typeOwnMessage" hidden="hidden">
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<fieldset>
+					<legend>주문상품 정보</legend>
+				</fieldset>
+				<table class="product-table dataTable-table">
+					<thead>
+			    		<tr>
+			    			<th colspan="2"><span>상품명(옵션)</span></th>
+			    			<th><span>판매가</span></th>
+			    			<th><span>수량</span></th>
+			    			<th><span>주문금액</span></th>
+			    			<th><span>업체</span></th>
+			    			<th><span>배송비</span></th>
+			    		</tr>
+		    		</thead>
+					<tbody>
+						<tr th:each="cartItem : ${ session.geulbeotCart }" th:if="${not #lists.isEmpty(cartItem)}">
+							<td><img th:src="${ cartItem.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+							<td>
+			    				[[${ cartItem.product.prodName }]]
+			    				<th:block th:if="${ cartItem.option.bodyColor != '(해당없음)' and cartItem.option.inkColor != '(해당없음)' }">
+			    				[[${ cartItem.option.bodyColor }]]/[[${ cartItem.option.inkColor }]]
+			    				</th:block>
+			    			</td>
+			    			<td>[[${ cartItem.product.prodPrice }]]</td>
+			    			<td>[[${ cartItem.quantity }]]</td>
+			    			<td>[[${ cartItem.product.prodPrice * cartItem.quantity }]]</td>
+			    			<td>[[${ cartItem.brand.brandName }]]</td>
+			    			<td>3,000원</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="payment-area">
+					<div class="payment-method">
+						<fieldset>
+							<legend>결제수단 선택</legend>
+						</fieldset>
+						<table>
+							<colgroup>
+								<col style="width: 10%;">
+								<col>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th>결제방법</th>
+									<td>
+										<label>
+											<input type="radio" name="methods" value="credit" checked="checked">
+											<span>신용카드</span>
+										</label>
+										<label>
+											<input type="radio" name="methods">
+											<span>실시간계좌이체</span>
+										</label>
+										<label>
+											<input type="radio" name="methods">
+											<span>가상계좌</span>
+										</label>
+										<label>
+											<input type="radio" name="methods">
+											<span>휴대폰결제</span>
+										</label>
+									</td>
+								</tr>
+								<tr>
+									<th>결제안내</th>
+									<td class="interest-free-td">
+										<p class="interest-free-detail"><a data-toggle="modal" href="#interest-free">무이자할부안내</a></p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="payment-info">
+						<fieldset>
+							<legend>결제정보</legend>
+							<div>
+								<ul>
+									<li>
+										<b>주문금액</b>
+										<span>00,000원</span>
+									</li>
+									<li>
+										<b>배송비</b>
+										<span>0원</span>
+									</li>
+									<li>
+										<b>적립금</b>
+										<span>0원</span>
+									</li>
+								</ul>
+							</div>
+							<legend>약관동의</legend>
+							<div>
+								<label class="label-checkbox">
+			                        <input type="checkbox" class="input-checkbox checkAll" id="checkAll">
+			                        <span>전체 동의</span>
+			                    </label>
+			                    <label class="label-checkbox">
+			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <span><b style="color: #ff0000;">(필수)</b>상품 설명에 명시된 내용과 사용조건을 확인하였으며, 취소/환불 규정에 동의합니다.</span>
+			                    </label>
+			                    <label class="label-checkbox">
+			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <span><b style="color: #ff0000;">(필수)</b>결제대행서비스 이용약관동의</span>
+			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
+			                    </label>
+			                    <label class="label-checkbox">
+			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <span><b style="color: #ff0000;">(필수)</b>개인정보 수집 및 이용 동의</span>
+			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
+			                    </label>
+			                    <label class="label-checkbox">
+			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <span><b style="color: #ff0000;">(필수)</b>개인정보 제공/위탁 동의</span>
+			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
+			                    </label>
+								<ul class="total-price-info">
+									<li>
+										<b>총 결제금액</b>
+										<span>00,000</span>
+										원
+									</li>
+								</ul>
+							</div>
+						</fieldset>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<!-- Modal -->
+	<div id="interest-free" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-lg modal-dialog modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+      			<div class="modal-header">
+					<h3>무이자할부안내</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<table class="dataTable-table">
+						<caption><strong>카드 무이자 할부 혜택</strong></caption>
+						<colgroup>
+							<col style="width: 200px;"/>
+							<col/>
+							<col style="width: 200px;"/>
+						</colgroup>
+						<thead>
+							<tr>
+								<th>카드사</th>
+								<th>할부적용 금액</th>
+								<th>할부개월</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td align="center">롯데카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~4개월</td>
+							</tr>
+							<tr>
+								<td align="center">현대카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~7개월</td>
+							</tr>
+							<tr>
+								<td align="center">KB국민카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~7개월</td>
+							</tr>
+							<tr>
+								<td align="center">신한카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~7개월</td>
+							</tr>
+							<tr>
+								<td align="center">삼성카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~6개월</td>
+							</tr>
+							<tr>
+								<td align="center">BC카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~7개월</td>
+							</tr>
+							<tr>
+								<td align="center">NH농협카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~8개월</td>
+							</tr>
+							<tr>
+								<td align="center">하나카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~8개월</td>
+							</tr>
+							<tr>
+								<td align="center">전북카드</td>
+								<td align="center">5만원 이상</td>
+								<td align="center">2~5개월</td>
+							</tr>
+							<tr>
+								<td align="center">광주카드</td>
+								<td align="center">&nbsp;5만원 이상&nbsp;</td>
+								<td align="center">2~7개월</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-dark" data-bs-dismiss="modal">확인</button>
+				</div> 
+			</div>
+		</div>
+	</div>
+	<!-- //무이자할부안내 -->
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/order.js}" type="text/javascript"></script>
+    	
+    	<!-- 주소 API -->
+	    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    </th:block>
+</body>
+</html>
