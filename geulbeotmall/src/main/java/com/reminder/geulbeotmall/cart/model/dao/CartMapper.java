@@ -23,6 +23,8 @@ public interface CartMapper {
 	void addToCart(CartDTO cartDTO);
 
 	void updateQuantityInCart(String memberId, int quantity, int optionNo);
+	
+	void deleteItemFromCart(String memberId, int optionNo);
 
 	OptionDTO searchOptionInfoByOptionNo(int optionNo);
 

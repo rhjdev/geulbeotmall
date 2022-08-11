@@ -97,9 +97,9 @@
 }
 
 .changeBox {
-	margin-inline-start: 16%;
-    margin-inline-end: 16%;
+	width: 106px;
     font-size: 14px;
+    margin: 0 auto;
 }
 
 .changeBox button {
@@ -108,33 +108,68 @@
 	margin-top: 8px;
 }
 
+/* 바로주문, 삭제 */
 .buttonBox {
 	display: inline-block;
 	margin-block-end: 10% !important;
 }
 
-.button-delete {
+.buttonBox .btn {
+	height: 33px !important;
+	border-radius: 0 !important;
+}
+	
+.orderBtn:hover {
+	opacity: 93%;
+}
+
+.deleteBtn {
 	color: #000;
 	border-color: #6c757d;
 	margin-top: 8px;
 }
 
-.buttonBox .btn {
-	height: 33px !important;
-}
-	
-.buttonBox .btn:hover {
-	opacity: 93%;
+.deleteBtn:hover {
+	background-color: #f9f9f9;
 }
 
+/* 장바구니 없음 */
 .noitem div {
 	color: #6c757d;
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
 
+/* 찜, 선택삭제 */
+.button-area {
+	padding-left: 16px;
+}
+
+.button-area input[type="checkbox"] {
+	margin-inline-end: 12px;
+}
+
+.button-area button {
+	width: 7%;
+    box-shadow: none !important;
+    margin-top: auto;
+    margin-bottom: auto;
+	margin-inline-end: 5px;
+    border-radius: 0;
+	border: 1px solid #E5E5E5;
+}
+
+.button-wish:hover, .button-delete:hover {
+	background-color: #f9f9f9;
+}
+
+.fa-heart:hover {
+	color: #ff0000;
+}
+
+/* 합계 */
 .total-area {
-	display: table;
+	display: flex;
 	width: 100%;
 	padding: 0 40px;
 	margin-top: 40px;
@@ -146,32 +181,45 @@
 }
 
 .total-area > ul {
+   	color: #6c757d;
 	padding-left: 0 !important;
 	margin-bottom: 0 !important;
+	vertical-align: middle !important;
 }
 
 .total-area > ul > li {
 	position: relative;
-	display: table-cell;
+	display: inline-block;
 	width: 252px;
 	height: 140px;
-	vertical-align: middle;
     text-align: right;
+    padding-top: 40px;
 }
 
-.discount-amount {
-	margin-inline-start: 10px;
-	margin-inline-end: 10px;
+.total-area > ul > li#text {
+    line-height: 50px;
+}
+
+.total-area > ul > i {
+   	color: #000;
+	margin-inline-start: 24px;
+	margin-inline-end: 24px;
+    line-height: 50px;
 }
 
 .total-area > ul > li > span {
 	position: absolute;
     display: inline-block;
     left: 0;
+    line-height: 60px;
 }
 
 .total-area > ul > li > b {
 	font-size: 32px;	
+}
+
+.total-price {
+	color: #000;
 }
 
 /* ========================================= */

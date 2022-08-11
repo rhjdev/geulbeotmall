@@ -12,7 +12,7 @@
         <div class="container d-flex flex-wrap">
             <ul class="nav me-auto">
             	<th:block sec:authorize="isAuthenticated()">
-                	<li class="nav-item"><span sec:authentication="principal.name" class="nav-menu nav-link link-secondary px-3"></span></li> <!-- UserImpl 클래스 통해 회원 정보 호출 -->
+                	<li class="nav-item"><span sec:authentication="principal.name" id="isLoggedInAs" class="nav-menu nav-link link-secondary px-3"></span></li> <!-- UserImpl 클래스 통해 회원 정보 호출 -->
                 </th:block>
             </ul>
             <ul class="nav">

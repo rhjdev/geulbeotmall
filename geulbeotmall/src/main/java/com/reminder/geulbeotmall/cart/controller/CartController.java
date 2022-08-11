@@ -160,7 +160,7 @@ public class CartController {
 	}
 	
 	/**
-	 * 장바구니 수량 변경
+	 * 장바구니 상품별 선택 수량 변경
 	 */
 	@PostMapping(value="/cart/mycart/modify", produces="application/json; charset=UTF-8")
 	@ResponseBody
@@ -193,6 +193,108 @@ public class CartController {
 					continue;
 				}
 			}
+			session.setAttribute("geulbeotCart", memberCart);
+		}
+	}
+	
+	/**
+	 * 장바구니 선택 상품 행 삭제
+	 */
+	@PostMapping(value="/cart/mycart/delete", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public void removeCartItem(@RequestBody Map<String, String> param, HttpSession session) {
+		String optionNo = param.get("optionNo");
+		log.info("삭제 요청 옵션 : {}", optionNo);
+		
+		String loginMember = (String) session.getAttribute("loginMember");
+		
+		if(loginMember == null) { //비회원용 장바구니
+			List<CartDTO> nonmemberCart = (List<CartDTO>) session.getAttribute("geulbeotCart");
+			log.info("비회원용 session 장바구니 호출");
+			for(int j=0; j < nonmemberCart.size(); j++) {
+				if(Integer.parseInt(optionNo) == nonmemberCart.get(j).getOptionNo()) {
+					nonmemberCart.remove(j);
+				}
+			}
+		} else { //회원용 장바구니
+			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+			log.info("회원용 장바구니 호출");
+			for(int j=0; j < memberCart.size(); j++) {
+				if(Integer.parseInt(optionNo) == memberCart.get(j).getOptionNo()) {
+					cartMapper.deleteItemFromCart(loginMember, Integer.parseInt(optionNo));
+				}
+			}
+		}
+
+		//header에 변경된 상품 개수 반영
+		if(loginMember == null) {
+			List<CartDTO> nonmemberCart = (List<CartDTO>) session.getAttribute("geulbeotCart");
+			log.info("선택 상품 삭제 완료된 비회원용 session 장바구니 : {}", nonmemberCart);
+			session.setAttribute("countCartItem", nonmemberCart.size());
+		} else {
+			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+			log.info("선택 상품 삭제 완료된 회원용 장바구니 : {}", memberCart);
+			session.setAttribute("countCartItem", memberCart.size());
+		}
+	}
+	
+	/**
+	 * 장바구니 선택 상품 목록 삭제
+	 */
+	@PostMapping(value="/cart/mycart/deleteAll", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public void removeAllItems(HttpServletRequest request, HttpSession session) {
+		String[] optionNoArr = request.getParameterValues("arr");
+		
+		String loginMember = (String) session.getAttribute("loginMember");
+		
+		for(int i=0; i < optionNoArr.length; i++) {
+			String optionNo = optionNoArr[i];
+			log.info("삭제 요청 옵션 : {}", optionNo);
+			
+			if(loginMember == null) { //비회원용 장바구니
+				List<CartDTO> nonmemberCart = (List<CartDTO>) session.getAttribute("geulbeotCart");
+				log.info("비회원용 session 장바구니 호출");
+				for(int j=0; j < nonmemberCart.size(); j++) {
+					if(Integer.parseInt(optionNo) == nonmemberCart.get(j).getOptionNo()) {
+						nonmemberCart.remove(j);
+					}
+				}
+			} else { //회원용 장바구니
+				List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+				log.info("회원용 장바구니 호출");
+				for(int j=0; j < memberCart.size(); j++) {
+					if(Integer.parseInt(optionNo) == memberCart.get(j).getOptionNo()) {
+						cartMapper.deleteItemFromCart(loginMember, Integer.parseInt(optionNo));
+					}
+				}
+			}
+		}
+		
+		//header에 변경된 상품 개수 반영
+		if(loginMember == null) {
+			List<CartDTO> nonmemberCart = (List<CartDTO>) session.getAttribute("geulbeotCart");
+			log.info("선택 상품 삭제 완료된 비회원용 session 장바구니 : {}", nonmemberCart);
+			session.setAttribute("countCartItem", nonmemberCart.size());
+		} else {
+			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
+			log.info("선택 상품 삭제 완료된 회원용 장바구니 : {}", memberCart);
+			session.setAttribute("countCartItem", memberCart.size());
+		}
+	}
+	
+	/**
+	 * 위시리스트 찜하기 추가
+	 */
+	@PostMapping(value="/cart/mycart/addToWishList", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public void addToWishList(HttpServletRequest request, HttpSession session) {
+		String[] optionNoArr = request.getParameterValues("arr");
+		
+		String loginMember = (String) session.getAttribute("loginMember");
+		
+		for(int i=0; i < optionNoArr.length; i++) {
+			
 		}
 	}
 }
