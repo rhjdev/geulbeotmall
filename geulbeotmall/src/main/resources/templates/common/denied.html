@@ -1,23 +1,54 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
 <head>
-<meta charset="UTF-8">
-<title>Access Denied</title>
+	<meta charset="UTF-8">
+	<title>글벗문구</title>
+	
+	<!-- CSS -->
+	<th:block layout:fragment="css">
+		<style type="text/css">
+			html, body { height: 100%; }
+			main { background-color: #f9f9f9; height: 100%; cursor: default; }
+			.content-wrapper { margin-top: 330px; justify-content: center; text-align: center; vertical-align: middle; align-items: center; }
+			.content-wrapper > span > i { transform: scale(10.0); }
+			.content-wrapper > div { width: 700px; padding-top: 15px; border-top: 1px solid #E5E5E5; border-bottom: 1px solid #E5E5E5; margin-block-start: 40px; margin: 0 auto; }
+			.content-wrapper > div > p { display: block; font-family: 'Gowun Dodum', sans-serif; font-size: 22px; font-weight: 700 !important; }
+			.content-wrapper > p { display: block; font-size: 20px; margin-block-start: 40px; }
+			.content-wrapper  > h2 { display: block; font-family: 'Gowun Dodum', sans-serif; font-size: 52px !important; font-weight: 400 !important; margin-block-start: 80px; }
+		</style>
+	</th:block>
+	
+	<!-- JS -->
+	<th:block layout:fragment="script">
+		<script type="text/javascript">
+			let count = 10;
+			let counter = setInterval(function(){
+				count--;
+				if(count <= 0) {
+					clearInterval(counter);
+					document.getElementById('timer').innerHTML = 1;
+				}
+				document.getElementById('timer').innerHTML = count;
+			}, 1000);
+			setTimeout("location.href='/'", 10000);
+		</script>
+	</th:block>
 </head>
-<body>
-	<div th:replace="/common/header.html :: headerFragment"></div>
-	<div class="content-wrapper">
-		<div class="title-wrapper">
-        	<h2 class="error-title">접근 권한 없음</h2>
-		</div>
-		<div class="desc-wrapper">
-			<div class="error-desc">
-				<p>액세스가 거부되었습니다. 관리자에게 문의하세요.</p>
-			</div>
-			<div class="buttonBox">
-				<input type="button" class="btn-outline-dark" id="returnMainPage" style="width: 40%;"></input>
-			</div>
-		</div>
-	</div>
+<body layout:fragment="content">
+	<main>
+	   	<div class="container content-wrapper">
+	   		<span>
+	   			<i class="fa-solid fa-triangle-exclamation"></i>
+	   		</span>
+	        <h2>페이지를 표시할 수 없습니다.</h2>
+	        <div>
+	       		<p class="msg">[[${errorMessage}]]</p>
+	        </div>
+			<p>
+				서비스 이용 및 권한과 관련된 사항은 <b style="color: #ff0000;">고객센터</b>에 문의하여 주시기 바랍니다.<br>
+				<b><span id="timer">10</span>초 후</b> 글벗문구 메인페이지로 이동합니다.
+			</p>
+	    </div>
+	</main>
 </body>
 </html>
