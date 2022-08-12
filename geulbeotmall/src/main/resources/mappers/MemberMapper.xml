@@ -34,6 +34,12 @@
 		<result property="authDesc" column="AUTHORITY_DESC"/>
 	</resultMap>
 	
+	<resultMap id="wishListResultMap" type="com.reminder.geulbeotmall.member.model.dto.WishListDTO">
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+	</resultMap>
+	
 	<select id="findMemberById" resultMap="signInMemberResultMap">
 		SELECT
 			   A.MEMBER_ID
@@ -193,4 +199,29 @@
 		   SET ACC_INACTIVE_YN = 'Y'
 		 WHERE MEMBER_ID = #{ username }
 	</update>
+	
+	<!-- 현재 위시리스트 조회 -->
+	<select id="getMemberWishList" resultMap="wishListResultMap">
+		SELECT
+			   *
+		  FROM TBL_WISHLIST
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
+	<!-- 위시리스트 찜하기 추가 -->
+	<insert id="addToWishList">
+		INSERT
+		  INTO TBL_WISHLIST
+		(
+		  MEMBER_ID
+		, OPTION_NO
+		, REF_PROD_NO
+		)
+		VALUES
+		(
+		  #{ memberId }
+		, #{ optionNo }
+		, #{ refProdNo }
+		)
+	</insert>
 </mapper>

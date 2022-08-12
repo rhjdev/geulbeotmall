@@ -195,7 +195,7 @@
 	    <th:block sec:authorize="isAnonymous()" th:if="${not #lists.isEmpty(session.geulbeotCart)}">
     	<div class="button-area">
     		<input type="checkbox" class="input-checkbox checkAll" name="checkAll">
-    		<button type="button" class="button-wish btn btn-sm"><i class="fa-regular fa-heart"></i> 찜</button>
+    		<button type="button" class="button-wish btn btn-sm" onclick="addToWishList()"><i class="fa-regular fa-heart"></i> 찜</button>
     		<button type="button" class="button-delete btn btn-sm">선택삭제</button>
     	</div>
 	    <div class="total-area">
@@ -231,7 +231,7 @@
 	    <th:block sec:authorize="isAuthenticated()" th:if="${not #lists.isEmpty(memberCart)}">
     	<div class="button-area">
     		<input type="checkbox" class="input-checkbox checkAll" name="checkAll">
-    		<button type="button" class="button-wish btn btn-sm"><i class="fa-regular fa-heart"></i> 찜</button>
+    		<button type="button" class="button-wish btn btn-sm" onclick="addToWishList()"><i class="fa-regular fa-heart"></i> 찜</button>
     		<button type="button" class="button-delete btn btn-sm">선택삭제</button>
     	</div>
 	    <div class="total-area">

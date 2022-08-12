@@ -1,9 +1,12 @@
 package com.reminder.geulbeotmall.member.model.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
+import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 
 @Mapper
 public interface MemberMapper {
@@ -31,4 +34,9 @@ public interface MemberMapper {
 	MemberDTO findMemberById(String username);
 
 	void deactivateUsername(String username);
+	
+	/* 찜하기 */
+	void addToWishList(String memberId, int optionNo, int refProdNo);
+
+	List<WishListDTO> getMemberWishList(String memberId);
 }

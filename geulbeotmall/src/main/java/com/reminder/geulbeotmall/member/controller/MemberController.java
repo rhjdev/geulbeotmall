@@ -1,10 +1,10 @@
 package com.reminder.geulbeotmall.member.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.cart.model.dao.CartMapper;
-import com.reminder.geulbeotmall.cart.model.dto.CartDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
+import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
+import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	
 	private final MemberService memberService;
+	private final ProductMapper productMapper;
 	private final MessageSource messageSource;
 	private final SignUpValidator signUpValidator;
 	private final CartMapper cartMapper;
@@ -49,8 +52,9 @@ public class MemberController {
 	 * 2. classpath 하위에 messages 폴더 및 properties 파일 생성
 	 */
 	@Autowired
-	public MemberController(MemberService memberService, MessageSource messageSource, SignUpValidator signUpValidator, CartMapper cartMapper) {
+	public MemberController(MemberService memberService, ProductMapper productMapper, MessageSource messageSource, SignUpValidator signUpValidator, CartMapper cartMapper) {
 		this.memberService = memberService;
+		this.productMapper = productMapper;
 		this.messageSource = messageSource;
 		this.signUpValidator = signUpValidator;
 		this.cartMapper = cartMapper;
@@ -97,6 +101,9 @@ public class MemberController {
 		return result;
 	}
 	
+	/**
+	 * 회원가입
+	 */
 	@GetMapping("signup")
 	public void signUpForm() {}
 	
@@ -133,20 +140,77 @@ public class MemberController {
 		return "redirect:/";
 	}
 	
+	/**
+	 * 로그인
+	 * @return 로그인 폼 또는 에러 페이지로 연결
+	 */
 	@GetMapping("signin")
-	public void signInForm() {}
+	public String signInForm(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 denied 페이지로 연결
+			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
+			return "/common/denied";
+		}
+		return "/member/signin";
+	}
 	
 	@PostMapping("signin")
-	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, HttpServletRequest request, HttpSession session, Model model) {
+		String uri = request.getHeader("Referer"); //사용자의 이전 경로
+		
+		String loginMember = (String) session.getAttribute("loginMember");
+		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 에러메시지 전달
+			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
+		}
+		if(loginMember == null) {
+			if(uri != null && !(uri.contains("/signin"))) { //돌아가야 할 이전 경로가 존재하고, 사용자가 직접 로그인페이지를 요청한 것이 아닌 경우
+				request.getSession().setAttribute("prevPage", uri); //session상에 저장하여 LoginSuccessHandler 통해 처리
+			}
+		}
 		model.addAttribute("errorMessage", errorMessage);
 	}
 	
+	/**
+	 * 마이페이지
+	 */
 	@GetMapping("mypage")
 	public void mypage(@AuthenticationPrincipal UserImpl user) {
 		//로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
 	}
 	
+
+	/**
+	 * 위시리스트 찜하기 추가
+	 */
+	@PostMapping(value="/wishlist/add", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String addToWishList(@ModelAttribute("loginMember") String loginMember, HttpServletRequest request, Model model) {
+		String[] optionNoArr = request.getParameterValues("arr");
+		log.info("optionNoArr : {}", optionNoArr.length);
+		
+		String result = "";
+		
+		List<WishListDTO> memberWishList = memberService.getMemberWishList(loginMember);
+		
+		int count = 0;
+		for(int i=0; i < optionNoArr.length; i++) {
+			for(int j=0; j < memberWishList.size(); j++) { //현재 위시리스트와 비교하여 찜하기 중복 여부 확인
+				if(memberWishList.get(j).getOptionNo() == Integer.parseInt(optionNoArr[i])) {
+					return result;
+				}
+			}
+			int prodNo = productMapper.searchProdNoByOptionNo(Integer.parseInt(optionNoArr[i]));
+			memberService.addToWishList(loginMember, Integer.parseInt(optionNoArr[i]), prodNo);
+			count++;
+		}
+		
+		if(optionNoArr.length == count) { result = "성공"; }
+		return result;
+	}
+	
+	/**
+	 * 로그아웃
+	 */
 	@GetMapping("signout")
 	public void signOut(SessionStatus status) {
 		status.setComplete(); //@SessionAttributes 어노테이션과 함께 session에 저장했던 속성 삭제

@@ -210,9 +210,9 @@ $(document).on('click', '.button-delete', function(){ //delete 버튼
 });
 
 /* 선택 상품 찜하기 */
-$(document).on('click', '.button-wish', function(){ //wish 버튼
+function addToWishList() { //wish 버튼
 	let checkbox = $('input[name=checkItem]:checked');
-	let optionNo = 0;
+	let optionNo = "";
 	let arr = new Array();
 	//1-1. 전체목록 중 선택한 옵션번호 저장
 	checkbox.each(function(i){
@@ -247,13 +247,15 @@ $(document).on('click', '.button-wish', function(){ //wish 버튼
 			}
 		})
 	} else {
-		$.ajax({
-			url : '/cart/mycart/addToWishList',
-			type : 'post',
-			traditional : true, //배열 넘기기 위한 세팅
-			dataType : 'text',
-			data : { arr : arr },
-			success : function(result){
+		
+	$.ajax({
+		url : '/member/wishlist/add',
+		type : 'post',
+		traditional : true, //배열 넘기기 위한 세팅
+		dataType : 'text',
+		data : { arr : arr },
+		success : function(result){
+			if(result == '성공') {
 				Swal.fire({
 					icon: 'success',
 					title: '찜하기가 완료되었습니다',
@@ -265,11 +267,25 @@ $(document).on('click', '.button-wish', function(){ //wish 버튼
 						window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
 					}
 				})
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: '이미 찜하기 목록에 존재하는 상품입니다',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				}).then((result) => {
+					if(result.isConfirmed) {
+						window.location.reload(); //페이지 새로고침
+						window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+					}
+				})
+			}
+		},
+		error : function(status, error){ console.log(status, error); }
+	});
 	}
-});
+	
+};
 
 /* 장바구니 합계 */
 let quantity = 0;

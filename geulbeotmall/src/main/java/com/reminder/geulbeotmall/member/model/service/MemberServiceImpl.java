@@ -17,6 +17,7 @@ import com.reminder.geulbeotmall.member.model.dto.AuthorityDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
+import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 
 @Transactional
 @Service("memberService")
@@ -138,5 +139,15 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void deactivateUsername(String username) {
 		memberMapper.deactivateUsername(username);
+	}
+
+	@Override
+	public void addToWishList(String memberId, int optionNo, int refProdNo) {
+		memberMapper.addToWishList(memberId, optionNo, refProdNo);
+	}
+
+	@Override
+	public List<WishListDTO> getMemberWishList(String memberId) {
+		return memberMapper.getMemberWishList(memberId);
 	}
 }
