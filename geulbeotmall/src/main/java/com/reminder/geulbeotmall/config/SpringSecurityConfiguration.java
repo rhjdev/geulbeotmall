@@ -46,7 +46,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 			/* 요청 권한 체크 */
 			.csrf().disable()
 			.authorizeRequests()
-				.antMatchers("/order/**").authenticated()
+				.antMatchers("/cart/order/**").authenticated()
 				.antMatchers(HttpMethod.GET, "/order/**").hasRole("MEMBER")
 				.antMatchers(HttpMethod.POST, "/order/**").hasRole("ADMIN")
 				.antMatchers("/admin/member/**").hasRole("ADMIN")
@@ -58,6 +58,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 			.and()
 				.formLogin()															//로그인 설정
 				.loginPage("/member/signin")											//로그인 페이지
+				//.defaultSuccessUrl("/")
 				.successForwardUrl("/")													//성공 시 랜딩 페이지
 				.failureHandler(loginFailureHandler)									//실패 시 핸들러, AuthenticationFailureHandler를 implements한 해당 클래스에서 @Component 선언
 				.successHandler(loginSuccessHandler)									//성공 시 핸들러, AuthenticationSuccessHandler를 implements한 해당 클래스에서 @Component 선언

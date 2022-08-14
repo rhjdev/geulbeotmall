@@ -195,4 +195,9 @@ public class ProductServiceImpl implements ProductService {
 		productMapper.deleteAttachment(prodNo);
 		return productMapper.deleteProduct(prodNo);
 	}
+
+	@Override
+	public int searchProdNoByOptionNo(int optionNo) {
+		return productMapper.searchProdNoByOptionNo(optionNo);
+	}
 }

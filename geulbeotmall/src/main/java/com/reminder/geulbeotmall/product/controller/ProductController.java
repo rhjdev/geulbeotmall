@@ -14,8 +14,10 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.catalina.Session;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -232,8 +234,8 @@ public class ProductController {
 			thumbnailDirectory.mkdirs();
 		}
 		
-		/* 이게 최종적으로 request를 parsing하고 파일을 저장한 뒤 필요한 내용을 담을 리스트와 맵이다.
-		 * 파일에 대한 정보는 리스트에, 다른 파라미터의 정보는 모두 맵에 담을 것이다.
+		/* 최종적으로 request를 parsing하고 파일을 저장한 뒤 필요한 내용을 담을 리스트와 맵
+		 * 파일에 대한 정보는 리스트에, 다른 파라미터의 정보는 모두 맵에 담을 것임
 		 * */
 		Map<String, String> fileMap = new HashMap<>();
 		List<Map<String, String>> fileList = new ArrayList<>();
@@ -308,7 +310,6 @@ public class ProductController {
 	/**
 	 * 상품 상세내용이미지(CKEditor4 첨부 이미지) 업로드
 	 * !Spring Boot 개발 환경에서는 src/main 하위에 webapp 폴더를 직접 생성해야 함!
-	 * @return 
 	 */
 	@PostMapping("/admin/product/add/contentImageUpload")
 	public void uploadProdContentImage(HttpServletRequest request, HttpServletResponse response, @RequestParam MultipartFile upload) {
@@ -529,8 +530,13 @@ public class ProductController {
 		return result;
 	}
 	
+	/**
+	 * 상품 상세 페이지
+	 */
 	@GetMapping("/product/details")
-	public void getProductDetails(@RequestParam("no") int prodNo, Model model) {
+	public void getProductDetails(@RequestParam("no") int prodNo, HttpSession session, Model model) {
+		session.removeAttribute("orderItem"); //주문 요청 시마다 주문목록 session 갱신
+		
 		/* 상품 상세 정보 호출 */
 		ProductDTO detail = productService.getProductDetails(prodNo);
 		

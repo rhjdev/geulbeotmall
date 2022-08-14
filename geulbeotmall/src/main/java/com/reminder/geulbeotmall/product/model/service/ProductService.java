@@ -78,4 +78,6 @@ public interface ProductService {
 	int putAProductOnSale(int prodNo);
 
 	int deleteProduct(int prodNo);
+
+	int searchProdNoByOptionNo(int optionNo);
 }

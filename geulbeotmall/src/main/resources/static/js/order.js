@@ -247,97 +247,197 @@ function addToWishList() { //wish 버튼
 			}
 		})
 	} else {
-		
-	$.ajax({
-		url : '/member/wishlist/add',
-		type : 'post',
-		traditional : true, //배열 넘기기 위한 세팅
-		dataType : 'text',
-		data : { arr : arr },
-		success : function(result){
-			if(result == '성공') {
-				Swal.fire({
-					icon: 'success',
-					title: '찜하기가 완료되었습니다',
-					confirmButtonColor: '#00008b',
-					confirmButtonText: '확인'
-				}).then((result) => {
-					if(result.isConfirmed) {
-						window.location.reload(); //페이지 새로고침
-						window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
-					}
-				})
-			} else {
-				Swal.fire({
-					icon: 'error',
-					title: '이미 찜하기 목록에 존재하는 상품입니다',
-					confirmButtonColor: '#00008b',
-					confirmButtonText: '확인'
-				}).then((result) => {
-					if(result.isConfirmed) {
-						window.location.reload(); //페이지 새로고침
-						window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
-					}
-				})
-			}
-		},
-		error : function(status, error){ console.log(status, error); }
-	});
+		$.ajax({
+			url : '/member/wishlist/add',
+			type : 'post',
+			traditional : true, //배열 넘기기 위한 세팅
+			dataType : 'text',
+			data : { arr : arr },
+			success : function(result){
+				if(result == '성공') {
+					Swal.fire({
+						icon: 'success',
+						title: '찜하기가 완료되었습니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.reload(); //페이지 새로고침
+							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+						}
+					})
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: '이미 찜하기 목록에 존재하는 상품입니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.reload(); //페이지 새로고침
+							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+						}
+					})
+				}
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
 	}
-	
 };
 
 /* 장바구니 합계 */
-let quantity = 0;
-
-/* 합계A. 상품금액 */
-let prodPrice = document.querySelectorAll('.origPrice');
-let orderPrice = 0;
-//console.log(prodPrice);
-for(let i=0; i < prodPrice.length; i++) {
-	quantity = prodPrice[i].parentElement.parentElement.children[4].children[0].children[1].value; //선택수량
-	//console.log(prodPrice[i].attributes.value.textContent); //NodeList에서 value 추출
-	orderPrice += (parseInt(prodPrice[i].attributes.value.textContent) * quantity); //int 타입으로 변환
-	//console.log(orderPrice);
-}
+let link = document.location.href;
+//console.log(link);
+if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 경우에 한하여 적용
+	let quantity = 0;
 	
-/* 합계B. 할인금액 */
-let discounts = document.querySelectorAll('del');
-let discounted = document.querySelectorAll('.discounted');
-let sellingPrice = 0;
-let savingPrice = 0;
-for(let i=0; i < discounts.length; i++) { //할인상품 개수만큼 반복
-	quantity = discounts[i].parentElement.parentElement.children[4].children[0].children[1].value; //선택수량
-	sellingPrice += (parseInt(discounts[i].attributes.value.textContent) * quantity); //상품금액 총합
-	savingPrice +=(parseInt(discounted[i].attributes.value.textContent) * quantity); //할인적용금액 총합
-}
-let discountAmount = sellingPrice - savingPrice; //총 상품금액 - 총 할인적용금액 = 할인금액
-
-/* 합계C. 배송비 */
-let deliveries = document.querySelectorAll('.delivery');
-let deliveryFee = 0;
-deliveries.forEach(function(item){
-	let checkPrice = item.parentElement.children[5].attributes.value.textContent; //cellIndex 통해 불러오기
-	//조건1. 기본 3만원 이상 주문 시 무료 배송
-	let cost = checkPrice >= 30000 ? 0 : 2500;
-	//조건2. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
-	if(item.parentElement.children[6].innerHTML == '모나미') {
-		cost = checkPrice >= 20000 ? 0 : 3000;
+	/* 합계A. 상품금액 */
+	let prodPrice = document.querySelectorAll('.origPrice');
+	let orderPrice = 0;
+	//console.log(prodPrice);
+	for(let i=0; i < prodPrice.length; i++) {
+		quantity = prodPrice[i].parentElement.parentElement.children[4].children[0].children[1].value; //선택수량
+		//console.log(prodPrice[i].attributes.value.textContent); //NodeList에서 value 추출
+		orderPrice += (parseInt(prodPrice[i].attributes.value.textContent) * quantity); //int 타입으로 변환
+		//console.log(orderPrice);
 	}
-	//console.log(checkPrice);
-	//console.log(cost);
-	item.parentElement.children[7].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
-	item.parentElement.children[7].attributes.value = cost;
-	//console.log(item.parentElement.children);
-	deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
-});
+		
+	/* 합계B. 할인금액 */
+	let discounts = document.querySelectorAll('del');
+	let discounted = document.querySelectorAll('.discounted');
+	let sellingPrice = 0;
+	let savingPrice = 0;
+	for(let i=0; i < discounts.length; i++) { //할인상품 개수만큼 반복
+		quantity = discounts[i].parentElement.parentElement.children[4].children[0].children[1].value; //선택수량
+		sellingPrice += (parseInt(discounts[i].attributes.value.textContent) * quantity); //상품금액 총합
+		savingPrice +=(parseInt(discounted[i].attributes.value.textContent) * quantity); //할인적용금액 총합
+	}
+	let discountAmount = sellingPrice - savingPrice; //총 상품금액 - 총 할인적용금액 = 할인금액
+	
+	/* 합계C. 배송비 */
+	let deliveries = document.querySelectorAll('.delivery');
+	let deliveryFee = 0;
+	deliveries.forEach(function(item){
+		let checkPrice = item.parentElement.children[5].attributes.value.textContent; //cellIndex 통해 불러오기
+		//조건1. 기본 3만원 이상 주문 시 무료 배송
+		let cost = checkPrice >= 30000 ? 0 : 2500;
+		//조건2. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
+		if(item.parentElement.children[6].innerHTML == '모나미') {
+			cost = checkPrice >= 20000 ? 0 : 3000;
+		}
+		//console.log(checkPrice);
+		//console.log(cost);
+		item.parentElement.children[7].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
+		item.parentElement.children[7].attributes.value = cost;
+		//console.log(item.parentElement.children);
+		deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
+	});
+	
+	/* 합계 반영 */
+	let totalPrice = orderPrice - discountAmount + deliveryFee;
+	document.querySelector('.order-price').innerHTML = orderPrice.toLocaleString('ko-KR');
+	document.querySelector('.discount-amount').innerHTML = discountAmount.toLocaleString('ko-KR');
+	document.querySelector('.delivery-fee').innerHTML = deliveryFee.toLocaleString('ko-KR');
+	document.querySelector('.total-price').innerHTML = totalPrice.toLocaleString('ko-KR');
+} else { //주소값에 order를 포함한 경우 적용
+	/* 주문서 배송비 */
+	let deliveries = document.querySelectorAll('.delivery');
+	let deliveryFee = 0;
+	deliveries.forEach(function(item){
+		let checkPrice = item.parentElement.children[4].attributes.value.textContent; //cellIndex 통해 불러오기
+		//조건1. 기본 3만원 이상 주문 시 무료 배송
+		let cost = checkPrice >= 30000 ? 0 : 2500;
+		//조건2. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
+		if(item.parentElement.children[5].innerHTML == '모나미') {
+			cost = checkPrice >= 20000 ? 0 : 3000;
+		}
+		//console.log(checkPrice);
+		//console.log(cost);
+		item.parentElement.children[6].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
+		item.parentElement.children[6].attributes.value = cost;
+		//console.log(item.parentElement.children);
+		deliveryFee += parseInt(item.parentElement.children[6].attributes.value); //배송비 총합
+	});
+}
 
-/* 합계 반영 */
-let totalPrice = orderPrice - discountAmount + deliveryFee;
-document.querySelector('.order-price').innerHTML = orderPrice.toLocaleString('ko-KR');
-document.querySelector('.discount-amount').innerHTML = discountAmount.toLocaleString('ko-KR');
-document.querySelector('.delivery-fee').innerHTML = deliveryFee.toLocaleString('ko-KR');
-document.querySelector('.total-price').innerHTML = totalPrice.toLocaleString('ko-KR');
+/* 장바구니 단일 상품 주문 */
+let buttonClicked;
+let tr;
+for(const item of document.querySelectorAll('.orderBtn')) {
+	item.addEventListener('click', function(event){
+		buttonClicked = event.target;
+		console.log(buttonClicked);
+		tr = event.target.parentElement.parentElement.parentElement; //행 기준으로 탐색
+		
+		let optionNo = "";
+		optionNo = tr.children[2].attributes.value.textContent;
+		console.log(optionNo);
+		
+		$.ajax({
+			url : '/cart/order',
+			type: 'get',
+			data : { optionNo : optionNo },
+			success : function(result){
+				console.log('주문페이지 이동');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	});
+}
+
+/* 장바구니 선택 또는 전체 상품 주문 */
+function orderSelection() {
+	let checkbox = $('input[name=checkItem]:checked');
+	let optionNo = "";
+	let arr = new Array();
+	//1-1. 전체목록 중 선택한 옵션번호 저장
+	checkbox.each(function(i){
+		let tr = checkbox.parent().parent().eq(i);
+		let td = tr.children();
+		optionNo = td.eq(2).attr('value');
+		console.log(optionNo);
+		arr.push(optionNo);
+	});
+	//1-2. 선택된 체크박스가 없는 경우
+	if(arr.length == 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: '1개 이상의 상품을 체크하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				history.go(0); //현재 페이지 새로고침
+			}
+		})
+	//1-3. 로그인 여부 확인
+	} else if(arr.length > 0 && !document.getElementById('isLoggedInAs')) {
+		Swal.fire({
+			icon: 'warning',
+			title: '로그인이 필요합니다',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				location.href='/member/signin';
+			}
+		})
+	} else {
+		$.ajax({
+			url : '/cart/order',
+			type : 'get',
+			traditional : true, //배열 넘기기 위한 세팅
+			dataType : 'text',
+			data : { arr : arr },
+			success : function(result){
+				console.log('주문페이지 이동');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	}
+};
 
 /* 주소 API */
 function DaumPostcode() {
@@ -399,6 +499,8 @@ $('.dropdown .option').on('click', function() {
 	
 	if(text == '직접 입력') {
 		$('#typeOwnMessage').prop('hidden', false);
+	} else {
+		$('#typeOwnMessage').prop('hidden', true);
 	}
 });
 

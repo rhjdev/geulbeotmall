@@ -98,7 +98,7 @@
 		    			
 		    			<td>
 		    			<div class="buttonBox">
-		    				<a href="#"><button type="button" class="orderBtn btn btn-sm btn-dark">바로주문</button></a>
+		    				<a th:href="@{/cart/order}"><button type="button" class="orderBtn btn btn-sm btn-dark">바로주문</button></a>
 		    				<button type="button" class="deleteBtn btn btn-sm">삭제</button>
 		    			</div>
 		    			</td>
@@ -175,7 +175,7 @@
 		    			
 		    			<td>
 		    			<div class="buttonBox">
-		    				<a href="#"><button type="button" class="orderBtn btn btn-sm btn-dark">바로주문</button></a>
+		    				<button type="button" class="orderBtn btn btn-sm btn-dark">바로주문</button>
 		    				<button type="button" class="deleteBtn btn btn-sm">삭제</button>
 		    			</div>
 		    			</td>
@@ -225,6 +225,10 @@
 		    	</li>
 	    	</ul>
 	    </div>
+	    <div class="orderItemsBox">
+	    	<button type="button" class="orderSelectionBtn btn" onclick="orderSelection()">선택상품주문</button>
+	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderSelection()">전체상품주문</button>
+    	</div>
 	    </th:block>
 	    
 	    <!-- 로그인 장바구니 합계 -->
@@ -261,6 +265,10 @@
 		    	</li>
 	    	</ul>
 	    </div>
+	    <div class="orderItemsBox">
+	    	<button type="button" class="orderSelectionBtn btn" onclick="orderSelection()">선택상품주문</button>
+	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderSelection()">전체상품주문</button>
+    	</div>
 	    </th:block>
     </div>
     <!-- JS -->

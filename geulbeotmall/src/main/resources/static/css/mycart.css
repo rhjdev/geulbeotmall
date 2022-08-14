@@ -222,6 +222,37 @@
 	color: #000;
 }
 
+/* 선택 또는 전체주문 버튼 */
+.orderItemsBox {
+	margin-top: 80px;
+	margin-bottom: 160px;
+	text-align: center;
+}
+.orderItemsBox button[type="button"] {
+	width: 30%;
+	height: 44px;
+	border-radius: 0;
+	box-shadow: none !important;
+	cursor: pointer;
+}
+
+.orderItemsBox .orderSelectionBtn {
+    color: #000;
+    border-color: #6c757d;
+}
+
+.orderItemsBox .orderSelectionBtn:hover {
+	background-color: #f9f9f9;
+}
+
+.orderItemsBox .orderAllBtn {
+	margin-inline-start: 10px;
+}
+	
+.orderItemsBox .orderAllBtn:hover {
+	opacity: 93%;
+}
+
 /* ========================================= */
 
 fieldset {
@@ -341,6 +372,10 @@ input:read-only {
 	height: 100%;
 }
 
+.address-info > input[type=button] {
+	box-shadow: none !important;
+}
+
 .address-info > input[name="postalCode"] {
 	width: 20%;
 	margin: 0;
@@ -453,6 +488,12 @@ input[name="detailAddress"] {
 	margin-bottom: 40px !important;
 }
 
+/* 적립금 사용 */
+input[name=reserve] {
+	display: inline-block;
+	text-align: right;
+}
+
 /* 결제수단 선택 */
 .payment-area {
 	display: flex;
@@ -493,7 +534,7 @@ input[name="detailAddress"] {
 	border: 1px solid #000;
 }
 
-.interest-free-td {
+.interest-free-td, .reserve-amount-td, .reserve-td {
 	text-align: left !important;
 	padding-left: 8%;
 }
@@ -519,6 +560,7 @@ input[name="detailAddress"] {
 .modal-footer > button {
 	width: 120px;
 	height: 44px;
+	box-shadow: none !important;
 }
 
 .modal-body {
@@ -607,6 +649,37 @@ table {
 
 .terms-detail a {
     color: #6c757d;
+}
+
+/* 주문결제 버튼 */
+.paymentBox {
+	margin-top: 80px;
+	margin-bottom: 160px;
+	text-align: center;
+}
+.paymentBox button[type="button"] {
+	width: 30%;
+	height: 44px;
+	border-radius: 0;
+	box-shadow: none !important;
+	cursor: pointer;
+}
+
+.paymentBox .cancelBtn {
+    color: #000;
+    border-color: #6c757d;
+}
+
+.paymentBox .cancelBtn:hover {
+	background-color: #f9f9f9;
+}
+
+.paymentBox .payBtn {
+	margin-inline-start: 10px;
+}
+	
+.paymentBox .payBtn:hover {
+	opacity: 93%;
 }
 
 /* 전체 폰트 적용 */

@@ -14,11 +14,11 @@ public interface CartMapper {
 	
 	List<CartDTO> getCurrentCart(String username);
 	
+	CartDTO getCartItemByOptionNo(String username, int optionNo);
+	
 	int getMemberCartNo(String username);
 
 	List<CartDTO> getCartItemList(CartDTO cartDTO);
-
-	void addToCart(int optionNo);
 
 	void addToCart(CartDTO cartDTO);
 

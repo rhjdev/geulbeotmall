@@ -24,20 +24,27 @@ import com.reminder.geulbeotmall.cart.model.dao.CartMapper;
 import com.reminder.geulbeotmall.cart.model.dto.CartDTO;
 import com.reminder.geulbeotmall.member.model.dao.MemberMapper;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
+import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
+import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
+import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@SessionAttributes("loginMember")
+@SessionAttributes({"loginMember", "orderItem"})
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 	
 	private MemberMapper memberMapper;
+	private ProductMapper productMapper;
 	private CartMapper cartMapper;
 	
 	@Autowired
-	public LoginSuccessHandler(MemberMapper memberMapper, CartMapper cartMapper) {
+	public LoginSuccessHandler(MemberMapper memberMapper, ProductMapper productMapper, CartMapper cartMapper) {
 		this.memberMapper = memberMapper;
+		this.productMapper = productMapper;
 		this.cartMapper = cartMapper;
 	}
 
@@ -106,11 +113,55 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String uri = request.getContextPath(); //uniform resource identifier
 		if(savedRequest != null) { //상황A. 접근한 페이지가 Security에 의해 로그인 인증을 필요로 한 경우
 			uri = savedRequest.getRedirectUrl();
+			
 		} else if(prevPage != null) { //상황B. 사용자가 직접 로그인페이지를 요청한 경우
 			uri = prevPage;
 			log.info("prevPage : {}", prevPage);
 		}
 		log.info("요청 uri : {}", uri);
+		
+		/*
+		 * 비회원이 상품상세페이지에서 바로주문 요청 중 로그인하는 경우
+		 * 1. 상품상세페이지의 JS 통해 선택정보를 로그인페이지로 전달
+		 * 2. 로그인 Controller는 HttpServletRequest에 담겨온 파라미터 값을 꺼내 session상에 임시 저장
+		 * 3. LoginSuccessHandler가 해당 session 객체를 토대로 상품정보를 조회하고, 이를 하나의 주문리스트로 생성해 주문페이지로 최종 연결
+		 * => 로그인 전 선택한 상품정보 그대로 주문페이지로 이어지며, 이는 일회성으로 사용자의 기존 장바구니와는 무관함
+		 */
+		if(uri.indexOf("order") != -1) {
+			session.removeAttribute("orderItem"); //주문 요청 시마다 주문목록 session 갱신
+			
+			String[] detailOptionNo = (String[]) session.getAttribute("detailOptionNo");
+			String[] detailOptionQt = (String[]) session.getAttribute("detailOptionQt");
+			log.info("handler 확인 : {}", detailOptionNo.length);
+			if(detailOptionNo != null && detailOptionQt != null) {
+				List<CartDTO> itemList = new ArrayList<>();
+				for(int i=0; i < detailOptionNo.length; i++) {
+					log.info("detailOptionNo : {}", detailOptionNo[i]);
+					log.info("detailOptionQt : {}", detailOptionQt[i]);
+					CartDTO cartDTO = new CartDTO();
+					
+					int prodNoByOptionNo = productMapper.searchProdNoByOptionNo(Integer.parseInt(detailOptionNo[i]));
+					OptionDTO optionInfoByOptionNo = cartMapper.searchOptionInfoByOptionNo(Integer.parseInt(detailOptionNo[i]));
+					ProductDTO productInfoByOptionNo = cartMapper.searchProductInfoByOptionNo(Integer.parseInt(detailOptionNo[i]));
+					BrandDTO brandInfoByOptionNo = cartMapper.searchBrandInfoByOptionNo(Integer.parseInt(detailOptionNo[i]));
+					AttachmentDTO mainThumb = productMapper.getMainThumbnailByProdNo(prodNoByOptionNo);
+					AttachmentDTO subThumb = productMapper.getSubThumbnailByProdNo(prodNoByOptionNo);
+					List<AttachmentDTO> attachmentList = new ArrayList<>();
+					attachmentList.add(mainThumb);
+					attachmentList.add(subThumb);
+					cartDTO.setProdNo(prodNoByOptionNo);
+					cartDTO.setOptionNo(Integer.parseInt(detailOptionNo[i]));
+					cartDTO.setQuantity(Integer.parseInt(detailOptionQt[i]));
+					cartDTO.setOption(optionInfoByOptionNo);
+					cartDTO.setProduct(productInfoByOptionNo);
+					cartDTO.setBrand(brandInfoByOptionNo);
+					cartDTO.setAttachmentList(attachmentList);
+					log.info("cartDTO : {}", cartDTO);
+					itemList.add(cartDTO);
+				}
+				session.setAttribute("orderItem", itemList); //선택상품정보 출력용으로 session상에 임시 저장하여 전달
+			}
+		}
 		
 		/* 3-2. 회원 권한 및 요청 상황에 따른 기본 페이지 이동 */
 		Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());

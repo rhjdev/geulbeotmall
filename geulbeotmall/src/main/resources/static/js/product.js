@@ -245,7 +245,6 @@ $('#addOpt').on('click', function(){ //상품 등록
 	}
 });
 
-
 let lastOpt = 0;
 let value = "";
 for(let i=0; i < 10; i++) {
@@ -675,9 +674,29 @@ function orderProduct() {
 	console.log(orderOptionNo);
 	console.log(orderOptionQt);
 	
+	//로그인 여부 확인
+	if(!document.getElementById('isLoggedInAs')) {
+		$.ajax({
+			url : '/member/signin',
+			type : 'post',
+			traditional : true,
+			dataType : 'text',
+			data : {
+				orderOptionNo : orderOptionNo,
+				orderOptionQt : orderOptionQt
+			},
+			success : function(result){
+				console.log('로그인 요청');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	} else {
+		
+	
 	$.ajax({
 		url : '/cart/order',
-		type : 'post',
+		type : 'get',
 		traditional : true,
 		dataType : 'text',
 		data : {
@@ -685,12 +704,10 @@ function orderProduct() {
 			orderOptionQt : orderOptionQt
 		},
 		success : function(result){
-			if(result == '성공') {
-				alert('성공');
-			} else if(result == '로그인') {
-				window.location.href='/member/signin';
-			}
+			console.log('주문페이지 이동');
+			location.href='/cart/order';
 		},
 		error : function(status, error){ console.log(status, error); }
 	});
+	}
 };

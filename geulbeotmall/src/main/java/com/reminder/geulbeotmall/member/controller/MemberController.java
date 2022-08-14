@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.cart.model.dao.CartMapper;
@@ -38,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/member")
-@SessionAttributes({"loginMember", "geulbeotCart"})
+@SessionAttributes({"loginMember", "geulbeotCart", "detailOptionNo", "detailOptionQt"})
 public class MemberController {
 	
 	private final MemberService memberService;
@@ -103,9 +102,16 @@ public class MemberController {
 	
 	/**
 	 * 회원가입
+	 * @return 회원가입 폼 또는 에러 페이지로 연결
 	 */
 	@GetMapping("signup")
-	public void signUpForm() {}
+	public String signUpForm(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 denied 페이지로 연결
+			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
+			return "/common/denied";
+		}
+		return "/member/signin";
+	}
 	
 	@PostMapping("signup")
 	public Object signUpMember(@Validated @ModelAttribute("member") MemberDTO member, BindingResult bindingResult,
@@ -155,18 +161,27 @@ public class MemberController {
 	
 	@PostMapping("signin")
 	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, HttpServletRequest request, HttpSession session, Model model) {
+		/* 상품상세페이지에서 바로주문 요청한 경우 선택값을 session상에 임시 저장 */
+		String[] detailOptionNo = request.getParameterValues("orderOptionNo");
+		String[] detailOptionQt = request.getParameterValues("orderOptionQt");
+		session.setAttribute("detailOptionNo", detailOptionNo);
+		session.setAttribute("detailOptionQt", detailOptionQt);
+		
+		/* 로그인 요청 중 이전 경로가 존재하면 이를 session상에 임시 저장 */
 		String uri = request.getHeader("Referer"); //사용자의 이전 경로
 		
 		String loginMember = (String) session.getAttribute("loginMember");
+		if(loginMember == null) {
+			if(uri != null && !(uri.contains("/signin"))) { //돌아가야 할 이전 경로가 존재하고, 사용자가 직접 로그인페이지를 요청한 것이 아닌 경우
+				request.getSession().setAttribute("prevPage", uri); //이전 경로를 session상에 저장하여 LoginSuccessHandler 통해 처리
+			}
+		}
+		
+		/* 로그인 실패 */
 		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 에러메시지 전달
 			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
 		}
-		if(loginMember == null) {
-			if(uri != null && !(uri.contains("/signin"))) { //돌아가야 할 이전 경로가 존재하고, 사용자가 직접 로그인페이지를 요청한 것이 아닌 경우
-				request.getSession().setAttribute("prevPage", uri); //session상에 저장하여 LoginSuccessHandler 통해 처리
-			}
-		}
-		model.addAttribute("errorMessage", errorMessage);
+		model.addAttribute("errorMessage", errorMessage); //비밀번호 입력 오류 등
 	}
 	
 	/**
@@ -177,7 +192,6 @@ public class MemberController {
 		//로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
 	}
-	
 
 	/**
 	 * 위시리스트 찜하기 추가

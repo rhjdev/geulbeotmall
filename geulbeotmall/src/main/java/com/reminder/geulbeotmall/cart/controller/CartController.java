@@ -45,6 +45,8 @@ public class CartController {
 	
 	@GetMapping("/cart/mycart")
 	public void getMyCart(HttpSession session, Model model) {
+		session.removeAttribute("orderItem"); //주문 요청 시마다 주문목록 session 갱신
+		
 		String loginMember = (String) session.getAttribute("loginMember");
 		if(loginMember != null) {
 			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
@@ -280,21 +282,6 @@ public class CartController {
 			List<CartDTO> memberCart = cartMapper.getCurrentCart(loginMember);
 			log.info("선택 상품 삭제 완료된 회원용 장바구니 : {}", memberCart);
 			session.setAttribute("countCartItem", memberCart.size());
-		}
-	}
-	
-	/**
-	 * 위시리스트 찜하기 추가
-	 */
-	@PostMapping(value="/cart/mycart/addToWishList", produces="application/json; charset=UTF-8")
-	@ResponseBody
-	public void addToWishList(HttpServletRequest request, HttpSession session) {
-		String[] optionNoArr = request.getParameterValues("arr");
-		
-		String loginMember = (String) session.getAttribute("loginMember");
-		
-		for(int i=0; i < optionNoArr.length; i++) {
-			
 		}
 	}
 }

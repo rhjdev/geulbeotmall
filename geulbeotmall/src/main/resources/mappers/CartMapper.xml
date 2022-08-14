@@ -81,6 +81,26 @@
 		<result property="brandName" column="BRAND_NAME"/>
 	</resultMap>
 	
+	<!-- 주문 조회용 -->
+	<resultMap id="orderResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDTO">
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="orderQuantity" column="ORDER_QUANTITY"/>
+		<result property="orderAmount" column="ORDER_AMOUNT"/>
+	</resultMap>
+	
+	<resultMap id="orderDetailResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO">
+		<id property="orderNo" column="ORDER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="orderDate" column="ORDER_DATE"/>
+		<result property="rcvrName" column="RCVR_NAME"/>
+		<result property="rcvrPhone" column="RCVR_PHONE"/>
+		<result property="rcvrAddress" column="RCVR_ADDRESS"/>
+		<result property="dlvrReqMessage" column="DLVR_REQ_MESSAGE"/>
+		<result property="dlvrStatus" column="DLVR_STATUS"/>
+	</resultMap>
+		
 	<!-- 장바구니에 새 상품 목록 추가 -->
 	<insert id="addToCart">
 		<selectKey resultType="_int" keyProperty="cartNo" order="BEFORE">
@@ -199,5 +219,31 @@
 		  LEFT JOIN TBL_PRODUCT B ON (A.BRAND_NO = B.BRAND_NO)
 		  LEFT JOIN TBL_OPTION C ON (C.REF_PROD_NO = B.PROD_NO)
 		 WHERE OPTION_NO = #{ optionNo }
+	</select>
+	
+	<!-- 옵션번호 기준 장바구니 단일 상품 조회 -->
+	<select id="getCartItemByOptionNo" resultMap="cartResultMap">
+		SELECT
+			   A.CART_NO
+			 , A.MEMBER_ID
+			 , A.PROD_NO
+			 , A.OPTION_NO
+			 , A.QUANTITY
+			 , B.PROD_NAME
+			 , B.DISCOUNT_RATE
+			 , B.PROD_PRICE
+			 , C.BRAND_NAME
+			 , T.THUMBNAIL_PATH
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+		  FROM TBL_CART A
+		  LEFT JOIN TBL_PRODUCT B ON(A.PROD_NO = B.PROD_NO)
+		  LEFT JOIN TBL_BRAND C ON(C.BRAND_NO = B.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
+		 WHERE A.MEMBER_ID = #{ username }
+		   AND A.OPTION_NO = #{ optionNo }
 	</select>
 </mapper>
