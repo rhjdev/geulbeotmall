@@ -20,7 +20,7 @@ public interface ProductMapper {
 
 	int checkCategoryName(String categoryName);
 
-	int addANewCategory(String categoryName);
+	int addANewCategory(String categoryName, String categorySection);
 
 	List<BrandDTO> getBrandList();
 	
@@ -92,4 +92,8 @@ public interface ProductMapper {
 	int deleteProduct(int prodNo);
 
 	int searchProdNoByOptionNo(int optionNo);
+
+	List<ProductDTO> getProductListByCategorySection(String category);
+
+	List<String> getCategorySection();
 }

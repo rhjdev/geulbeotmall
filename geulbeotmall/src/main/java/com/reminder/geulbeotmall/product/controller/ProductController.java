@@ -17,17 +17,18 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import org.apache.catalina.Session;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -105,7 +106,8 @@ public class ProductController {
 		}
 		
 		if(categoryCount == 0) { //새 카테고리 추가
-			int result = productService.addANewCategory(categoryName);
+			String categorySection = param.get("section");
+			int result = productService.addANewCategory(categoryName, categorySection);
 			if(result == 1) {
 				log.info("새 카테고리 추가 완료 : {}", categoryName);
 			}
@@ -613,5 +615,28 @@ public class ProductController {
 		model.addAttribute("tagList", tagList);
 		model.addAttribute("mainThumb", mainThumb);
 		model.addAttribute("subThumb", subThumb);
+	}
+	
+	/**
+	 * 상품 목록
+	 */
+	@GetMapping(value={"/product/list", "/product/list/{category}"}) //{이름}과 @PathVariable로 쓴 변수명은 일치해야 함
+	public void getProductListByCategory(@RequestParam(required=false) String category, Model model) {
+		log.info("요첨 category : {}", category);
+		List<ProductDTO> productList = productService.getProductListByCategorySection(category);
+		List<AttachmentDTO> thumbnailList = new ArrayList<>();
+		for(int i=0; i < productList.size(); i++) {
+			int prodNo = productList.get(i).getProdNo();
+			AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+			thumbnailList.add(mainThumb);
+		}
+		log.info("productList : {}", productList);
+		
+		List<String> section = productService.getCategorySection();
+		
+		model.addAttribute("section", section);
+		model.addAttribute("category", category == null ? "전체 상품" : category);
+		model.addAttribute("productList", productList);
+		model.addAttribute("thumbnailList", thumbnailList);
 	}
 }

@@ -58,6 +58,7 @@
 	<resultMap id="categoryResultMap" type="com.reminder.geulbeotmall.product.model.dto.CategoryDTO">
 		<id property="categoryNo" column="CATEGORY_NO"/>
 		<result property="categoryName" column="CATEGORY_NAME"/>
+		<result property="categorySection" column="CATEGORY_SECTION"/>
 	</resultMap>
 	
 	<!-- 브랜드 조회용 -->
@@ -94,11 +95,13 @@
 		(
 		  CATEGORY_NO
 		, CATEGORY_NAME
+		, CATEGORY_SECTION
 		)
 		VALUES
 		(
 		  (SELECT MAX(CATEGORY_NO)+1 FROM TBL_CATEGORY)
 		, #{ categoryName }
+		, #{ categorySection }
 		)
 	</insert>
 	
@@ -758,4 +761,41 @@
 		  FROM TBL_PRODUCT
 		 WHERE PROD_NO = #{ prodNo }
 	</delete>
+	
+	<!-- 카테고리 섹션 조회 -->
+	<select id="getCategorySection" resultMap="categoryResultMap">
+		SELECT
+			   DISTINCT(CATEGORY_SECTION)
+		  FROM TBL_CATEGORY
+	</select>
+	
+	<!-- 카테고리 섹션별 상품 목록 조회 -->
+	<select id="getProductListByCategorySection" resultMap="productResultMap">
+		SELECT
+  			     A.PROD_NO
+  			   , B.CATEGORY_NAME
+  			   , C.BRAND_NAME
+  			   , A.PROD_NAME
+  			   , A.PROD_DESC
+  			   , A.PRODUCT_TAG
+  			   , A.DISCOUNT_RATE
+  			   , A.PROD_PRICE
+  			   , A.PROD_ORIGIN
+  			   , A.PROD_DETAIL_CONTENT
+  			   , A.PROD_DETAIL_VIEW_COUNT
+  			   , A.PROD_ENROLL_DATE
+  			   , A.PROD_CHANGE_DATE
+  			   , A.PROD_AVAIL_YN
+  			   , O.OPT_BODY_COLOR
+  			   , O.OPT_INK_COLOR
+  			   , O.OPT_POINT_SIZE
+		  FROM TBL_PRODUCT A
+		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+		 WHERE A.PROD_AVAIL_YN = 'Y'
+		 <trim prefix="AND">
+		 	<if test="category != null">B.CATEGORY_SECTION = #{ category }</if>
+		 </trim>
+	</select>
 </mapper>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>글벗문구</title>
+	<!-- CSS -->
+	<th:block layout:fragment="css">
+		<link th:href="@{/css/product.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<div class="container content-wrapper">
+	<nav class="product-breadcrumb" aria-label="breadcrumb">
+	  <ol class="breadcrumb">
+	    <li class="breadcrumb-item"><a href="/">HOME</a></li>
+	    <li class="breadcrumb-item active" aria-current="page">[[${ category }]]</li>
+	  </ol>
+	</nav>
+	
+	<!-- 카테고리별 소분류 목록 -->
+	<div class="classification">
+		<h2 class="classify-title">[[${ category }]]</h2>
+		<div class="classify-list">
+			<ul>
+				<th:block th:if="${ category == '전체 상품' }">
+					<li th:each="section : ${ section }"><a th:text="${ section.categorySection }"></a></li>
+				</th:block>
+				<th:block th:unless="${ category == '전체 상품' }">
+					<li th:each="category : ${ category }"><a th:text="${ category }"></a></li>
+				</th:block>
+			</ul>
+		</div>
+	</div>
+	<div class="product-filter">
+		<div class="filter filter-tag">
+			<ul>
+				<li class="th"><p>인기태그</p></li>
+				<li class="td">
+					<span class="tag-span">태그태그</span>
+					<span class="tag-span">태그태그</span>
+					<span class="tag-span">태그태그</span>
+					<span class="tag-span">태그태그</span>
+					<span class="tag-span">태그태그</span>
+					<span class="tag-span">태그태그</span>
+				</li>
+			</ul>
+		</div>
+		<div class="filter filter-color">
+			<ul>
+				<li class="th"><p>잉크색상</p></li>
+				<li class="td">
+					<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
+						<span class="color-span">
+							<a href="#" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${ ink.getLabel() }">
+								<i class="fa-solid fa-square-full" th:style="${ ink.getColor() }"></i>
+							</a>
+						</span>
+					</th:block>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="product-desc">
+		<p>총 <b>0</b>개의 상품이 있습니다.</p>
+	</div>
+	<section class="product-section">
+		<div class="product-list row gx-4 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+		    <div class="col mb-5" th:each="product : ${ productList }">
+		        <div class="card">
+		            <a th:href="@{/product/details/(no=${product.prodNo})}">
+		                <!-- Product image-->
+		               <div class="card-img-wrapper" th:each="thumbnail : ${ thumbnailList }" th:if="${product.prodNo == thumbnail.refProdNo}">
+		                   <img class="card-img-top" th:src="${ thumbnail.thumbnailPath }">
+		               </div>
+		               <!-- Product details-->
+		               <div class="card-body">
+		                   <div class="text-left">
+		                       <!-- Product category -->
+		                       <small>[[${ product.brand.brandName }]]</small>
+		                       <!-- Product name-->
+		                       <h6>[[${ product.prodName }]]</h6>
+		                       <!-- Product price-->
+		                       [[${ product.prodPrice }]]
+		                   </div>
+		               </div>
+		           </a>
+		       </div>
+		   </div>
+		</div>
+    </section>
+	</div>
+	<script type="text/javascript">
+		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		  return new bootstrap.Tooltip(tooltipTriggerEl)
+		})
+	</script>
+</body>
+</html>

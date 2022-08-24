@@ -41,8 +41,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
-	public int addANewCategory(String categoryName) {
-		return productMapper.addANewCategory(categoryName);
+	public int addANewCategory(String categoryName, String categorySection) {
+		return productMapper.addANewCategory(categoryName, categorySection);
 	}
 	
 	@Override
@@ -199,5 +199,15 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public int searchProdNoByOptionNo(int optionNo) {
 		return productMapper.searchProdNoByOptionNo(optionNo);
+	}
+
+	@Override
+	public List<ProductDTO> getProductListByCategorySection(String category) {
+		return productMapper.getProductListByCategorySection(category);
+	}
+
+	@Override
+	public List<String> getCategorySection() {
+		return productMapper.getCategorySection();
 	}
 }
