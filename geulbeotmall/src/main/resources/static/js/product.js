@@ -28,6 +28,7 @@ function reselectImage() {
 
 /* 새 카테고리 추가 */
 function addACategory() {
+let section = document.getElementById('addSection').value;
 let category = document.getElementById('categoryName').value;
 	//새 카테고리 추가 클릭 시 입력란 활성화
 	if(category == 'etc') {
@@ -39,7 +40,7 @@ let category = document.getElementById('categoryName').value;
 			category = document.getElementById('addNewCategory').value;
 			console.log("addNewCategory : " + category);
 			
-			let param = { category : category };
+			let param = { category : category, section : section };
 		
 			$.ajax({
 				url : '/admin/product/checkCategory',
@@ -309,6 +310,7 @@ $('#deleteOpt').on('click', function(){
 /* 상품등록 폼 제출 */
 function submitProductForm() {
 	//카테고리
+	let section = document.getElementById('addSection').value;
 	let category = document.getElementById('categoryName').value;
 	if(category == 'etc') {
 		category = document.getElementById('addNewCategory').value;
@@ -365,7 +367,8 @@ function submitProductForm() {
 		}
 	}
 	
-	let params = { category : category
+	let params = { section : section
+				 , category : category
 				 , prodName : prodName
 				 , prodDesc : prodDesc
 				 , tagArr : tagArr
@@ -692,22 +695,20 @@ function orderProduct() {
 			error : function(status, error){ console.log(status, error); }
 		});
 	} else {
-		
-	
-	$.ajax({
-		url : '/cart/order',
-		type : 'get',
-		traditional : true,
-		dataType : 'text',
-		data : {
-			orderOptionNo : orderOptionNo,
-			orderOptionQt : orderOptionQt
-		},
-		success : function(result){
-			console.log('주문페이지 이동');
-			location.href='/cart/order';
-		},
-		error : function(status, error){ console.log(status, error); }
-	});
+		$.ajax({
+			url : '/cart/order',
+			type : 'get',
+			traditional : true,
+			dataType : 'text',
+			data : {
+				orderOptionNo : orderOptionNo,
+				orderOptionQt : orderOptionQt
+			},
+			success : function(result){
+				console.log('주문페이지 이동');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
 	}
 };

@@ -21,8 +21,7 @@
 					<li class="th"><p>등록 구분</p></li>
 					<li class="td">
 						<select id="addSection" name="addSection" class="dataTable-selector selector">
-							<option value="new">신상품</option>
-							<option value="restock">재입고</option>
+							<option th:each="section : ${T(com.reminder.geulbeotmall.product.model.dto.CategorySection).values()}" th:value="${ section.getLabel() }" th:text="${ section.getLabel() }"></option>
 						</select>
 						<input type="text" id="today" name="today" disabled>
 					</li>
@@ -173,7 +172,7 @@
 						<ul>
 							<li class="th"><p>입고량</p></li>
 							<li class="td">
-								<input type="number" id="amount" name="amount" min="1" max="999">
+								<input type="number" id="amount" name="amount" min="1">
 							</li>
 						</ul>
 						<ul>
@@ -198,7 +197,7 @@
 				<div class="thumbnailBox">
 					<ul>
 						<li class="th"><p>대표 썸네일</p></li>
-						<li class="thumbTd">
+						<li class="thumbTd" onclick="previewImage()">
 							<div class="imageBox">
 								<label for="mainThumb" class="thumbLabel">
 									<i class="fa-solid fa-image" style="font-size: 300%;"></i>
@@ -208,7 +207,7 @@
 					</ul>
 					<ul>
 						<li class="th"><p>서브 썸네일</p></li>
-						<li class="thumbTd">
+						<li class="thumbTd" onclick="previewImage()">
 							<div class="imageBox">
 								<label for="subThumb" class="thumbLabel">
 									<i class="fa-solid fa-image" style="font-size: 300%;"></i>
