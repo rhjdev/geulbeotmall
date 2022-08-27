@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class OrderDTO {
 
-	private int orderNo;
+	private String orderNo;
 	private int optionNo;
 	private int refProdNo;
 	private int orderQuantity;
