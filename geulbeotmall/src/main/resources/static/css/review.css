@@ -1,0 +1,155 @@
+@charset "UTF-8";
+
+/* 타이틀 */
+.title-wrapper {
+    display: flex;
+    height: 190px;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.title-wrapper h2 {
+    top: 50%;
+    left: 50%;
+    padding: 70px 0;
+}
+
+/* 본문*/
+.content-wrapper {
+	width: 700px !important;
+}
+
+.write-form fieldset:first-child {
+	margin-top: 40px;
+}
+
+fieldset {
+    position: relative;
+}
+
+legend {
+    display: contents;
+    height: 44px;
+    align-items: center;
+    padding-inline-start: 0;
+    margin-block-end: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+table {
+	width: 100%;
+    border-top: 2px solid #000;
+    border-bottom: 1px solid #E5E5E5;
+    margin-top: 5px;
+    margin-bottom: 40px;
+}
+
+.review-table > thead {
+	border-bottom: 1px solid #E5E5E5;
+}
+
+.review-table > tbody > tr > td {
+	padding: 8px 0;	
+}
+
+.review-table > tbody > tr > td > input {
+	width: 36%;
+}
+
+.review-table > tbody > tr:first-child th,
+.review-table > tbody > tr:first-child td {
+	padding-top: 20px;
+}
+
+.review-table > tbody > tr:last-child th,
+.review-table > tbody > tr:last-child td {
+	padding-bottom: 20px;
+}
+
+tr {
+	width: 100%;
+}
+
+th {
+	text-align: inherit;
+}
+
+td {
+	padding: 20px 0;
+	height: 44px;
+}
+
+input[type="radio"] {
+	display: none;
+}
+
+input[type="radio"] + label {
+	color: #E5E5E5;
+	font-size: 2em;
+}
+
+input[type="radio"]:checked + label {
+	color: #fc0;
+}
+
+input[type="text"] {
+    display: block;
+    border: 1px solid #E5E5E5;
+    width: 100%;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+input:read-only {
+    background-color: #f9f9f9;
+    cursor: default;
+}
+
+li {
+	list-style: none;
+}
+
+/* 등록 버튼 */
+.buttonBox {
+	margin-top: 80px;
+	margin-bottom: 160px;
+	text-align: center;
+}
+.buttonBox button[type="button"] {
+	width: 30%;
+	height: 44px;
+	border-radius: 0;
+	box-shadow: none !important;
+	cursor: pointer;
+}
+
+.buttonBox .cancelBtn {
+    color: #000;
+    border-color: #6c757d;
+}
+
+.buttonBox .cancelBtn:hover {
+	background-color: #f9f9f9;
+}
+
+.buttonBox .writeBtn {
+	margin-inline-start: 10px;
+}
+	
+.buttonBox .writeBtn:hover {
+	opacity: 93%;
+}
+
+/* 전체 폰트 적용 */
+* {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+h2 {
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 48px !important;
+    font-weight: 400 !important;
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>리뷰쓰기 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/review.css}" rel="stylesheet">
+	    <link th:href="@{/css/thumbnail.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>리뷰쓰기</h2>
+    </div>
+    <div class="container content-wrapper">
+    	<div class="writeBox">
+    		<form id="writeForm" name="writeForm" class="write-form" th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+    			<fieldset>
+					<legend>상품 정보</legend>
+				</fieldset>
+				<table>
+					<tbody>
+						<tr>
+							<th><img style="width: 100px; height: 100px;"></th>
+							<td><input type="text" readonly></td>
+						</tr>
+					</tbody>
+				</table>
+    			<fieldset>
+					<legend>리뷰 작성</legend>
+				</fieldset>
+				<table class="review-table">
+					<colgroup>
+						<col>
+						<col>
+					</colgroup>
+					<thead>
+						<tr>
+							<th>제목</th>
+							<td>
+								<input type="text" id="title" placeholder="제목을 입력하세요">
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>별점</th>
+							<td colspan="2">
+								<div class="stars">
+									<input type="radio" id="one" name="rating" value="1">
+									<label for="one">&#9733;</label>
+									<input type="radio" id="two" name="rating" value="2">
+									<label for="two">&#9733;</label>
+									<input type="radio" id="three" name="rating" value="3">
+									<label for="three">&#9733;</label>
+									<input type="radio" id="four" name="rating" value="4">
+									<label for="four">&#9733;</label>
+									<input type="radio" id="five" name="rating" value="5">
+									<label for="five">&#9733;</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>내용</th>
+							<td>
+								<div>
+									<textarea id="content" name="content"></textarea>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>사진첨부</th>
+							<td class="thumbnailBox reviewImageBox">
+								<ul>
+									<li class="imageItem" onclick="previewImage()">
+										<div class="imageBox reviewImage">
+											<label for="image1" class="imageLabel">
+												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+											</label>
+										</div>
+									</li>
+								</ul>
+								<ul>
+									<li class="imageItem" onclick="previewImage()">
+										<div class="imageBox reviewImage">
+											<label for="image2" class="imageLabel">
+												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+											</label>
+										</div>
+									</li>
+								</ul>
+								<ul>
+									<li class="imageItem" onclick="previewImage()">
+										<div class="imageBox reviewImage">
+											<label for="image3" class="imageLabel">
+												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+											</label>
+										</div>
+									</li>
+								</ul>
+								<input type="file" id="image1" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								<input type="file" id="image2" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								<input type="file" id="image3" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="buttonBox">
+					<button type="button" class="cancelBtn btn">취소</button>
+					<button type="button" class="writeBtn btn btn-dark">등록</button>
+				</div>
+    		</form>
+    	</div>
+    </div>
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/review.js}" type="text/javascript"></script>
+    	<!-- CKEditor4 -->
+	  	<script src="https://cdn.ckeditor.com/4.19.0/basic/ckeditor.js"></script>
+	  	<script type="text/javascript">
+		  	$(function() {
+				let ckeditor_config = {
+						filebrowserUploadMethod : 'form',
+						filebrowserUploadUrl : '/',
+						language : 'ko'
+				};
+				CKEDITOR.replace('content', ckeditor_config);
+		  	});
+		</script>
+    </th:block>
+</body>
+</html>
