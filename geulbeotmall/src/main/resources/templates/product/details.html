@@ -10,9 +10,17 @@
 </head>
 <body layout:fragment="content">
 	<div class="container content-wrapper">
-		<div class="thumbnailBox">
+		<div class="thumbnailBox" >
 			<div class="zoom-wrapper">
 				<img id="thumbnail" th:src="${ mainThumb.thumbnailPath }" th:data-zoom-image="${ mainThumb.savePath }">
+			</div>
+			<div class="thumbs-wrapper" id="thumbs-gallery">
+				<a href="#" class="elevatezoom-gallery active" th:data-image="${ mainThumb.thumbnailPath }" th:data-zoom-image="${ mainThumb.savePath }">
+					<img id="thumbs" th:src="${ mainThumb.thumbnailPath }" width="50">
+				</a>
+				<a href="#" class="elevatezoom-gallery" th:data-image="${ subThumb.thumbnailPath }" th:data-zoom-image="${ subThumb.savePath }">
+					<img id="thumbs" th:src="${ subThumb.thumbnailPath }" width="50">
+				</a>
 			</div>
 		</div>
 		<div class="infoBox">
@@ -23,7 +31,7 @@
 			</div>
 			<div class="title-wrapper">
 				<a href="#">[[${ detail.brand.brandName }]] <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
-				<h2>[[${ detail.prodName }]]</h2>
+				<h2 style="margin-bottom: 0;">[[${ detail.prodName }]]</h2>
 			</div>
 			<div class="color-wrapper">
 				<!-- ProductBodyColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
@@ -166,7 +174,7 @@
 		</div>
 	</div>
 	<div class="container content-wrapper">
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<ul class="nav nav-tabs" id="infoTab" role="tablist">
 			<li class="nav-item" role="presentation">
 				<button class="nav-link active" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail" type="button" role="tab" aria-controls="detail" aria-selected="true">상품상세정보</button>
 			</li>
@@ -176,17 +184,38 @@
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<!-- 상품상세정보 -->
-			<div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">[(${ detail.prodDetailContent })]
-			</div>
+			<div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab" style="text-align: center;">[(${ detail.prodDetailContent })]</div>
+			<!-- 상품리뷰 -->
 		</div>
 	</div>
 	<!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/product.js}" type="text/javascript"></script>
+    	<script>
+    	/* 썸네일박스 상단 고정 */
+    	$(window).scroll(function(){
+    		let contentTop = $('.thumbnailBox').outerHeight() - $('.infoBox').outerHeight();
+    		let scrollTop = $(this).scrollTop();
+    		if(scrollTop > contentTop) {
+    			$('.thumbnailBox').css('position', 'absolute');
+    		}
+    	});
+    	</script>
     	<!-- ElevateZoom-Plus -->
 		<script type="text/javascript" src="https://cdn.rawgit.com/igorlino/elevatezoom-plus/1.1.6/src/jquery.ez-plus.js"></script>
 		<script>
-		$('#thumbnail').ezPlus({scrollZoom: true});
+			$('#thumbnail').ezPlus({
+				gallery: 'thumbs-gallery',
+				cursor: 'pointer',
+				galleryActiveClass: 'active',
+				imageCrossFade: true,
+				scrollZoom: true
+			});
+			$('#thumbnail').bind('click', function(e){
+				var ez = $('#thumbnail').data('ezPlus');
+				$.fancyboxPlus(ez.getGalleryList());
+				return false;
+			});
 		</script>
     </th:block>
 </body>

@@ -9,6 +9,15 @@
 .thumbnailBox ul {
 	display: flex;
 	height: 200px !important;
+	padding-left: 0;
+}
+
+.reviewImageBox ul {
+	height: 150px !important;
+}
+
+.reviewImageBox ul:not(:first-child) {
+	margin-inline-start: 18px;
 }
 
 .imageBox {
@@ -21,7 +30,12 @@
 	border-radius: 10px;
 }
 
-.thumbLabel {
+.reviewImage {
+	width: 150px;
+	height: 150px;
+}
+
+.thumbLabel, .imageLabel {
 	display: flex;
 	width: 200px;
 	height: 100%;
