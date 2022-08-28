@@ -93,7 +93,13 @@ public interface ProductMapper {
 
 	int searchProdNoByOptionNo(int optionNo);
 
-	List<ProductDTO> getProductListByCategorySection(String category);
+	List<ProductDTO> getProductListByCategorySection(String category, String tag);
 
 	List<String> getCategorySection();
+
+	List<CategoryDTO> getCategoryListBySection(String category);
+
+	int getTotalNumberBySection(String category);
+
+	Integer getSalesByProdNo(int prodNo);
 }

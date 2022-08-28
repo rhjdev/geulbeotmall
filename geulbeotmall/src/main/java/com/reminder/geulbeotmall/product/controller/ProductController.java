@@ -425,6 +425,15 @@ public class ProductController {
 			}
 		}
 		
+		//상품별 누적 판매량 조회
+		List<Integer> salesList = new ArrayList<>();
+		for(ProductDTO product : productList) {
+			int prodNo = product.getProdNo();
+			Integer sales = productService.getSalesByProdNo(prodNo); //null 값을 취급할 수 있도록 Integer 타입으로 설정
+			if(sales == null) sales = 0;
+			salesList.add(sales);
+		}
+		
 		log.info("상품 목록 조회 완료");
 		
 		model.addAttribute("total", total);
@@ -440,6 +449,7 @@ public class ProductController {
 		model.addAttribute("soldOutOnly", soldOutOnly);
 		model.addAttribute("thumbnailList", thumbnailList);
 		model.addAttribute("optionList", optionList);
+		model.addAttribute("salesList", salesList);
 		model.addAttribute("pageMaker", new PageDTO(productService.getTotalNumber(criteria), 10, criteria));
 	}
 	
@@ -623,7 +633,8 @@ public class ProductController {
 	@GetMapping(value={"/product/list", "/product/list/{category}"}) //{이름}과 @PathVariable로 쓴 변수명은 일치해야 함
 	public void getProductListByCategory(@RequestParam(required=false) String category, Model model) {
 		log.info("요첨 category : {}", category);
-		List<ProductDTO> productList = productService.getProductListByCategorySection(category);
+		String tag = "";
+		List<ProductDTO> productList = productService.getProductListByCategorySection(category, tag);
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
 		for(int i=0; i < productList.size(); i++) {
 			int prodNo = productList.get(i).getProdNo();
@@ -633,9 +644,18 @@ public class ProductController {
 		log.info("productList : {}", productList);
 		
 		List<String> section = productService.getCategorySection();
+		List<CategoryDTO> categoryBySection = productService.getCategoryListBySection(category);
+		int totalNumberBySection = productService.getTotalNumberBySection(category);
+		
+		/* 드로잉, 선물용, 세밀한필기용, 중간굵기필기용, 컬러링용 */
+		tag = "드로잉";
+		List<ProductDTO> forDrawing = productService.getProductListByCategorySection(category, tag);
 		
 		model.addAttribute("section", section);
+		model.addAttribute("categoryBySection", categoryBySection);
+		model.addAttribute("total", totalNumberBySection);
 		model.addAttribute("category", category == null ? "전체 상품" : category);
+		model.addAttribute("forDrawing", forDrawing);
 		model.addAttribute("productList", productList);
 		model.addAttribute("thumbnailList", thumbnailList);
 	}

@@ -95,15 +95,16 @@
 	                	<td th:text="|${ product.discountRate }%|"></td>
 	                	
 	                	<!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
-	                	<td th:if="${product.discountRate} == 0" th:text="${ product.prodPrice } + '원'"></td>
+	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
 	                	<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
-	                		<span th:text="${ product.prodPrice - (product.prodPrice * product.discountRate / 100)} + '원'"></span>
+	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
 	                	
 	                	<!-- 판매량 -->
-	                	<td th:text="0"></td>
+	                	<!-- 상단의 product 목록 기준으로 생성된 index 활용 -->
+	                	<td th:text="${ salesList[productStat.index] }"></td>
 	                	
 	                	<!-- 조회수 -->
 	                	<td th:text="${ product.prodDetailViewCount }"></td>

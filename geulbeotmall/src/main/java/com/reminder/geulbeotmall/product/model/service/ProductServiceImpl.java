@@ -202,12 +202,27 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<ProductDTO> getProductListByCategorySection(String category) {
-		return productMapper.getProductListByCategorySection(category);
+	public List<ProductDTO> getProductListByCategorySection(String category, String tag) {
+		return productMapper.getProductListByCategorySection(category, tag);
 	}
 
 	@Override
 	public List<String> getCategorySection() {
 		return productMapper.getCategorySection();
+	}
+
+	@Override
+	public List<CategoryDTO> getCategoryListBySection(String category) {
+		return productMapper.getCategoryListBySection(category);
+	}
+
+	@Override
+	public int getTotalNumberBySection(String category) {
+		return productMapper.getTotalNumberBySection(category);
+	}
+
+	@Override
+	public Integer getSalesByProdNo(int prodNo) {
+		return productMapper.getSalesByProdNo(prodNo);
 	}
 }
