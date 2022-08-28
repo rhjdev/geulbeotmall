@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.cart.model.dao.OrderMapper">
+	
+	<!-- 주문배송 정보 저장 -->
+	<insert id="addOrderDetail">
+		INSERT
+		  INTO TBL_ORDER_DETAIL
+		(
+		  ORDER_NO
+		, MEMBER_ID
+		, ORDER_DATE
+		, RCVR_NAME
+		, RCVR_PHONE
+		, RCVR_ADDRESS
+		, DLVR_REQ_MESSAGE
+		, DLVR_STATUS
+		)
+		VALUES
+		(
+		  #{ orderNo }
+		, #{ memberId }
+		, #{ orderDate }
+		, #{ rcvrName }
+		, #{ rcvrPhone }
+		, #{ rcvrAddress }
+		, #{ dlvrReqMessage }
+		, #{ dlvrStatus }
+		)
+	</insert>
+	
+	<!-- 주문상품 정보 저장 -->
+	<insert id="addOrderInfo">
+		INSERT
+		  INTO TBL_ORDER
+		(
+		  ORDER_NO
+		, OPTION_NO
+		, ORDER_QUANTITY
+		, ORDER_AMOUNT
+		)
+		VALUES
+		(
+		  #{ orderNo }
+		, #{ optionNo }
+		, #{ orderQuantity }
+		, #{ orderAmount }
+		)
+	</insert>
+	
+	<!-- 결제 정보 저장 -->
+	<insert id="addPaymentInfo">
+		INSERT
+		  INTO TBL_PAYMENT
+		(
+		  PAYMENT_NO
+		, ORDER_NO
+		, PAYMENT_METHOD
+		, PAYMENT_AMOUNT
+		, PAYMENT_DATETIME
+		)
+		VALUES
+		(
+		  #{ paymentNo }
+		, #{ orderNo }
+		, #{ paymentMethod }
+		, #{ paymentAmount }
+		, #{ paymentDateTime }
+		)
+	</insert>
+	
+	<!-- 주문에 따른 재고 수량 차감 -->
+	<!-- 재입고를 고려하여 먼저 입고된 순서대로 차감 반영 -->
+	<update id="decreaseStockAmount">
+		UPDATE
+			   TBL_STOCK
+		   SET STOCK_AMOUNT = STOCK_AMOUNT - #{ orderQuantity }
+		 WHERE STOCK_NO = (SELECT
+		 						  O.STOCK_NO
+		 					 FROM (SELECT
+		 					 			  A.STOCK_NO
+										, A.STOCK_AMOUNT
+										, MIN(A.STOCK_DATE) OLDEST
+										, B.OPTION_NO
+									 FROM TBL_STOCK A
+									 LEFT JOIN TBL_OPTION B ON (A.STOCK_NO = B.REF_STOCK_NO)
+									WHERE B.OPTION_NO = #{ optionNo }
+									  AND A.STOCK_AMOUNT > 0
+									  AND ROWNUM = 1
+									GROUP BY A.STOCK_NO, B.OPTION_NO, A.STOCK_AMOUNT)O)
+	</update>
+	
+	<!-- 결제금액의 10% 적립금 | 적립,사용,취소로 구분 -->
+	<insert id="addPoint">
+		INSERT
+		  INTO TBL_POINT
+		(
+		  POINT_NO
+		, PAYMENT_NO
+		, POINT_AMOUNT
+		, POINT_DATETIME
+		, POINT_STATUS
+		)
+		VALUES
+		(
+		  SEQ_POINT_NO.NEXTVAL
+		, #{ paymentNo }
+		, #{ pointAmount }
+		, #{ pointDateTime }
+		, #{ pointStatus }
+		)
+	</insert>
+</mapper>

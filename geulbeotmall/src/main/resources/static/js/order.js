@@ -1,4 +1,4 @@
-/* 전체 선택 */
+/* 장바구니 항목 전체 선택 */
 $(document).on('click', 'input[name=checkAll]', function(){
 	for(let i=0; i < $('input[name=checkAll]').length; i++) { //2개의 전체선택 체크박스
 		if($('input[name=checkAll]:checked').length != $('input[name=checkAll]').length) { //선택 또는 해제 일괄 적용
@@ -14,6 +14,24 @@ $(document).on('click', 'input[name=checkAll]', function(){
 
 $('.item').click(function(){
     if($('input[name=checkItem]:checked').length == $('.item').length) {
+        $('.checkAll').prop('checked', true);
+    } else {
+        $('.checkAll').prop('checked', false);
+    }
+});
+
+/* 주문서 약관 전체 선택 */
+$(document).on('click', 'input[id=checkAll]', function(){
+	if($('#checkAll').is(':checked')) {
+	console.log('테스트');
+        $('.term').prop('checked', true);
+    } else {
+		$('.term').prop('checked', false);
+    }
+});
+
+$('.term').click(function(){
+    if($('input[name=checkTerm]:checked').length == $('.term').length) {
         $('.checkAll').prop('checked', true);
     } else {
         $('.checkAll').prop('checked', false);
@@ -248,7 +266,7 @@ function addToWishList() { //wish 버튼
 		})
 	} else {
 		$.ajax({
-			url : '/member/wishlist/add',
+			url : '/mypage/wishlist/add',
 			type : 'post',
 			traditional : true, //배열 넘기기 위한 세팅
 			dataType : 'text',
@@ -358,6 +376,40 @@ if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 �
 		//console.log(item.parentElement.children);
 		deliveryFee += parseInt(item.parentElement.children[6].attributes.value); //배송비 총합
 	});
+	
+	/* 결제 정보 */
+	/* 합계A. 주문금액 */
+	let totalPrice = document.querySelectorAll('.orderPrice');
+	let totalOrderAmount = 0;
+	for(let i=0; i < totalPrice.length; i++) {
+		totalOrderAmount += (parseInt(totalPrice[i].attributes.value.textContent));
+		console.log(totalOrderAmount);
+	}
+	
+	/* 합계B. 결제금액(주문금액 + 배송비 - 적립금) */
+	let reserveToUse = $('input[name=reserve]').val();
+	let paymentAmount = totalOrderAmount + deliveryFee - reserveToUse;
+	console.log(paymentAmount);
+	
+	document.querySelector('.order-amount').innerHTML = totalOrderAmount.toLocaleString('ko-KR') + '원';
+	document.querySelector('.delivery-fee').innerHTML = deliveryFee.toLocaleString('ko-KR') + '원';
+	document.querySelector('.payment-amount').innerHTML = paymentAmount.toLocaleString('ko-KR');
+	document.querySelector('.payment-amount').attributes.value = paymentAmount;
+}
+
+/* 적립금 적용 */
+function applyReserve() {
+	let reserveUsed = $('input[name=reserve]').val(); //적립금
+	
+	let A = document.querySelector('.order-amount').innerHTML.replace(',', '').slice(0, -1); //맨 뒤에 '원' 단위 제거
+	let B = document.querySelector('.delivery-fee').innerHTML.replace(',', '').slice(0, -1);
+	let amountBefore = parseInt(A) + parseInt(B); //주문금액 + 배송비
+	console.log(amountBefore);
+	let amountAfter = parseInt(amountBefore - reserveUsed.replace(',', '')); //연산 위해 콤마 제거
+	console.log(amountAfter);
+	document.querySelector('.reserve-used').innerHTML = reserveUsed.toLocaleString('ko-KR') + '원';
+	document.querySelector('.payment-amount').innerHTML = amountAfter.toLocaleString('ko-KR');
+	document.querySelector('.payment-amount').attributes.value = amountAfter;
 }
 
 /* 장바구니 단일 상품 주문 */

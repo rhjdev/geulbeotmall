@@ -21,7 +21,7 @@
 	    	<span>STEP3. 주문완료</span>
 	    </div>
 		<div class="orderBox">
-			<form id="orderForm" name="orderForm" class="order-form" method="post">
+			<form id="orderForm" name="orderForm" class="order-form" th:action="@{/cart/order}" method="post">
 				<fieldset>
 					<legend>주문자 정보</legend>
 				</fieldset>
@@ -165,7 +165,7 @@
 			    			</th:block>
 			    			
 			    			<!-- 수량 -->
-			    			<td th:value="${ orderItem.quantity }">[[${ orderItem.quantity }]]</td>
+			    			<td class="quantity-area" th:value="${ orderItem.quantity }">[[${ orderItem.quantity }]]</td>
 			    			
 			    			<!-- 주문금액(세 자리마다 구분자 삽입) -->
 			    			<th:block th:if="${orderItem.product.discountRate} == 0">
@@ -197,8 +197,9 @@
 								<tr>
 									<th>적립금</th>
 									<td class="reserve-amount-td"> <!-- 숫자만 입력, 세 자리마다 구분자 삽입 -->
-										<input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');" id="reserve" autocomplete="off" name="reserve" placeholder="0" title="적립금 입력" oninvalid="this.setCustomValidity('적립금 입력')" oninput="setCustomValidity('')">
+										<input type="text" value="0" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');" id="reserve" autocomplete="off" name="reserve" placeholder="0" title="적립금 입력" oninvalid="this.setCustomValidity('적립금 입력')" oninput="setCustomValidity('')">
 										<label for="reserve">원</label>
+										<button type="button" class="button-apply btn btn-sm btn-dark" onclick="applyReserve()">적용</button>
 									</td>
 								</tr>
 								<tr>
@@ -222,19 +223,19 @@
 									<th>결제방법</th>
 									<td>
 										<label>
-											<input type="radio" name="methods" value="credit" checked="checked">
+											<input type="radio" name="methods" value="card" checked="checked">
 											<span>신용카드</span>
 										</label>
 										<label>
-											<input type="radio" name="methods">
+											<input type="radio" name="methods" value="trans">
 											<span>실시간계좌이체</span>
 										</label>
 										<label>
-											<input type="radio" name="methods">
+											<input type="radio" name="methods" value="vbank">
 											<span>가상계좌</span>
 										</label>
 										<label>
-											<input type="radio" name="methods">
+											<input type="radio" name="methods" value="phone">
 											<span>휴대폰결제</span>
 										</label>
 									</td>
@@ -255,15 +256,15 @@
 								<ul>
 									<li>
 										<b>주문금액</b>
-										<span>00,000원</span>
+										<span class="order-amount"></span>
 									</li>
 									<li>
 										<b>배송비</b>
-										<span>0원</span>
+										<span class="delivery-fee"></span>
 									</li>
 									<li>
 										<b>적립금</b>
-										<span>0원</span>
+										<span class="reserve-used">0원</span>
 									</li>
 								</ul>
 							</div>
@@ -274,28 +275,28 @@
 			                        <span>전체 동의</span>
 			                    </label>
 			                    <label class="label-checkbox">
-			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <input type="checkbox" name="checkTerm" class="input-checkbox term" id="term1">
 			                        <span><b style="color: #ff0000;">(필수)</b>상품 설명에 명시된 내용과 사용조건을 확인하였으며, 취소/환불 규정에 동의합니다.</span>
 			                    </label>
 			                    <label class="label-checkbox">
-			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <input type="checkbox" name="checkTerm" class="input-checkbox term" id="term2">
 			                        <span><b style="color: #ff0000;">(필수)</b>결제대행서비스 이용약관동의</span>
 			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
 			                    </label>
 			                    <label class="label-checkbox">
-			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <input type="checkbox" name="checkTerm" class="input-checkbox term" id="term3">
 			                        <span><b style="color: #ff0000;">(필수)</b>개인정보 수집 및 이용 동의</span>
 			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
 			                    </label>
 			                    <label class="label-checkbox">
-			                        <input type="checkbox" name="checkItem" class="input-checkbox item" id="term1">
+			                        <input type="checkbox" name="checkTerm" class="input-checkbox term" id="term4">
 			                        <span><b style="color: #ff0000;">(필수)</b>개인정보 제공/위탁 동의</span>
 			                        <p class="terms-detail"><a href="#" target="_blank">자세히</a></p>
 			                    </label>
 								<ul class="total-price-info">
 									<li>
 										<b>총 결제금액</b>
-										<span>00,000</span>
+										<span class="payment-amount">00,000</span>
 										원
 									</li>
 								</ul>
@@ -304,8 +305,8 @@
 					</div>
 				</div>
 				<div class="paymentBox">
-					<button type="button" class="cancelBtn btn">취소</button>
-					<button type="button" class="payBtn btn btn-dark">주문결제</button>
+					<button type="button" class="cancelBtn btn" onclick="test()">취소</button>
+					<button type="button" class="payBtn btn btn-dark" onclick="requestPay()">주문결제</button>
 				</div>
 			</form>
 		</div>
@@ -353,9 +354,13 @@
 	<!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/order.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/payment.js}" type="text/javascript"></script>
     	
     	<!-- 주소 API -->
 	    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    </th:block>
+
+		<!-- iamport.payment.js -->
+		<script src="https://cdn.iamport.kr/js/iamport.payment-1.1.8.js"></script>
+	</th:block>
 </body>
 </html>

@@ -7,7 +7,6 @@ public class OrderDTO {
 
 	private String orderNo;
 	private int optionNo;
-	private int refProdNo;
 	private int orderQuantity;
 	private int orderAmount;
 }
