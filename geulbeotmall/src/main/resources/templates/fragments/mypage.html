@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}" th:fragment="mypage">
+<head>
+	<meta charset="UTF-8">
+	<title>mypage</title>
+	<!-- CSS -->
+	<link th:href="@{/css/mypage.css}" rel="stylesheet">
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>마이페이지</h2>
+    </div>
+    <div class="container">
+    	<div class="info-area">
+	    	<div class="info-title">
+	    		<div id="profile"><a><i class="fa-solid fa-user"></i></a></div>
+				<div class="welcome"><h4><b sec:authentication="principal.name"></b>님<br>안녕하세요👋</h4></div>
+	    	</div>
+			<div class="info-list">
+				<ul>
+					<li>
+						<a>적립금<br><b>5,200</b></a>
+					</li>
+					<li>
+						<a>배송중<br><b>0</b></a>
+					</li>
+					<li>
+						<a>취소/환불/교환<br><b>0</b></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+    	<div class="row">
+    		<div class="col col-lg-2 mypage-nav">
+    			<ul class="nav flex-column">
+					<li class="nav-item">
+						<a class="nav-link" th:href="@{/mypage/main}">마이페이지</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" th:href="@{/mypage/order}">주문/배송조회</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" th:href="@{/mypage/review}">작성가능한리뷰</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" th:href="@{/mypage/wishlist}">내가찜한상품</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" th:href="@{/mypage/reserve}">적립금</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">회원정보수정</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">회원탈퇴</a>
+					</li>
+				</ul>
+    		</div>
+    		<div class="col col-lg-10" layout:fragment="mypageContent">
+    		</div>
+    	</div>
+    </div>
+    <!-- JS -->
+   	<script th:src="@{/js/mypage.js}" type="text/javascript"></script>
+</body>
+</html>
