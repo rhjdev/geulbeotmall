@@ -58,6 +58,7 @@ public class OrderController {
 	public void getOrderForm(@AuthenticationPrincipal UserImpl user, HttpServletRequest request, HttpSession session, Model model) {
 		String optionNo = request.getParameter("optionNo"); //장바구니 단일상품
 		String[] optionNoArr = request.getParameterValues("arr"); //장바구니 선택상품 또는 전체상품
+		String optionNoFromWishList = request.getParameter("optionNoFromWishList"); //위시리스트 단일상품
 		String[] detailOptionNo = request.getParameterValues("orderOptionNo");
 		String[] detailOptionQt = request.getParameterValues("orderOptionQt");
 		List<CartDTO> memberCart = cartService.getCurrentCart(user.getMemberId());
@@ -122,6 +123,31 @@ public class OrderController {
 				}
 			}
 			session.setAttribute("orderItem", itemList); //선택상품정보 출력용으로 session상에 임시 저장하여 전달
+		}
+		/* D. 위시리스트 단일상품주문 */
+		if(optionNoFromWishList != null) {
+			OptionDTO optionDTO = new OptionDTO();
+			optionDTO = orderService.getWishItemByOptionNo(user.getMemberId(), Integer.parseInt(optionNoFromWishList));
+			
+			CartDTO cartDTO = new CartDTO(); //DB 저장용이 아닌 주문서 작성용 객체
+			cartDTO.setMemberId(user.getMemberId());
+			cartDTO.setProdNo(optionDTO.getRefProdNo());
+			cartDTO.setOptionNo(optionDTO.getOptionNo());
+			cartDTO.setQuantity(1);
+			int prodNo = productService.searchProdNoByOptionNo(optionDTO.getOptionNo());
+			cartDTO.setProduct(productService.getProductDetails(prodNo));
+			cartDTO.setOption(optionDTO);
+			cartDTO.setCategory(productService.getCategoryByProdNo(prodNo));
+			cartDTO.setBrand(productService.getBrandByProdNo(prodNo));
+			AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+			AttachmentDTO subThumb = productService.getSubThumbnailByProdNo(prodNo);
+			List<AttachmentDTO> attachmentList = new ArrayList<>();
+			attachmentList.add(mainThumb);
+			attachmentList.add(subThumb);
+			cartDTO.setAttachmentList(attachmentList);
+			log.info("item from wishlist : {}", cartDTO);
+			
+			session.setAttribute("orderItem", cartDTO); //선택상품정보 출력용으로 session상에 임시 저장하여 전달
 		}
 		model.addAttribute("member", user);
 	}

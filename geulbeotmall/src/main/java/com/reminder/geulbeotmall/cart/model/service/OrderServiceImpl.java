@@ -7,6 +7,7 @@ import com.reminder.geulbeotmall.cart.model.dao.OrderMapper;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PaymentDTO;
+import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 
 @Service("orderService")
 public class OrderServiceImpl implements OrderService {
@@ -32,5 +33,10 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public int addPaymentInfo(PaymentDTO paymentDTO) {
 		return orderMapper.addPaymentInfo(paymentDTO);
+	}
+
+	@Override
+	public OptionDTO getWishItemByOptionNo(String username, int optionNo) {
+		return orderMapper.getWishItemByOptionNo(username, optionNo);
 	}
 }

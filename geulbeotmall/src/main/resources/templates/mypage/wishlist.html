@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">위시리스트</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>위시리스트([[${#lists.size(memberWishList)}]])</legend>
+			</fieldset>
+			<div class="dataTable-container">
+				<table class="wishlist-table dataTable-table table-striped">
+					<thead>
+			    		<tr>
+			    			<th><input type="checkbox" class="input-checkbox checkAll" name="checkAll"></th>
+			    			<th colspan="2"><span>상품명(옵션)</span></th>
+			    			<th><span>상품금액</span></th>
+			    			<th><span>업체</span></th>
+			    			<th><span>관리</span></th>
+			    		</tr>
+			    	</thead>
+			    	<tbody>
+			    		<tr th:each="wishItem : ${ memberWishList }" th:if="${not #lists.isEmpty(wishItem)}">
+			    			<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+			    			<td><img th:src="${ wishItem.product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+			    			<!-- 상품명(옵션) -->
+			    			<td class="option-area" th:value="${ wishItem.optionNo }">
+				    			<a th:href="@{/product/details/(no=${wishItem.product.prodNo})}">[[${ wishItem.product.prodName }]]</a>
+				    			<p>
+			    					<span>[[${ wishItem.option.pointSize }]]mm</span>
+				    				<th:block th:if="${ wishItem.option.bodyColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(wishItem.option.bodyColor, '$', ',')}|"></span>
+				    				</th:block>
+				    				<th:block th:if="${ wishItem.option.inkColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(wishItem.option.inkColor, '$', ',')}|"></span>
+				    				</th:block>
+				    			</p>
+			    			</td>
+			    			
+			    			<!-- 상품금액(세 자리마다 구분자 삽입) -->
+			    			<!-- A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+			    			<th:block th:if="${wishItem.product.discountRate} == 0">
+				    			<td>
+				    				<span class="prodPrice origPrice" th:value="${ wishItem.product.prodPrice }">[[${#numbers.formatInteger(wishItem.product.prodPrice, 3, 'COMMA')}]]원</span>
+				    			</td>
+			    			</th:block>
+			    			<!-- B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+			    			<th:block th:if="${wishItem.product.discountRate} > 0">
+			    				<td>
+			    					<del class="origPrice" th:value="${ wishItem.product.prodPrice }"><span>[[${#numbers.formatInteger(wishItem.product.prodPrice, 3, 'COMMA')}]]원</span></del><br>
+			    					<span class="prodPrice discounted" th:value="${ wishItem.product.prodPrice - (wishItem.product.prodPrice * wishItem.product.discountRate / 100) }">[[${#numbers.formatInteger(wishItem.product.prodPrice - (wishItem.product.prodPrice * wishItem.product.discountRate / 100), 3, 'COMMA')}]]원</span>
+				    			</td>
+			    			</th:block>
+			    			
+			    			<!-- 업체명 -->
+			    			<td>[[${ wishItem.brand.brandName }]]</td>
+			    			
+			    			<td>
+			    			<div class="buttonBox">
+			    				<button type="button" class="orderBtn btn btn-sm btn-dark">바로주문</button>
+			    				<button type="button" class="cartBtn btn btn-sm">장바구니</button>
+			    				<button type="button" class="deleteBtn btn btn-sm">삭제</button>
+			    			</div>
+			    			</td>
+			    		</tr>
+			    		<tr class="noitem" th:unless="${#lists.size(memberWishList)} > 0">
+	                		<td colspan="6">
+		                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                		<div>찜한 상품이 없습니다.</div>
+	                		</td>
+	                	</tr>
+			    	</tbody>
+				</table>
+			</div>
+			<div class="button-area">
+	    		<input type="checkbox" class="input-checkbox checkAll" name="checkAll">
+	    		<button type="button" class="button-delete btn btn-sm">선택삭제</button>
+	    	</div>
+		</div>
+	</div>
+	<!-- JS -->
+   	<script th:src="@{/js/mypage.js}" type="text/javascript"></script>
+</body>
+</html>

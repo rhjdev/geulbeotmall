@@ -20,6 +20,8 @@
 		<result property="prodAvailYn" column="PROD_AVAIL_YN"/>
 		<association property="category" resultMap="categoryResultMap"/> <!-- 1:1 -->
 		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+		<association property="attachmentList" resultMap="thumbnailResultMap"/> <!-- 1:1 -->
+		<collection property="option" resultMap="optionResultMap"/> <!-- 1:N -->
 	</resultMap>
 	
 	<!-- 썸네일 조회용 -->
@@ -661,6 +663,27 @@
 		 WHERE A.REF_PROD_NO = #{ prodNo }
 	</select>
 	
+	<!-- 상품별 카테고리 조회 -->
+	<select id="getCategoryByProdNo" resultMap="categoryResultMap">
+		SELECT
+			   A.CATEGORY_NO
+			 , A.CATEGORY_NAME
+			 , A.CATEGORY_SECTION
+		  FROM TBL_CATEGORY A
+		  LEFT JOIN TBL_PRODUCT B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		 WHERE B.PROD_NO = #{ prodNo }
+	</select>
+	
+	<!-- 상품별 브랜드 조회 -->
+	<select id="getBrandByProdNo" resultMap="brandResultMap">
+		SELECT
+			   A.BRAND_NO
+			 , A.BRAND_NAME
+		  FROM TBL_BRAND A
+		  LEFT JOIN TBL_PRODUCT B ON(A.BRAND_NO = B.BRAND_NO)
+		 WHERE B.PROD_NO = #{ prodNo }
+	</select>
+	
 	<!-- 상품별 누적 판매량 조회 -->
 	<select id="getSalesByProdNo" resultType="_int">
 		SELECT
@@ -707,9 +730,11 @@
 			 , A.PROD_ENROLL_DATE
 			 , A.PROD_CHANGE_DATE
 			 , A.PROD_AVAIL_YN
+			 , T.THUMBNAIL_PATH
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.PROD_NO = #{ prodNo }
 	</select>
 	

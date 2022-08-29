@@ -14,6 +14,246 @@
     left: 50%;
 }
 
+/* 본문 */
+.info-area ul {
+    display: flex;
+    position: relative;
+    width: 100%;
+	height: 100%;
+    align-items: center;
+    margin: 14px auto;
+    padding-inline-start: 0;
+    margin-block-end: 0;
+}
+
+.info-area ul > li {
+	list-style: none;
+}
+
+.info-area {
+	display: table;
+	width: 100%;
+	height: 110px;
+	table-layout: fixed;
+	border: 1px solid #dee2e6;
+	border-top: 2px solid #000;
+	margin-top: 40px;
+	margin-bottom: 40px;
+	cursor: default;
+}
+
+.info-title {
+	display: table-cell;
+	width: 320px;
+	font-size: 22px;
+	font-weight: 700;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.welcome {
+	display: inline-block;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.welcome > h4 {
+	margin-bottom: 0;
+}
+
+#profile {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+	background-color: #f9f9f9;
+	border-radius: 50%;
+	border: 1px solid #E5E5E5;
+	font-size: 36px;
+	color: #6c757d;
+	margin-inline-end: 12px;
+	cursor: pointer;
+}
+
+#profile > a {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.info-list {
+	display: table-cell;
+	width: 70%;
+	padding: 24px 0;
+	border-left: 1px solid #E5E5E5;
+	text-align: center;
+}
+
+.info-list > ul {
+	display: contents !important;
+}
+
+.info-list > ul > li {
+	position: relative;
+	float: left;
+	width: 33%;
+}
+
+.info-list > ul > li > a {
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.info-list > ul > li > a > b {
+	font-size: 32px;
+}
+
+.info-list > ul > li:after {
+	position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 1px;
+    height: 100%;
+    min-height: 20px;
+    background-color: #E5E5E5;
+    content: '';
+}
+
+.info-list > ul > li:nth-child(3):after {
+	display: none;
+}
+
+/* 마이페이지 메뉴 */
+.row {
+	--bs-gutter-x: 0 !important;
+}
+
+.mypage-nav {
+    margin-bottom: 40px;
+    border-top: 1px solid #6c757d;
+    border-bottom: 1px solid #E5E5E5;
+    background-color: #fff;
+    padding-left: 0;
+}
+
+.mypage-nav > ul > li {
+	height: 50px;
+}
+
+.mypage-nav > ul > li:not(:last-child) {
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.mypage-nav > ul > li > a {
+	color: #000;
+	height: 100%;
+	line-height: 32px;
+	text-decoration: none !important;
+}
+
+.mypage-nav > ul > li > a:hover {
+	color: #000;
+	font-weight: bold;
+}
+
+.mypage-nav > ul > li > .active {
+	color: #00008b !important;
+	font-weight: bold !important;
+	background-color: #f9f9f9 !important;
+}
+
+.mypage-area {
+	margin-left: 58px;
+}
+
+.mypage-breadcrumb {
+    font-size: 12px;
+    float: right;
+    cursor: default;
+}
+
+.mypage-breadcrumb > ol > li > a {
+    color: #000;
+    text-decoration: none;
+}
+
+.mypage-breadcrumb > ol > li > a:hover {
+	color: #00008b;
+}
+
+.dataTable-table {
+	--bs-table-striped-bg: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* 옵션 */
+.option-area > p {
+	color: #6c757d;
+	font-size: 14px;
+	text-align: center;
+	vertical-align: middle;
+	margin-bottom: 0 !important;
+}
+
+/* 출력 글자수 제한 */
+.option-area > p > span {
+	display: inline-block;
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wishlist-table > tbody > tr > td > .buttonBox {
+	margin-block-start: 0;
+	margin-block-end: 0;
+	margin-inline-start: 0;
+	margin-inline-end: 0;
+}
+
+.wishlist-table > tbody > tr > td > .buttonBox > button {
+	width: auto;
+    height: 33px !important;
+    box-shadow: none !important;
+    border: 1px solid #E5E5E5;
+	border-radius: 0 !important;
+}
+
+.wishlist-table > tbody > tr > td > .buttonBox > .cartBtn, .deleteBtn {
+	color: #000;
+	background-color: #fff;
+	border-color: #E5E5E5 !important;
+	margin-top: 0 !important;
+}
+
+/* 선택삭제 */
+.button-area {
+	padding-left: 16px;
+}
+
+.button-area input[type="checkbox"] {
+	margin-inline-end: 12px;
+}
+
+.button-area button {
+	width: auto;
+    box-shadow: none !important;
+    margin-top: auto;
+    margin-bottom: auto;
+	margin-inline-end: 5px;
+    border-radius: 0;
+	border: 1px solid #E5E5E5;
+}
+
+.button-wish:hover, .button-delete:hover {
+	background-color: #f9f9f9;
+}
+
+/* 찜리스트 없음 */
+.noitem div {
+	color: #6c757d;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
 /* 전체 폰트 적용 */
 * {
     font-family: 'Noto Sans KR', sans-serif;

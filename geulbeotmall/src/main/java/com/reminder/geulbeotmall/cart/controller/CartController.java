@@ -141,6 +141,7 @@ public class CartController {
 							cartDTO.setQuantity(sum);
 							cartMapper.updateQuantityInCart(cartDTO.getMemberId(), cartDTO.getQuantity(), cartDTO.getOptionNo());
 							session.setAttribute("geulbeotCart", memberCart);
+							result = "이미 장바구니에 담겨 있는 상품입니다";
 							continue LoopA;
 						}
 					}

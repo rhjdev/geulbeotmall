@@ -142,12 +142,17 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public void addToWishList(String memberId, int optionNo, int refProdNo) {
-		memberMapper.addToWishList(memberId, optionNo, refProdNo);
+	public void addToWishList(String memberId, int optionNo) {
+		memberMapper.addToWishList(memberId, optionNo);
 	}
 
 	@Override
 	public List<WishListDTO> getMemberWishList(String memberId) {
 		return memberMapper.getMemberWishList(memberId);
+	}
+
+	@Override
+	public int deleteItemFromWishList(String memberId, int optionNo) {
+		return memberMapper.deleteItemFromWishList(memberId, optionNo);
 	}
 }

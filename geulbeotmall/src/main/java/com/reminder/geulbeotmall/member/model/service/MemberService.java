@@ -30,7 +30,10 @@ public interface MemberService extends UserDetailsService {
 
 	void deactivateUsername(String username);
 
-	void addToWishList(String memberId, int optionNo, int refProdNo);
+	/* 마이페이지 */
+	void addToWishList(String memberId, int optionNo);
 
 	List<WishListDTO> getMemberWishList(String memberId);
+
+	int deleteItemFromWishList(String memberId, int optionNo);
 }

@@ -225,4 +225,14 @@ public class ProductServiceImpl implements ProductService {
 	public Integer getSalesByProdNo(int prodNo) {
 		return productMapper.getSalesByProdNo(prodNo);
 	}
+
+	@Override
+	public CategoryDTO getCategoryByProdNo(int prodNo) {
+		return productMapper.getCategoryByProdNo(prodNo);
+	}
+
+	@Override
+	public BrandDTO getBrandByProdNo(int prodNo) {
+		return productMapper.getBrandByProdNo(prodNo);
+	}
 }

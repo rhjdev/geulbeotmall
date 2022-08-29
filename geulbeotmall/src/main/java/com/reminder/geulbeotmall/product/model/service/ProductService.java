@@ -90,4 +90,8 @@ public interface ProductService {
 	int getTotalNumberBySection(String category);
 
 	Integer getSalesByProdNo(int prodNo);
+
+	CategoryDTO getCategoryByProdNo(int prodNo);
+
+	BrandDTO getBrandByProdNo(int prodNo);
 }

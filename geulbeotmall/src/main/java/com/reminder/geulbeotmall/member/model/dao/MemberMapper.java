@@ -36,7 +36,9 @@ public interface MemberMapper {
 	void deactivateUsername(String username);
 	
 	/* 찜하기 */
-	void addToWishList(String memberId, int optionNo, int refProdNo);
+	void addToWishList(String memberId, int optionNo);
 
 	List<WishListDTO> getMemberWishList(String memberId);
+
+	int deleteItemFromWishList(String memberId, int optionNo);
 }
