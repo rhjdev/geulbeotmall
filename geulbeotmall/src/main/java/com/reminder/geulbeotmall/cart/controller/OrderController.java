@@ -20,9 +20,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.reminder.geulbeotmall.cart.model.dto.CartDTO;
-import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
+import com.reminder.geulbeotmall.cart.model.dto.DeliveryDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PaymentDTO;
+import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.cart.model.service.CartService;
 import com.reminder.geulbeotmall.cart.model.service.OrderService;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
@@ -173,6 +174,8 @@ public class OrderController {
 		String rcvrPostalCode = params.get("rcvrPostalCode").toString();
 		String rcvrAddress = params.get("rcvrAddress").toString();
 		String dlvrReqMessage = params.get("dlvrReqMessage").toString();
+		String deliveryFee = params.get("deliveryFee").toString();
+		String pointAmount = params.get("pointAmount").toString();
 		String paymentNo = params.get("paymentNo").toString();
 		String paymentMethod = params.get("paymentMethod").toString();
 		String paymentAmount = params.get("paymentAmount").toString();
@@ -192,43 +195,31 @@ public class OrderController {
 		orderDetailDTO.setRcvrAddress(rcvrPostalCode + " " + rcvrAddress);
 		orderDetailDTO.setDlvrReqMessage(dlvrReqMessage);
 		orderDetailDTO.setDlvrStatus("상품준비중");
-		int addOrderDetail = orderService.addOrderDetail(orderDetailDTO);
-		if(addOrderDetail == 1) {
-			log.info("주문배송 정보 DB 저장 완료");
-		} else {
-			result = "failed";
-		}
 		
-		OrderDTO orderDTO = new OrderDTO();
-		orderDTO.setOrderNo(orderNo);
-		int count = 0;
-		for(int i=0; i < optionNoArr.size(); i++) {
-			int optionNo = Integer.parseInt(optionNoArr.getString(i));
-			log.info("optionNo : {}", optionNo);
-			int optionQt = Integer.parseInt(optionQtArr.getString(i));
-			String orderAmount = orderPriceArr.getString(i);
-			orderDTO.setOptionNo(optionNo);
-			orderDTO.setOrderQuantity(optionQt);
-			orderDTO.setOrderAmount(Integer.parseInt(orderAmount));
-			int addOrderInfo = orderService.addOrderInfo(orderDTO);
-			count += addOrderInfo;
-		}
-		if(count == optionNoArr.size()) {
-			log.info("주문상품 정보 DB 저장 및 재고수량 차감 반영");
-		} else {
-			result = "failed";
-		}
+		/* 2. 배송정보 DB 저장 */
+		DeliveryDTO deliveryDTO = new DeliveryDTO();
+		deliveryDTO.setOrderNo(orderNo);
+		deliveryDTO.setDeliveryFee(Integer.parseInt(deliveryFee));
+		deliveryDTO.setDeliveryCompany("업체배송");
 		
-		/* 2. 결제정보 DB 저장 */
+		/* 3. 적립금 사용정보 DB 저장 */
+		PointDTO pointDTO = new PointDTO();
+		pointDTO.setPaymentNo(paymentNo);
+		pointDTO.setPointAmount(Integer.parseInt(pointAmount));
+		pointDTO.setPointDateTime(paymentDate);
+		pointDTO.setPointStatus("사용");
+		
+		/* 4. 결제정보 DB 저장 */
 		PaymentDTO paymentDTO = new PaymentDTO();
 		paymentDTO.setPaymentNo(paymentNo);
 		paymentDTO.setOrderNo(orderNo);
 		paymentDTO.setPaymentMethod(paymentMethod);
 		paymentDTO.setPaymentAmount(Integer.parseInt(paymentAmount));
 		paymentDTO.setPaymentDateTime(paymentDate);
-		int addPaymentInfo = orderService.addPaymentInfo(paymentDTO);
-		if(addPaymentInfo == 1) {
-			log.info("결제 정보 DB 저장 완료");
+		
+		boolean isCommited = orderService.orderAndPay(orderDetailDTO, optionNoArr, optionQtArr, orderPriceArr, deliveryDTO, pointDTO, paymentDTO);
+		if(isCommited) {
+			log.info("주문/배송/적립금/결제 정보 DB 저장 완료");
 		} else {
 			result = "failed";
 		}

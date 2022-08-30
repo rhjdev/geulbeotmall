@@ -68,7 +68,7 @@
 		<result property="brandName" column="BRAND_NAME"/>
 	</resultMap>
 	
-	<!-- 주문배송 정보 저장 -->
+	<!-- 주문배송정보 -->
 	<insert id="addOrderDetail">
 		INSERT
 		  INTO TBL_ORDER_DETAIL
@@ -95,7 +95,7 @@
 		)
 	</insert>
 	
-	<!-- 주문상품 정보 저장 -->
+	<!-- 주문상품정보 -->
 	<insert id="addOrderInfo">
 		INSERT
 		  INTO TBL_ORDER
@@ -114,7 +114,49 @@
 		)
 	</insert>
 	
-	<!-- 결제 정보 저장 -->
+	<!-- 배송정보 -->
+	<insert id="addDeliveryInfo">
+		INSERT
+		  INTO TBL_DELIVERY
+		(
+		  ORDER_NO
+		, DELIVERY_FEE
+		, DELIVERY_COMPANY
+		, DISPATCH_DATE
+		, DELIVERY_DATE
+		)
+		VALUES
+		(
+		  #{ orderNo }
+		, #{ deliveryFee }
+		, #{ deliveryCompany }
+		, NULL
+		, NULL
+		)
+	</insert>
+	
+	<!-- 적립금사용정보 -->
+	<insert id="addPointInfo">
+		INSERT
+		  INTO TBL_POINT
+		(
+		  POINT_NO
+		, PAYMENT_NO
+		, POINT_AMOUNT
+		, POINT_DATETIME
+		, POINT_STATUS
+		)
+		VALUES
+		(
+		  SEQ_POINT_NO.NEXTVAL
+		, #{ paymentNo }
+		, #{ pointAmount }
+		, #{ pointDateTime }
+		, #{ pointStatus }
+		)
+	</insert>
+	
+	<!-- 결제정보 -->
 	<insert id="addPaymentInfo">
 		INSERT
 		  INTO TBL_PAYMENT
