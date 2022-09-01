@@ -130,16 +130,12 @@
 .mypage-nav {
     margin-bottom: 40px;
     border-top: 1px solid #6c757d;
-    border-bottom: 1px solid #E5E5E5;
     background-color: #fff;
     padding-left: 0;
 }
 
 .mypage-nav > ul > li {
 	height: 50px;
-}
-
-.mypage-nav > ul > li:not(:last-child) {
     border-bottom: 1px solid #E5E5E5;
 }
 
@@ -184,6 +180,74 @@
 	--bs-table-striped-bg: rgba(0, 0, 0, 0.03) !important;
 }
 
+.orderdetail-container {
+	margin-top: 30px;
+}
+
+.orderdetail-container > fieldset {
+	position: relative;
+}
+
+.orderdetail-container > fieldset > legend {
+	display: contents;
+    height: 44px;
+    align-items: center;
+    padding-inline-start: 0;
+    margin-block-end: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.orderdetail-container > table {
+	width: 100%;
+    border-top: 2px solid #000;
+    border-bottom: 1px solid #E5E5E5;
+    margin-top: 5px;
+    margin-bottom: 40px;
+}
+
+.orderdetail-container > table > tbody > tr > td {
+	padding: 5px 0;
+    height: 44px;
+}
+
+.orderdetail-container > table > tbody > tr > td > p {
+	color: #6c757d;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
+    margin-bottom: 0 !important;
+}
+
+.orderdetail-container > table > tbody > tr > td > input[type="text"] {
+	display: block;
+    border: 1px solid #E5E5E5;
+    width: 100%;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.orderdetail-container > table > tbody > tr > td > input:read-only {
+	background-color: #f9f9f9;
+    cursor: default;
+}
+
+.orderDetailCard {
+	cursor: default;
+}
+
+.orderDetailCard > div.card-body > span:not(:last-child) {
+	padding-right: 26px;
+	margin-inline-end: 26px;
+	color: #6c757d;
+	border-right: 1px #E5E5E5 solid;
+}
+
+.orderDetailCard > div.card-body > span:last-child {
+	color: #00008b;
+}
+
 /* 옵션 */
 .option-area > p {
 	color: #6c757d;
@@ -202,14 +266,16 @@
 	white-space: nowrap;
 }
 
-.wishlist-table > tbody > tr > td > .buttonBox {
+.wishlist-table > tbody > tr > td > .buttonBox,
+.orderlist-table > tbody > tr > td > .buttonBox {
 	margin-block-start: 0;
 	margin-block-end: 0;
 	margin-inline-start: 0;
 	margin-inline-end: 0;
 }
 
-.wishlist-table > tbody > tr > td > .buttonBox > button {
+.wishlist-table > tbody > tr > td > .buttonBox > button,
+.orderlist-table > tbody > tr > td > .buttonBox > button {
 	width: auto;
     height: 33px !important;
     box-shadow: none !important;
@@ -217,11 +283,30 @@
 	border-radius: 0 !important;
 }
 
+.orderlist-table > tbody > tr > td > .buttonBox > button {
+	width: 93px;
+}
+
 .wishlist-table > tbody > tr > td > .buttonBox > .cartBtn, .deleteBtn {
 	color: #000;
 	background-color: #fff;
 	border-color: #E5E5E5 !important;
 	margin-top: 0 !important;
+}
+
+.orderlist-table > tbody > tr > td > .buttonBox > .detailBtn {
+	color: #000;
+	background-color: #fff;
+	border-color: #E5E5E5 !important;
+	margin-top: 4px !important;
+}
+
+.orderlist-table > tbody > tr > .delivery-area > p {
+    color: #6c757d;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
+    margin-bottom: 0 !important;
 }
 
 /* 선택삭제 */
@@ -247,7 +332,7 @@
 	background-color: #f9f9f9;
 }
 
-/* 찜리스트 없음 */
+/* 리스트 항목 없음 */
 .noitem div {
 	color: #6c757d;
 	margin-top: 20px;

@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dao.MemberMapper;
 import com.reminder.geulbeotmall.member.model.dto.AuthorityDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
@@ -154,5 +156,20 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public int deleteItemFromWishList(String memberId, int optionNo) {
 		return memberMapper.deleteItemFromWishList(memberId, optionNo);
+	}
+
+	@Override
+	public List<OrderDetailDTO> getMemberOrderList(String memberId) {
+		return memberMapper.getMemberOrderList(memberId);
+	}
+	
+	@Override
+	public OrderDetailDTO getMemberOrderDetails(String memberId, String orderNo) {
+		return memberMapper.getMemberOrderDetails(memberId, orderNo);
+	}
+
+	@Override
+	public List<PointDTO> getReserveDetails(String memberId) {
+		return memberMapper.getReserveDetails(memberId);
 	}
 }

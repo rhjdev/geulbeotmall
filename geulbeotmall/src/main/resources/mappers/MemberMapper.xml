@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.reminder.geulbeotmall.member.model.dao.MemberMapper">
 	
+	<!-- 회원 조회용 -->
 	<resultMap id="signInMemberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
 		<id property="memberId" column="MEMBER_ID"/>
 		<result property="memberPwd" column="MEMBER_PWD"/>
@@ -34,6 +35,7 @@
 		<result property="authDesc" column="AUTHORITY_DESC"/>
 	</resultMap>
 	
+	<!-- 위시리스트 조회용 -->
 	<resultMap id="wishListResultMap" type="com.reminder.geulbeotmall.member.model.dto.WishListDTO">
 		<result property="memberId" column="MEMBER_ID"/>
 		<result property="optionNo" column="OPTION_NO"/>
@@ -108,6 +110,61 @@
 	<resultMap id="brandResultMap" type="com.reminder.geulbeotmall.product.model.dto.BrandDTO">
 		<id property="brandNo" column="BRAND_NO"/>
 		<result property="brandName" column="BRAND_NAME"/>
+	</resultMap>
+	
+	<!-- 주문배송정보 조회용 -->
+	<resultMap id="orderDetailResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO">
+		<id property="orderNo" column="ORDER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="orderDate" column="ORDER_DATE"/>
+		<result property="rcvrName" column="RCVR_NAME"/>
+		<result property="rcvrPhone" column="RCVR_PHONE"/>
+		<result property="rcvrAddress" column="RCVR_ADDRESS"/>
+		<result property="dlvrReqMessage" column="DLVR_REQ_MESSAGE"/>
+		<result property="dlvrStatus" column="DLVR_STATUS"/>
+		<association property="order" resultMap="orderResultMap"/> <!-- 1:1 -->
+		<association property="payment" resultMap="paymentResultMap"/> <!-- 1:1 -->
+		<association property="delivery" resultMap="deliveryResultMap"/> <!-- 1:1 -->
+		<association property="point" resultMap="pointResultMap"/> <!-- 1:1 -->
+		<association property="product" resultMap="productResultMap"/> <!-- 1:1 -->
+		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+		<association property="attachmentList" resultMap="thumbnailResultMap"/> <!-- 1:1 -->
+		<collection property="option" resultMap="optionResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<!-- 주문상품정보 조회용 -->
+	<resultMap id="orderResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDTO">
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="orderQuantity" column="ORDER_QUANTITY"/>
+		<result property="orderAmount" column="ORDER_AMOUNT"/>
+	</resultMap>
+	
+	<!-- 주문결제정보 조회용 -->
+	<resultMap id="paymentResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PaymentDTO">
+		<id property="paymentNo" column="PAYMENT_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="paymentMethod" column="PAYMENT_METHOD"/>
+		<result property="paymentAmount" column="PAYMENT_AMOUNT"/>
+		<result property="paymentDateTime" column="PAYMENT_DATETIME"/>
+	</resultMap>
+	
+	<!-- 배송정보 조회용 -->
+	<resultMap id="deliveryResultMap" type="com.reminder.geulbeotmall.cart.model.dto.DeliveryDTO">
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="deliveryFee" column="DELIVERY_FEE"/>
+		<result property="deliveryCompany" column="DELIVERY_COMPANY"/>
+		<result property="dispatchDate" column="DISPATCH_DATE"/>
+		<result property="deliveryDate" column="DELIVERY_DATE"/>
+	</resultMap>
+	
+	<!-- 적립금 조회용 -->
+	<resultMap id="pointResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PointDTO">
+		<id property="pointNo" column="POINT_NO"/>
+		<result property="paymentNo" column="PAYMENT_NO"/>
+		<result property="pointAmount" column="POINT_AMOUNT"/>
+		<result property="pointDateTime" column="POINT_DATETIME"/>
+		<result property="pointStatus" column="POINT_STATUS"/>
 	</resultMap>
 	
 	<select id="findMemberById" resultMap="signInMemberResultMap">
@@ -270,6 +327,74 @@
 		 WHERE MEMBER_ID = #{ username }
 	</update>
 	
+	<!-- 누적 주문/배송목록 조회 -->
+	<select id="getMemberOrderList" resultMap="orderDetailResultMap">
+		SELECT
+			   A.ORDER_NO
+			 , A.ORDER_DATE
+			 , A.DLVR_STATUS
+			 , B.OPTION_NO
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+			 , P.PROD_NO
+			 , P.PROD_NAME
+			 , D.BRAND_NAME
+			 , T.THUMBNAIL_PATH
+		  FROM TBL_ORDER_DETAIL A
+		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+		  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE A.MEMBER_ID = #{ memberId }
+	</select>
+	
+	<!-- 주문/배송목록 상세정보조회 -->
+	<select id="getMemberOrderDetails" resultMap="orderDetailResultMap">
+		SELECT
+			   A.ORDER_NO
+			 , A.ORDER_DATE
+			 , A.RCVR_NAME
+			 , A.RCVR_PHONE
+			 , A.RCVR_ADDRESS
+			 , A.DLVR_REQ_MESSAGE
+			 , A.DLVR_STATUS
+			 , B.OPTION_NO
+			 , B.ORDER_QUANTITY
+			 , B.ORDER_AMOUNT
+			 , C.PAYMENT_NO
+			 , C.PAYMENT_METHOD
+			 , C.PAYMENT_AMOUNT
+			 , C.PAYMENT_DATETIME
+			 , L.DELIVERY_FEE
+			 , L.DELIVERY_COMPANY
+			 , L.DISPATCH_DATE
+			 , L.DELIVERY_DATE
+			 , N.POINT_AMOUNT
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+			 , P.PROD_NO
+			 , P.PROD_NAME
+			 , D.BRAND_NAME
+			 , T.THUMBNAIL_PATH
+		  FROM TBL_ORDER_DETAIL A
+		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+		  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+		  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+		  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE A.MEMBER_ID = #{ memberId }
+		   AND A.ORDER_NO = #{ orderNo }
+	</select>
+	
 	<!-- 현재 위시리스트 조회 -->
 	<select id="getMemberWishList" resultMap="wishListResultMap">
 		SELECT
@@ -315,4 +440,17 @@
 		 WHERE MEMBER_ID = #{ memberId }
 		   AND OPTION_NO = #{ optionNo }
 	</delete>
+	
+	<!-- 적립금 사용내역 조회 -->
+	<select id="getReserveDetails">
+		SELECT
+			   A.POINT_NO
+			 , A.POINT_AMOUNT
+			 , A.POINT_DATETIME
+			 , A.POINT_STATUS
+		  FROM TBL_POINT A
+		  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+		  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+		 WHERE C.MEMBER_ID = #{ memberId }
+	</select>
 </mapper>

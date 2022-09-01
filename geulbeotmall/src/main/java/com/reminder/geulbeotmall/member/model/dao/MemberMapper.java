@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
@@ -35,10 +37,16 @@ public interface MemberMapper {
 
 	void deactivateUsername(String username);
 	
-	/* 찜하기 */
+	/* 마이페이지 */
 	void addToWishList(String memberId, int optionNo);
 
 	List<WishListDTO> getMemberWishList(String memberId);
 
 	int deleteItemFromWishList(String memberId, int optionNo);
+	
+	List<OrderDetailDTO> getMemberOrderList(String memberId);
+	
+	OrderDetailDTO getMemberOrderDetails(String memberId, String orderNo);
+
+	List<PointDTO> getReserveDetails(String memberId);
 }

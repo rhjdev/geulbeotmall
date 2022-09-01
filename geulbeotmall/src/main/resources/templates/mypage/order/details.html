@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent" th:object="${ memberOrderDetails }">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item"><a th:href="@{/mypage/order}">주문/배송목록</a></li>
+			    <li class="breadcrumb-item active" aria-current="page" th:text="|주문번호 *{ orderNo }|"></li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>주문상세정보</legend>
+			</fieldset>
+			<div class="orderDetailCard card mb-4">
+				<div class="card-body">
+					<b>주문일자</b>
+					<span th:text="*{ orderDate }"></span>
+					<b>주문번호</b>
+					<span th:text="*{ orderNo }"></span>
+				</div>
+			</div>
+			<div class="orderdetail-container dataTable-container">
+				<table class="orderdetail-table dataTable-table">
+					<thead>
+			    		<tr>
+			    			<th colspan="2"><span>상품명(옵션)</span></th>
+			    			<th><span>상품금액(수량)</span></th>
+			    			<th><span>배송비/판매자</span></th>
+			    			<th><span>진행상태</span></th>
+			    			<th><span>상품출고일</span></th>
+			    			<th><span>배송완료일</span></th>
+			    		</tr>
+			    	</thead>
+			    	<tbody>
+			    		<tr>
+			    			<td><img th:src="*{ product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+			    			<td class="option-area">
+			    				<a th:href="@{/product/details(no=*{ product.prodNo })}" th:text="*{ product.prodName }"></a>
+			    				<p>
+			    					<span th:text="|*{ option.pointSize }mm|"></span>
+				    				<th:block th:if="*{ option.bodyColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(memberOrderDetails.option.bodyColor, '$', ',')}|"></span>
+				    				</th:block>
+				    				<th:block th:if="*{ option.inkColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(memberOrderDetails.option.inkColor, '$', ',')}|"></span>
+				    				</th:block>
+				    			</p>
+			    			</td>
+			    			<td>
+			    				<span th:text="|${#numbers.formatInteger(memberOrderDetails.order.orderAmount, 3, 'COMMA')}원|"></span><br>
+			    				<p><span th:text="|(*{ order.orderQuantity }개)|"></span></p>
+			    			</td>
+			    			<td>
+			    				<span th:text="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|"></span><br>
+			    				<p><span th:text="*{ brand.brandName }"></span></p>
+			    			</td>
+			    			<td th:text="*{ dlvrStatus }"></td>
+			    			<!-- 배송상태는 상품준비중 > 배송중 > 배송완료로 구분 -->
+			    			<th:block th:switch="*{ dlvrStatus }">
+				    			<th:block th:case="'상품준비중'">
+					    			<td>-</td>
+					    			<td>-</td>
+				    			</th:block>
+				    			<th:block th:case="'배송중'">
+					    			<td th:text="${#dates.format(memberOrderDetails.delivery.dispatchDate, 'yyyy-MM-dd')}"></td>
+					    			<td>-</td>
+				    			</th:block>
+				    			<th:block th:case="'배송완료'">
+					    			<td th:text="${#dates.format(memberOrderDetails.delivery.dispatchDate, 'yyyy-MM-dd')}"></td>
+					    			<td th:text="${#dates.format(memberOrderDetails.delivery.deliveryDate, 'yyyy-MM-dd')}"></td>
+				    			</th:block>
+			    			</th:block>
+			    		</tr>
+			    	</tbody>
+			    </table>
+				<fieldset>
+					<legend>주문/결제 금액 정보</legend>
+				</fieldset>
+				<table>
+					<colgroup>
+						<col style="width: 10%;">
+						<col>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th>상품금액</th>
+							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.order.orderAmount, 3, 'COMMA')}원|" readonly></td>
+						</tr>
+						<tr>
+							<th>배송비</th>
+							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|" readonly></td>
+						</tr>
+						<tr>
+							<th>포인트 사용</th>
+							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.point.pointAmount, 3, 'COMMA')}원|" readonly></td>
+						</tr>
+						<tr>
+							<th>결제수단</th>
+							<td><input type="text" th:value="|*{ payment.paymentMethod } (*{ payment.paymentDateTime })|" readonly></td>
+						</tr>
+					</tbody>
+				</table>
+				<fieldset>
+					<legend>배송지 정보</legend>
+				</fieldset>
+				<table class="delivery-table">
+					<colgroup>
+						<col style="width: 10%;">
+						<col>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th>수령인</th>
+							<td><input type="text" th:value="*{ rcvrName }" readonly></td>
+						</tr>
+						<tr>
+							<th>연락처</th>
+							<td><input type="text" th:value="*{ rcvrPhone }" readonly></td>
+						</tr>
+						<tr>
+							<th>배송지</th>
+							<td><input type="text" th:value="*{ rcvrAddress }" readonly></td>
+						</tr>
+						<tr>
+							<th>배송메모</th>
+							<td><input type="text" th:value="*{ dlvrReqMessage }" readonly></td>
+						</tr>
+						<tr>
+							<th>배송업체</th>
+							<td><input type="text" th:value="|*{ delivery.deliveryCompany }(*{ brand.brandName })|" readonly></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="buttonBox">
+				<button type="button" class="cancelBtn btn btn-dark" onclick="history.back()">뒤로가기</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

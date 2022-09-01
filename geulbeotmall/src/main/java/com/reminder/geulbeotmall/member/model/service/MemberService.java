@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 
@@ -36,4 +38,10 @@ public interface MemberService extends UserDetailsService {
 	List<WishListDTO> getMemberWishList(String memberId);
 
 	int deleteItemFromWishList(String memberId, int optionNo);
+
+	List<OrderDetailDTO> getMemberOrderList(String memberId);
+
+	List<PointDTO> getReserveDetails(String memberId);
+
+	OrderDetailDTO getMemberOrderDetails(String memberId, String orderNo);
 }

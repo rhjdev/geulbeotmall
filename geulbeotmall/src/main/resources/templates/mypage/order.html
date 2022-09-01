@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">주문/배송목록</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>주문/배송목록</legend>
+			</fieldset>
+			<div class="dataTable-container">
+				<table class="orderlist-table dataTable-table table-striped">
+					<thead>
+			    		<tr>
+			    			<th><span>주문일자</span></th>
+			    			<th colspan="2"><span>상품명(옵션)</span></th>
+			    			<th><span>배송상태</span></th>
+			    			<th><span>관리</span></th>
+			    		</tr>
+			    	</thead>
+			    	<tbody>
+			    		<tr th:each="orderList : ${ memberOrderList }" th:if="${not #lists.isEmpty(orderList)}">
+			    			<td th:value="${ orderList.orderNo }">[[${#strings.substring(orderList.orderDate, 0, 10)}]]</td>
+			    			<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+			    			<!-- 상품명(옵션) -->
+			    			<td class="option-area" th:value="${ orderList.order.optionNo }">
+				    			<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
+				    			<p>
+			    					<span>[[${ orderList.option.pointSize }]]mm</span>
+				    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
+				    				</th:block>
+				    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
+				    				</th:block>
+				    			</p>
+			    			</td>
+			    			
+			    			<!-- 배송상태, 배송업체 -->
+			    			<td class="delivery-area">[[${ orderList.dlvrStatus }]]<br><p>[[${ orderList.brand.brandName }]]</p></td>
+			    			
+			    			<!-- 배송완료 시 리뷰쓰기, 상세정보 -->
+			    			<td>
+			    			<div class="buttonBox">
+			    				<th:block th:if="${ orderList.dlvrStatus } == '배송완료'">
+				    				<button type="button" class="reviewBtn btn btn-sm btn-dark">리뷰쓰기</button><br>
+			    				</th:block>
+			    				<button type="button" class="detailBtn btn btn-sm" th:onclick="|location.href='@{/mypage/order/details(no=${orderList.orderNo})}'|">주문상세</button>
+			    			</div>
+			    			</td>
+			    		</tr>
+			    		<tr class="noitem" th:unless="${#lists.size(memberOrderList)} > 0">
+	                		<td colspan="5">
+		                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                		<div>주문한 상품이 없습니다.</div>
+	                		</td>
+	                	</tr>
+			    	</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
