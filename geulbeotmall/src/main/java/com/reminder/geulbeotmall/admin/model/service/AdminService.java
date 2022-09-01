@@ -3,6 +3,7 @@ package com.reminder.geulbeotmall.admin.model.service;
 import java.util.List;
 
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
@@ -41,4 +42,16 @@ public interface AdminService {
 	int insertAccSuspension(String memberId, String accSuspDesc);
 
 	int updateAccActivation(String memberId);
+
+	List<OrderDetailDTO> getTotalOrderList(Criteria criteria);
+
+	List<OrderDetailDTO> getPreparingOnly(Criteria criteria);
+
+	List<OrderDetailDTO> getDeliveringOnly(Criteria criteria);
+
+	List<OrderDetailDTO> getCompletedOnly(Criteria criteria);
+
+	boolean updateDeliveryStatus(String dlvrStatus, String orderNo);
+
+	OrderDetailDTO getOrderDetailsByOrderNo(String orderNo);
 }

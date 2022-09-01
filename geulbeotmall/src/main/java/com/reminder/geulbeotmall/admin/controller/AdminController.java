@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
@@ -147,5 +148,60 @@ public class AdminController {
 			result = "성공";
 		}
 		return result;
+	}
+	
+	@GetMapping("/order/list")
+	public void getOrderList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
+		log.info("주문/배송 목록 요청");
+		
+		List<OrderDetailDTO> totalOrderList = adminService.getTotalOrderList(criteria);
+		List<OrderDetailDTO> preparingOnly = adminService.getPreparingOnly(criteria);
+		List<OrderDetailDTO> deliveringOnly = adminService.getDeliveringOnly(criteria);
+		List<OrderDetailDTO> completedOnly = adminService.getCompletedOnly(criteria);
+		log.info("주문/배송 목록 조회 완료");
+		
+		model.addAttribute("total", totalOrderList.size());
+		model.addAttribute("preparing", preparingOnly.size());
+		model.addAttribute("delivering", deliveringOnly.size());
+		model.addAttribute("completed", completedOnly.size());
+		model.addAttribute("totalOrderList", totalOrderList);
+		model.addAttribute("preparingOnly", preparingOnly);
+		model.addAttribute("deliveringOnly", deliveringOnly);
+		model.addAttribute("completedOnly", completedOnly);
+		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(criteria), 10, criteria));
+	}
+
+	@PostMapping(value="/order/manageDeliveryStatus", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String changeDlvrStatus(@RequestParam Map<String, Object> params, HttpServletRequest request) {
+		log.info("배송상태 변경 시작");
+		String dlvrStatus = params.get("dlvrValue").toString();
+		String[] orderList = request.getParameterValues("arr");
+		boolean isCommited = false;
+		String result = "";
+		
+		for(int i=0; i < orderList.length; i++) {
+			isCommited = adminService.updateDeliveryStatus(dlvrStatus, orderList[i]);
+		}
+		
+		if(isCommited) {
+			result = "succeed";
+		}
+		return result;
+	}
+	
+	@GetMapping("/order/details")
+	public String getOrderDetails(@RequestParam("no") String orderNo, Model model) {
+		OrderDetailDTO detail = adminService.getOrderDetailsByOrderNo(orderNo);
+		String method = detail.getPayment().getPaymentMethod();
+		switch(method) {
+			case "card": method = "신용카드"; break;
+			case "trans": method = "실시간계좌이체"; break;
+			case "vbank": method = "가상계좌"; break;
+			case "phone": method = "휴대폰결제"; break;
+		}
+		detail.getPayment().setPaymentMethod(method);
+		model.addAttribute("detail", detail);
+		return "admin/order/details";
 	}
 }

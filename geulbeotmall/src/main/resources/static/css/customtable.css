@@ -250,6 +250,10 @@ input:read-only {
 }
 
 /* 버튼 */
+.card-body > button {
+	vertical-align: inherit;
+}
+
 .buttonBox {
     margin-block-start: 10%;
     margin-block-end: 20%;

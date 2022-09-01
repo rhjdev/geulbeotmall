@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>주문/배송 목록</h1>
+	<hr>
+	<div class="card mb-4">
+    	<div class="card-body">
+			<div class="search-container">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/order/list}" method="get" onsubmit="checkKeywordForOrder()">
+					<select id="condition" name="condition" class="dataTable-selector">
+						<option value="memberId" th:selected="*{condition} eq 'memberId'">주문자</option>
+						<option value="paymentMethod" th:selected="*{condition} eq 'paymentMethod'">결제수단</option>
+					</select>
+					<input type="search" name="keyword" th:field="*{keyword}" class="form-control search-bar" autocomplete="off">
+					<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+					<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+					<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+				</form>
+			</div>
+    	</div>
+    </div>
+    	
+    	<!-- 전체 | 상품준비중 | 배송중 | 배송완료 -->
+    	<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="preparing-tab" data-bs-toggle="tab" data-bs-target="#preparing" type="button" role="tab" aria-controls="preparing" aria-selected="false">상품준비중 <b th:text="${ preparing }" style="color: #ff0000;"></b></button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="delivering-tab" data-bs-toggle="tab" data-bs-target="#delivering" type="button" role="tab" aria-controls="delivering" aria-selected="false">배송중 <b th:text="${ delivering }" style="color: #ff0000;"></b></button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">배송완료 <b th:text="${ completed }" style="color: #6c757d;"></b></button>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+		<!-- 전체 목록 -->
+		<div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="total-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th colspan="2"><span>상품명(옵션)</span></th>
+                    	<th><span>주문자</span></th>
+                    	<th><span>주문금액</span></th>
+                    	<th><span>결제수단</span></th>
+                    	<th><span>결제일자</span></th>
+                    	<th><span>배송업체</span></th>
+                    	<th><span>배송상태</span></th>
+                    	<th><span>상세 정보</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="orderList : ${ totalOrderList }" th:if="${not #lists.isEmpty(totalOrderList)}" th:with="cri=${criteria}, total=${total}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+                		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+	                	<td>
+	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
+	                		<p>
+		    					<span>[[${ orderList.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+	                	</td>
+	                	<td th:text="${ orderList.memberId }"></td>
+	                	<td th:text="${ orderList.payment.paymentAmount }"></td>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'card' }">
+		                	<td>신용카드</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'trans' }">
+		                	<td>실시간계좌이체</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'vbank' }">
+		                	<td>가상계좌</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'phone' }">
+		                	<td>휴대폰결제</td>
+	                	</th:block>
+	                	<td th:text="${ orderList.payment.paymentDateTime }" th:value="${ orderList.orderNo }"></td>
+	                	<td th:text="${ orderList.delivery.deliveryCompany }"></td>
+	                	<td th:text="${ orderList.dlvrStatus }"></td>
+	                	<!-- 상세 정보 -->
+	                	<td><a th:href="@{/admin/order/details(no=${orderList.orderNo})}"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(totalOrderList)} > 0">
+                		<td colspan="10">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+		<!-- 상품준비중 -->
+		<div class="tab-pane fade show" id="preparing" role="tabpanel" aria-labelledby="preparing-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th colspan="2"><span>상품명(옵션)</span></th>
+                    	<th><span>주문자</span></th>
+                    	<th><span>주문금액</span></th>
+                    	<th><span>결제수단</span></th>
+                    	<th><span>결제일자</span></th>
+                    	<th><span>배송업체</span></th>
+                    	<th><span>배송상태</span></th>
+                    	<th><span>상세 정보</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="orderList : ${ preparingOnly }" th:if="${not #lists.isEmpty(preparingOnly)}" th:with="cri=${criteria}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+                		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+	                	<td>
+	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
+	                		<p>
+		    					<span>[[${ orderList.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+	                	</td>
+	                	<td th:text="${ orderList.memberId }"></td>
+	                	<td th:text="${ orderList.payment.paymentAmount }"></td>
+	                	<td th:text="${ orderList.payment.paymentMethod }"></td>
+	                	<td th:text="${ orderList.payment.paymentDateTime }"></td>
+	                	<td th:text="${ orderList.delivery.deliveryCompany }"></td>
+	                	<td th:text="${ orderList.dlvrStatus }"></td>
+	                	<!-- 상세 정보 -->
+	                	<td><a th:href="@{/admin/order/details(no=${orderList.orderNo})}"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(preparingOnly)} > 0">
+                		<td colspan="10">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+		<!-- 배송중 -->
+		<div class="tab-pane fade show" id="delivering" role="tabpanel" aria-labelledby="delivering-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th colspan="2"><span>상품명(옵션)</span></th>
+                    	<th><span>주문자</span></th>
+                    	<th><span>주문금액</span></th>
+                    	<th><span>결제수단</span></th>
+                    	<th><span>결제일자</span></th>
+                    	<th><span>배송업체</span></th>
+                    	<th><span>배송상태</span></th>
+                    	<th><span>상세 정보</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="orderList : ${ deliveringOnly }" th:if="${not #lists.isEmpty(deliveringOnly)}" th:with="cri=${criteria}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+                		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+	                	<td>
+	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
+	                		<p>
+		    					<span>[[${ orderList.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+	                	</td>
+	                	<td th:text="${ orderList.memberId }"></td>
+	                	<td th:text="${ orderList.payment.paymentAmount }"></td>
+	                	<td th:text="${ orderList.payment.paymentMethod }"></td>
+	                	<td th:text="${ orderList.payment.paymentDateTime }"></td>
+	                	<td th:text="${ orderList.delivery.deliveryCompany }"></td>
+	                	<td th:text="${ orderList.dlvrStatus }"></td>
+	                	<!-- 상세 정보 -->
+	                	<td><a th:href="@{/admin/order/details(no=orderList.orderNo)}"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(deliveringOnly)} > 0">
+                		<td colspan="10">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+		<!-- 배송완료 -->
+		<div class="tab-pane fade show" id="delivering" role="tabpanel" aria-labelledby="delivering-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th colspan="2"><span>상품명(옵션)</span></th>
+                    	<th><span>주문자</span></th>
+                    	<th><span>주문금액</span></th>
+                    	<th><span>결제수단</span></th>
+                    	<th><span>결제일자</span></th>
+                    	<th><span>배송업체</span></th>
+                    	<th><span>배송상태</span></th>
+                    	<th><span>상세 정보</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="orderList : ${ completedOnly }" th:if="${not #lists.isEmpty(completedOnly)}" th:with="cri=${criteria}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+                		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
+	                	<td>
+	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
+	                		<p>
+		    					<span>[[${ orderList.option.pointSize }]]mm</span>
+			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+	                	</td>
+	                	<td th:text="${ orderList.memberId }"></td>
+	                	<td th:text="${ orderList.payment.paymentAmount }"></td>
+	                	<th:block th:if="orderList.payment.paymentMethod == 'card'">
+		                	<td>신용카드</td>
+	                	</th:block>
+	                	<td th:text="${ orderList.payment.paymentDateTime }"></td>
+	                	<td th:text="${ orderList.delivery.deliveryCompany }"></td>
+	                	<td th:text="${ orderList.dlvrStatus }"></td>
+	                	<!-- 상세 정보 -->
+	                	<td><a th:href="@{/admin/order/details(no=${orderList.orderNo})}"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(completedOnly)} > 0">
+                		<td colspan="10">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+    </div>
+    <th:block layout:fragment="paging">
+		<nav th:replace="/fragments/paging.html :: paging"></nav>
+	</th:block>
+    <th:block layout:fragment="deliveryToolbar">
+		<div th:replace="/fragments/toolbar.html :: deliveryToolbar"></div>
+	</th:block>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/manageOrderList.js}" type="text/javascript"></script>
+	</th:block>
+</body>
+</html>

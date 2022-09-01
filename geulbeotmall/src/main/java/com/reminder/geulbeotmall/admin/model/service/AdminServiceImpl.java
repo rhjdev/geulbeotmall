@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.admin.model.dao.AdminMapper;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
-import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
 @Service("adminService")
@@ -117,5 +117,49 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public int updateAccActivation(String memberId) {
 		return adminMapper.updateAccActivation(memberId);
+	}
+
+	@Override
+	public List<OrderDetailDTO> getTotalOrderList(Criteria criteria) {
+		return adminMapper.getTotalOrderList(criteria);
+	}
+
+	@Override
+	public List<OrderDetailDTO> getPreparingOnly(Criteria criteria) {
+		return adminMapper.getPreparingOnly(criteria);
+	}
+
+	@Override
+	public List<OrderDetailDTO> getDeliveringOnly(Criteria criteria) {
+		return adminMapper.getDeliveringOnly(criteria);
+	}
+
+	@Override
+	public List<OrderDetailDTO> getCompletedOnly(Criteria criteria) {
+		return adminMapper.getCompletedOnly(criteria);
+	}
+
+	@Override
+	public boolean updateDeliveryStatus(String dlvrStatus, String orderNo) {
+		boolean result = false;
+		
+		int count = 0;
+		if(dlvrStatus.equals("배송중")) {
+			int updateDispatchDate = adminMapper.updateDispatchDate(orderNo);
+			count += updateDispatchDate;
+		} else {
+			int updateDeliveryDate = adminMapper.updateDeliveryDate(orderNo);
+			count += updateDeliveryDate;
+		}
+		int updateDeliveryStatus = adminMapper.updateDeliveryStatus(dlvrStatus, orderNo);
+		count += updateDeliveryStatus;
+		
+		if(count == 2) result = true;
+		return result;
+	}
+
+	@Override
+	public OrderDetailDTO getOrderDetailsByOrderNo(String orderNo) {
+		return adminMapper.getOrderDetailsByOrderNo(orderNo);
 	}
 }

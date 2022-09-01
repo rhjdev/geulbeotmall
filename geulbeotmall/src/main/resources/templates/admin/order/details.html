@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>주문 상세 정보</h1>
+	<hr>
+	<div class="container content-wrapper">
+	<th:block layout:fragment="deliveryToolbar">
+		<div th:replace="/fragments/toolbar.html :: deliveryToolbar" style="text-align: center;"></div>
+	</th:block>
+		<div class="infoBox" th:object="${ detail }">
+			<form>
+				<ul>
+					<li class="th"><p>배송상태</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ dlvrStatus }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>상품출고일</p></li>
+					<li class="td">
+						<input type="text" th:value="${#dates.format(detail.delivery.dispatchDate, 'yyyy-MM-dd')}" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송완료일</p></li>
+					<li class="td">
+						<input type="text" th:value="${#dates.format(detail.delivery.deliveryDate, 'yyyy-MM-dd')}" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>주문번호</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ orderNo }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>주문자</p></li>
+					<li class="td">
+						<input type="text" th:value="|*{ memberId }(*{ member.email })|" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>주문일시</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ orderDate }" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>상품금액</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ order.orderAmount }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송비</p></li>
+					<li class="td">
+						<input type="text"th:value="*{ delivery.deliveryFee }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>포인트 사용</p></li>
+					<li class="td">
+						<input type="text"th:value="*{ point.pointAmount }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>총 결제금액</p></li>
+					<li class="td">
+						<input type="text"th:value="*{ payment.paymentAmount }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>결제수단</p></li>
+					<li class="td">
+						<input type="text" th:value="|*{ payment.paymentMethod }(*{ payment.paymentDateTime })|" readonly>
+					</li>
+				</ul>
+				<hr>
+				<ul>
+					<li class="th"><p>수령인</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ rcvrName }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>연락처</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ rcvrPhone }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송지</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ rcvrAddress }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송메모</p></li>
+					<li class="td">
+						<input type="text" th:value="*{ dlvrReqMessage }" readonly>
+					</li>
+				</ul>
+				<ul>
+					<li class="th"><p>배송업체</p></li>
+					<li class="td">
+						<input type="text" th:value="|*{ delivery.deliveryCompany }(*{ brand.brandName })|" readonly>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<div class="buttonBox">
+			<button type="button" class="btn btn-dark" onclick="javascript:window.history.go(-1);">뒤로가기</button>
+		</div>
+	</div>
+</body>
+</html>

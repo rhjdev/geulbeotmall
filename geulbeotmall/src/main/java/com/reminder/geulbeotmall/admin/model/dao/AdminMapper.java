@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 
@@ -46,4 +47,20 @@ public interface AdminMapper {
 	int insertAccSuspension(String memberId, String accSuspDesc);
 
 	int updateAccActivation(String memberId);
+
+	List<OrderDetailDTO> getTotalOrderList(Criteria criteria);
+
+	List<OrderDetailDTO> getPreparingOnly(Criteria criteria);
+
+	List<OrderDetailDTO> getDeliveringOnly(Criteria criteria);
+
+	List<OrderDetailDTO> getCompletedOnly(Criteria criteria);
+
+	int updateDeliveryStatus(String dlvrStatus, String orderNo);
+
+	OrderDetailDTO getOrderDetailsByOrderNo(String orderNo);
+
+	int updateDispatchDate(String orderNo);
+
+	int updateDeliveryDate(String orderNo);
 }
