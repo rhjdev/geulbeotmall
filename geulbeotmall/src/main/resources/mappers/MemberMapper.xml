@@ -138,6 +138,10 @@
 		<result property="optionNo" column="OPTION_NO"/>
 		<result property="orderQuantity" column="ORDER_QUANTITY"/>
 		<result property="orderAmount" column="ORDER_AMOUNT"/>
+		<association property="product" resultMap="productResultMap"/>
+		<association property="brand" resultMap="brandResultMap"/>
+		<association property="attachmentList" resultMap="thumbnailResultMap"/>
+		<collection property="option" resultMap="optionResultMap"/>
 	</resultMap>
 	
 	<!-- 주문결제정보 조회용 -->
@@ -393,6 +397,66 @@
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
 		   AND A.ORDER_NO = #{ orderNo }
+	</select>
+	
+	<!-- 주문번호별 주문금액 합계 조회 -->
+	<select id="getTotalOrderAmountByOrderNo" resultType="_int">
+		SELECT
+			   SUM(ORDER_AMOUNT)
+		  FROM TBL_ORDER
+		 WHERE ORDER_NO = #{ orderNo }
+	</select>
+	
+	<!-- 주문번호별 상품 옵션 조회 -->
+	<select id="getOptionListByOrderNo" resultMap="orderResultMap">
+		SELECT
+			   A.OPTION_NO
+			 , A.ORDER_QUANTITY
+			 , A.ORDER_AMOUNT
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+			 , P.PROD_NO
+			 , P.PROD_NAME
+			 , B.BRAND_NAME
+			 , T.THUMBNAIL_PATH
+		  FROM TBL_ORDER A
+		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+		  LEFT JOIN TBL_BRAND B ON(P.BRAND_NO = B.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE A.ORDER_NO = #{ orderNo }
+	</select>
+	
+	<!-- 작성 가능한 리뷰 조회 -->
+	<select id="getItemsToPostAReview" resultMap="orderResultMap">
+		SELECT
+			   A.ORDER_NO
+			 , A.OPTION_NO
+			 , B.ORDER_DATE
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+			 , P.PROD_NO
+			 , P.PROD_NAME
+			 , B.BRAND_NAME
+			 , T.THUMBNAIL_PATH
+		  FROM TBL_ORDER A
+		  LEFT JOIN TBL_ORDER_DETAIL B ON(A.ORDER_NO = B.ORDER_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+		  LEFT JOIN TBL_BRAND B ON(P.BRAND_NO = B.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE B.MEMBER_ID = #{ memberId }
+		   AND A.ORDER_NO NOT IN (SELECT ORDER_NO FROM TBL_REVIEW)
+	</select>
+	
+	<!-- 작성한 모든 리뷰 조회 -->
+	<select id="getMembersReview">
+		SELECT
+			   
 	</select>
 	
 	<!-- 현재 위시리스트 조회 -->

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dao.MemberMapper;
@@ -171,5 +172,20 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public List<PointDTO> getReserveDetails(String memberId) {
 		return memberMapper.getReserveDetails(memberId);
+	}
+
+	@Override
+	public List<OrderDTO> getOptionListByOrderNo(String orderNo) {
+		return memberMapper.getOptionListByOrderNo(orderNo);
+	}
+
+	@Override
+	public int getTotalOrderAmountByOrderNo(String orderNo) {
+		return memberMapper.getTotalOrderAmountByOrderNo(orderNo);
+	}
+
+	@Override
+	public List<OrderDTO> getItemsToPostAReview(String memberId) {
+		return memberMapper.getItemsToPostAReview(memberId);
 	}
 }

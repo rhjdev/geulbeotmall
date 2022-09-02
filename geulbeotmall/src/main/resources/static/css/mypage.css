@@ -180,6 +180,62 @@
 	--bs-table-striped-bg: rgba(0, 0, 0, 0.03) !important;
 }
 
+.review-notice {
+	padding-left: 0;
+}
+
+.review-notice > li {
+	position: relative;
+    padding-left: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.review-notice > li:before {
+    position: absolute;
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    bottom: 10px;
+    left: 0;
+	content: "";
+    background-color: #000;
+}
+
+#reviewTab {
+	border-bottom: 0;
+	width: 100%;
+	height: 44px;
+}
+
+#reviewTab > li {
+	width: 50%;
+	height: 100%;
+}
+
+#reviewTab > .nav-item > .nav-link {
+	border-bottom: 2px solid #000;
+	color: #E5E5E5;
+}
+
+#reviewTab > .nav-item > .nav-link.active {
+	border: 0;
+	border-radius: 0;
+	border-bottom: 2px solid #000;
+	background-color: #000;
+	color: #fff;
+}
+
+#reviewTab > li > button {
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0 auto;
+	border: 0;
+	background-color: transparent;
+	vertical-align: middle;
+}
+
 .orderdetail-container {
 	margin-top: 30px;
 }
@@ -267,7 +323,8 @@
 }
 
 .wishlist-table > tbody > tr > td > .buttonBox,
-.orderlist-table > tbody > tr > td > .buttonBox {
+.orderlist-table > tbody > tr > td > .buttonBox,
+.reviewlist-table > tbody > tr > td > .buttonBox {
 	margin-block-start: 0;
 	margin-block-end: 0;
 	margin-inline-start: 0;
@@ -275,7 +332,8 @@
 }
 
 .wishlist-table > tbody > tr > td > .buttonBox > button,
-.orderlist-table > tbody > tr > td > .buttonBox > button {
+.orderlist-table > tbody > tr > td > .buttonBox > button,
+.reviewlist-table > tbody > tr > td > .buttonBox > button {
 	width: auto;
     height: 33px !important;
     box-shadow: none !important;
@@ -283,7 +341,8 @@
 	border-radius: 0 !important;
 }
 
-.orderlist-table > tbody > tr > td > .buttonBox > button {
+.orderlist-table > tbody > tr > td > .buttonBox > button,
+.reviewlist-table > tbody > tr > td > .buttonBox > button {
 	width: 93px;
 }
 

@@ -57,7 +57,7 @@
 			    			<td>
 			    			<div class="buttonBox">
 			    				<th:block th:if="${ orderList.dlvrStatus } == '배송완료'">
-				    				<button type="button" class="reviewBtn btn btn-sm btn-dark">리뷰쓰기</button><br>
+				    				<button type="button" class="reviewBtn btn btn-sm btn-dark" th:onclick="|location.href='@{/review/write(no=${orderList.orderNo})}'|">리뷰쓰기</button><br>
 			    				</th:block>
 			    				<button type="button" class="detailBtn btn btn-sm" th:onclick="|location.href='@{/mypage/order/details(no=${orderList.orderNo})}'|">주문상세</button>
 			    			</div>

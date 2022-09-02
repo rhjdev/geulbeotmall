@@ -25,6 +25,7 @@ $('.nav-link').click(function(){
 function manageDeliveryStatus() {
 	let dlvrValue = document.getElementById('dlvrValue').value;
 	let checkbox = $('input[name=checkItem]:checked');
+	let detailNo = $('input[name=orderNo]').val();
 	let orderNo = "";
 	let arr = new Array();
 	//1-1. 전체목록에서 상태변경
@@ -52,6 +53,13 @@ function manageDeliveryStatus() {
 		})
 	}
 	//2. 상세정보에서 배송상태변경
+	if(detailNo) {
+		orderNo = detailNo;
+		console.log(detailNo);
+		arr.push(orderNo);
+	}
+	console.log(dlvrValue);
+	console.log(arr);
 	
 	$.ajax({
 		url : '/admin/order/manageDeliveryStatus',

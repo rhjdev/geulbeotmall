@@ -7,11 +7,18 @@
    	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <style>
+			.table-hover > tbody > tr:hover > *, .dataTable-table > tbody > tr:hover > * {
+				--bs-table-accent-bg: none !important;
+				border-bottom: 0 !important;
+				cursor: default;
+			}
+	    </style>
 	</th:block>
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
-	<div layout:fragment="mypageContent" th:object="${ memberOrderDetails }">
-		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb" th:object="${ memberOrderDetails }">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="/">HOME</a></li>
 				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
@@ -23,7 +30,7 @@
 			<fieldset>
 				<legend>주문상세정보</legend>
 			</fieldset>
-			<div class="orderDetailCard card mb-4">
+			<div class="orderDetailCard card mb-4" th:object="${ memberOrderDetails }">
 				<div class="card-body">
 					<b>주문일자</b>
 					<span th:text="*{ orderDate }"></span>
@@ -44,31 +51,36 @@
 			    		</tr>
 			    	</thead>
 			    	<tbody>
-			    		<tr>
-			    			<td><img th:src="*{ product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+			    		<tr th:each="detail : ${ orderOptionList }" th:if="${not #lists.isEmpty(detail)}">
+			    			<td><img th:src="*{ detail.product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
 			    			<td class="option-area">
-			    				<a th:href="@{/product/details(no=*{ product.prodNo })}" th:text="*{ product.prodName }"></a>
+			    				<a th:href="@{/product/details(no=*{ detail.product.prodNo })}" th:text="${ detail.product.prodName }"></a>
 			    				<p>
-			    					<span th:text="|*{ option.pointSize }mm|"></span>
-				    				<th:block th:if="*{ option.bodyColor != '(해당없음)' }">
-				    					<span th:text="|/ ${#strings.replace(memberOrderDetails.option.bodyColor, '$', ',')}|"></span>
+			    					<span th:text="|${ detail.option.pointSize }mm|"></span>
+				    				<th:block th:if="${ detail.option.bodyColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(detail.option.bodyColor, '$', ',')}|"></span>
 				    				</th:block>
-				    				<th:block th:if="*{ option.inkColor != '(해당없음)' }">
-				    					<span th:text="|/ ${#strings.replace(memberOrderDetails.option.inkColor, '$', ',')}|"></span>
+				    				<th:block th:if="${ detail.option.inkColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(detail.option.inkColor, '$', ',')}|"></span>
 				    				</th:block>
 				    			</p>
 			    			</td>
 			    			<td>
-			    				<span th:text="|${#numbers.formatInteger(memberOrderDetails.order.orderAmount, 3, 'COMMA')}원|"></span><br>
-			    				<p><span th:text="|(*{ order.orderQuantity }개)|"></span></p>
+			    				<span th:text="|${#numbers.formatInteger(detail.orderAmount, 3, 'COMMA')}원|"></span><br>
+			    				<p><span th:text="|(${ detail.orderQuantity }개)|"></span></p>
 			    			</td>
-			    			<td>
-			    				<span th:text="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|"></span><br>
-			    				<p><span th:text="*{ brand.brandName }"></span></p>
+			    			<td class="detail">
+			    				<th:block th:if="${ memberOrderDetails.delivery.deliveryFee > 0}">
+				    				<span th:text="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|"></span><br>
+			    				</th:block>
+			    				<th:block th:if="${ memberOrderDetails.delivery.deliveryFee == 0}">
+				    				<span th:text="|0원|"></span><br>
+			    				</th:block>
+			    				<p><span th:text="${ memberOrderDetails.brand.brandName }"></span></p>
 			    			</td>
-			    			<td th:text="*{ dlvrStatus }"></td>
+			    			<td class="detail" th:text="${ memberOrderDetails.dlvrStatus }"></td>
 			    			<!-- 배송상태는 상품준비중 > 배송중 > 배송완료로 구분 -->
-			    			<th:block th:switch="*{ dlvrStatus }">
+			    			<th:block th:switch="${ memberOrderDetails.dlvrStatus }">
 				    			<th:block th:case="'상품준비중'">
 					    			<td>-</td>
 					    			<td>-</td>
@@ -78,8 +90,8 @@
 					    			<td>-</td>
 				    			</th:block>
 				    			<th:block th:case="'배송완료'">
-					    			<td th:text="${#dates.format(memberOrderDetails.delivery.dispatchDate, 'yyyy-MM-dd')}"></td>
-					    			<td th:text="${#dates.format(memberOrderDetails.delivery.deliveryDate, 'yyyy-MM-dd')}"></td>
+					    			<td class="detail" th:text="${#dates.format(memberOrderDetails.delivery.dispatchDate, 'yyyy-MM-dd')}"></td>
+					    			<td class="detail" th:text="${#dates.format(memberOrderDetails.delivery.deliveryDate, 'yyyy-MM-dd')}"></td>
 				    			</th:block>
 			    			</th:block>
 			    		</tr>
@@ -88,7 +100,7 @@
 				<fieldset>
 					<legend>주문/결제 금액 정보</legend>
 				</fieldset>
-				<table>
+				<table th:object="${ memberOrderDetails }">
 					<colgroup>
 						<col style="width: 10%;">
 						<col>
@@ -96,11 +108,18 @@
 					<tbody>
 						<tr>
 							<th>상품금액</th>
-							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.order.orderAmount, 3, 'COMMA')}원|" readonly></td>
+							<td><input type="text" th:value="|${#numbers.formatInteger(totalOrderAmount, 3, 'COMMA')}원|" readonly></td>
 						</tr>
 						<tr>
 							<th>배송비</th>
-							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|" readonly></td>
+							<td>
+							<th:block th:if="*{ delivery.deliveryFee > 0}">
+								<input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|" readonly>
+							</th:block>
+							<th:block th:if="*{ delivery.deliveryFee == 0}">
+								<input type="text" th:value="|0원|" readonly>
+							</th:block>
+							</td>
 						</tr>
 						<tr>
 							<th>포인트 사용</th>
@@ -115,7 +134,7 @@
 				<fieldset>
 					<legend>배송지 정보</legend>
 				</fieldset>
-				<table class="delivery-table">
+				<table class="delivery-table" th:object="${ memberOrderDetails }">
 					<colgroup>
 						<col style="width: 10%;">
 						<col>
@@ -149,5 +168,22 @@
 			</div>
 		</div>
 	</div>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script type="text/javascript">
+	    	/* 주문상세 테이블 병합 */
+	    	$(document).ready(function(){
+	    		console.log('테스트');
+		    	$('.detail').each(function(){
+		    		let rows = $(".detail:contains('" + $(this).text() + "')");
+		    		console.log(rows);
+		    		if(rows.length > 1) {
+		    			rows.eq(0).attr('rowspan', rows.length);
+		    			rows.not(':eq(0)').remove();
+		    		}
+		    	});
+	    	});
+    	</script>
+	</th:block>
 </body>
 </html>

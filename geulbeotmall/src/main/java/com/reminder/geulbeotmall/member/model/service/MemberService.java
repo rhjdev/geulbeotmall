@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
@@ -44,4 +45,10 @@ public interface MemberService extends UserDetailsService {
 	List<PointDTO> getReserveDetails(String memberId);
 
 	OrderDetailDTO getMemberOrderDetails(String memberId, String orderNo);
+
+	List<OrderDTO> getOptionListByOrderNo(String orderNo);
+
+	int getTotalOrderAmountByOrderNo(String orderNo);
+
+	List<OrderDTO> getItemsToPostAReview(String memberId);
 }

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <style>
+			.table-hover > tbody > tr:hover > *, .dataTable-table > tbody > tr:hover > * {
+				--bs-table-accent-bg: none !important;
+				border-bottom: 0 !important;
+				cursor: default;
+			}
+	    </style>
+	</th:block>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">상품리뷰</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>상품리뷰</legend>
+			</fieldset>
+			<ul class="review-notice">
+				<li>글벗문구는 상품리뷰 <b>100원</b> / 포토리뷰 <b>300원</b>을 적립해 드리고 있습니다.</li>
+				<li>상품 문의, 확인되지 않은 사항, 미풍양속을 해치는 글은 관리자가 임의로 삭제할 수 있으니 양해 바랍니다.</li>
+			</ul>
+			<!-- 작성가능한 리뷰 | 나의 상품리뷰 -->
+			<ul class="nav nav-tabs" id="reviewTab" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="write-tab" data-bs-toggle="tab" data-bs-target="#write" type="button" role="tab" aria-controls="write" aria-selected="true">작성가능한 리뷰</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">나의 상품리뷰</button>
+				</li>
+			</ul>
+			<div class="tab-content" id="myTabContent">
+				<div class="tab-pane fade show active" id="write" role="tabpanel" aria-labelledby="write-tab">
+					<div class="dataTable-container">
+						<table class="reviewlist-table dataTable-table">
+					    	<tbody>
+					    		<tr th:each="itemList : ${ itemList }" th:if="${not #lists.isEmpty(itemList)}">
+					    			<td th:value="${ itemList.orderNo }"><img th:src="${ itemList.product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+					    			<td class="option-area" th:value="${ itemList.optionNo }">
+						    			<a th:href="@{/product/details(no=${itemList.product.prodNo})}">[[${ itemList.product.prodName }]]</a>
+						    			<p>
+					    					<span>[[${ itemList.option.pointSize }]]mm</span>
+						    				<th:block th:if="${ itemList.option.bodyColor != '(해당없음)' }">
+						    					<span th:text="|/ ${#strings.replace(itemList.option.bodyColor, '$', ',')}|"></span>
+						    				</th:block>
+						    				<th:block th:if="${ itemList.option.inkColor != '(해당없음)' }">
+						    					<span th:text="|/ ${#strings.replace(itemList.option.inkColor, '$', ',')}|"></span>
+						    				</th:block>
+						    			</p>
+					    			</td>
+					    			<td>
+						    			<div class="buttonBox">
+						    				<button type="button" class="reviewBtn btn btn-sm btn-dark" th:onclick="|location.href='@{/review/write(no=${itemList.orderNo})}'|">리뷰쓰기</button>
+						    			</div>
+					    			</td>
+					    		</tr>
+					    		<tr class="noitem" th:unless="${#lists.size(itemList)} > 0">
+			                		<td colspan="9">
+				                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+				                		<div>작성 가능한 리뷰가 없습니다.</div>
+			                		</td>
+			                	</tr>
+					    	</tbody>
+					    </table>
+					</div>
+				</div>
+				<div class="tab-pane fade show" id="review" role="tabpanel" aria-labelledby="review-tab">
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

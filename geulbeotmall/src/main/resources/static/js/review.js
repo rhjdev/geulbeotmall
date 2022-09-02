@@ -27,7 +27,7 @@ function previewImage() {
 
 function reselectImage() {
 	let index = Array.from(imageItem).indexOf(this); //imageItem 기준으로 index 생성
-	//console.log(index);
+	console.log(index);
 	if(index == 0) {
 		fileItems[index].click();
 	}
