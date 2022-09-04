@@ -10,6 +10,7 @@ import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 
 @Mapper
 public interface MemberMapper {
@@ -56,4 +57,8 @@ public interface MemberMapper {
 	int getTotalOrderAmountByOrderNo(String orderNo);
 
 	List<OrderDTO> getItemsToPostAReview(String memberId);
+
+	OrderDTO postAReview(String memberId, String orderNo, int optionNo);
+
+	List<ReviewDTO> getMemberReviewPosts(String memberId);
 }

@@ -15,16 +15,30 @@
     </div>
     <div class="container content-wrapper">
     	<div class="writeBox">
-    		<form id="writeForm" name="writeForm" class="write-form" th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+    		<form id="writeForm" name="writeForm" class="write-form" th:action="@{/review/write}" method="post" enctype="multipart/form-data" onsubmit="return submitWriteForm(this);">
     			<fieldset>
 					<legend>상품 정보</legend>
 				</fieldset>
 				<table>
 					<tbody>
-						<tr>
-							<th><img style="width: 100px; height: 100px;"></th>
-							<td><input type="text" readonly></td>
-						</tr>
+						<tr th:object="${ reviewOption }">
+			    			<td><img th:src="*{ product.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+			    			<td class="option-area" th:value="*{ product.prodNo }">
+				    			<a th:href="@{/product/details(no=*{product.prodNo})}">[[*{ product.prodName }]]</a>
+				    			<p>
+			    					<span>[[*{ option.pointSize }]]mm</span>
+				    				<th:block th:if="*{ option.bodyColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(reviewOption.option.bodyColor, '$', ',')}|"></span>
+				    				</th:block>
+				    				<th:block th:if="*{ option.inkColor != '(해당없음)' }">
+				    					<span th:text="|/ ${#strings.replace(reviewOption.option.inkColor, '$', ',')}|"></span>
+				    				</th:block>
+				    			</p>
+			    			</td>
+			    			<td class="dlvrDate">
+			    			<span th:utext="|주문일 : ${reviewOption.orderDetail.orderDate}"></span><br>
+			    			<span th:utext="|배송완료일 : ${#dates.format(reviewOption.delivery.deliveryDate, 'yyyy-MM-dd')}|"></span></td>
+			    		</tr>
 					</tbody>
 				</table>
     			<fieldset>
@@ -39,7 +53,9 @@
 						<tr>
 							<th>제목</th>
 							<td>
-								<input type="text" id="title" placeholder="제목을 입력하세요">
+								<input type="text" id="orderNo" name="orderNo" th:value="${ reviewOption.orderNo }" hidden="hidden">
+								<input type="text" id="optionNo" name="optionNo" th:value="${ reviewOption.optionNo }" hidden="hidden">
+								<input type="text" id="revwTitle" name="revwTitle" placeholder="제목을 입력하세요">
 							</td>
 						</tr>
 					</thead>
@@ -48,15 +64,15 @@
 							<th>별점</th>
 							<td colspan="2">
 								<div class="stars">
-									<input type="radio" id="one" name="rating" value="1">
+									<input type="radio" id="one" name="revwRatings" value="1">
 									<label for="one">&#9733;</label>
-									<input type="radio" id="two" name="rating" value="2">
+									<input type="radio" id="two" name="revwRatings" value="2">
 									<label for="two">&#9733;</label>
-									<input type="radio" id="three" name="rating" value="3">
+									<input type="radio" id="three" name="revwRatings" value="3">
 									<label for="three">&#9733;</label>
-									<input type="radio" id="four" name="rating" value="4">
+									<input type="radio" id="four" name="revwRatings" value="4">
 									<label for="four">&#9733;</label>
-									<input type="radio" id="five" name="rating" value="5">
+									<input type="radio" id="five" name="revwRatings" value="5">
 									<label for="five">&#9733;</label>
 								</div>
 							</td>
@@ -65,7 +81,7 @@
 							<th>내용</th>
 							<td>
 								<div>
-									<textarea id="content" name="content"></textarea>
+									<textarea id="revwContent" name="revwContent"></textarea>
 								</div>
 							</td>
 						</tr>
@@ -108,7 +124,7 @@
 				</table>
 				<div class="buttonBox">
 					<button type="button" class="cancelBtn btn" onclick="history.back()">취소</button>
-					<button type="button" class="writeBtn btn btn-dark">등록</button>
+					<button type="submit" class="writeBtn btn btn-dark">등록</button>
 				</div>
     		</form>
     	</div>
@@ -124,7 +140,7 @@
 						filebrowserUploadUrl : '/',
 						language : 'ko'
 				};
-				CKEDITOR.replace('content', ckeditor_config);
+				CKEDITOR.replace('revwContent', ckeditor_config);
 		  	});
 		</script>
     </th:block>

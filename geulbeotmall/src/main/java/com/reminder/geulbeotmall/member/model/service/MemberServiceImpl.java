@@ -21,6 +21,7 @@ import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.RoleDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 
 @Transactional
 @Service("memberService")
@@ -187,5 +188,15 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public List<OrderDTO> getItemsToPostAReview(String memberId) {
 		return memberMapper.getItemsToPostAReview(memberId);
+	}
+
+	@Override
+	public OrderDTO postAReview(String memberId, String orderNo, int optionNo) {
+		return memberMapper.postAReview(memberId, orderNo, optionNo);
+	}
+
+	@Override
+	public List<ReviewDTO> getMemberReviewPosts(String memberId) {
+		return memberMapper.getMemberReviewPosts(memberId);
 	}
 }

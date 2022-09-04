@@ -112,6 +112,35 @@ li {
 	list-style: none;
 }
 
+.option-area > a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+}
+
+.option-area > p {
+    color: #6c757d;
+    font-size: 14px;
+    vertical-align: middle;
+    margin-bottom: 0 !important;
+}
+
+.option-area > p > span {
+    display: inline-block;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dlvrDate {
+	color: #6c757d;
+    font-size: 14px;
+	text-align: center;
+    vertical-align: middle;
+    margin-bottom: 0 !important;
+}
+
 /* 등록 버튼 */
 .buttonBox {
 	margin-top: 80px;

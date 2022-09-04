@@ -63,7 +63,7 @@
 					    			</td>
 					    			<td>
 						    			<div class="buttonBox">
-						    				<button type="button" class="reviewBtn btn btn-sm btn-dark" th:onclick="|location.href='@{/review/write(no=${itemList.orderNo})}'|">리뷰쓰기</button>
+						    				<button type="button" class="reviewBtn btn btn-sm btn-dark" th:onclick="|location.href='@{/review/write(order=${itemList.orderNo}, option=${itemList.optionNo})}'|">리뷰쓰기</button>
 						    			</div>
 					    			</td>
 					    		</tr>
@@ -78,6 +78,33 @@
 					</div>
 				</div>
 				<div class="tab-pane fade show" id="review" role="tabpanel" aria-labelledby="review-tab">
+					<div class="dataTable-container">
+						<table class="postlist-table dataTable-table">
+							<thead style="border-top: 0 !important;">
+					    		<tr>
+					    			<th><span>#</span></th>
+					    			<th colspan="2"><span>제목</span></th>
+					    			<th><span>작성일</span></th>
+					    			<th><span>조회수</span></th>
+					    		</tr>
+					    	</thead>
+					    	<tbody>
+					    		<tr th:each="postList : ${ postList }" th:if="${not #lists.isEmpty(postList)}">
+					    			<td th:text="${ postListStat.count }"></td>
+					    			<td th:value="${ postList.orderNo }"><img th:src="${ postList.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+					    			<td th:text="${ postList.revwTitle }"></td>
+					    			<td th:text="${#dates.format(postList.revwRegDate, 'yy.MM.dd')}"></td>
+					    			<td th:text="${ postList.revwHits }"></td>
+					    		</tr>
+					    		<tr class="noitem" th:unless="${#lists.size(postList)} > 0">
+			                		<td colspan="9">
+				                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+				                		<div>작성한 리뷰가 없습니다.</div>
+			                		</td>
+			                	</tr>
+					    	</tbody>
+					    </table>
+					</div>
 				</div>
 			</div>
 		</div>

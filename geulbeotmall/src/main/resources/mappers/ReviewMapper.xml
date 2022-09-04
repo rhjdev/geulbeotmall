@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.review.model.dao.ReviewMapper">
+	<!-- 리뷰 작성 -->
+	<insert id="postAReview">
+		INSERT
+		  INTO TBL_REVIEW
+		(
+		  REVIEW_NO
+		, OPTION_NO
+		, ORDER_NO
+		, MEMBER_ID
+		, REVW_TITLE
+		, REVW_CONTENT
+		, REVW_REG_DATE
+		, REVW_HITS
+		, REVW_RATINGS
+		)
+		VALUES
+		(
+		  SEQ_REVIEW_NO.NEXTVAL
+		, #{ optionNo }
+		, #{ orderNo }
+		, #{ memberId }
+		, #{ revwTitle }
+		, #{ revwContent }
+		, SYSDATE
+		, DEFAULT
+		, #{ revwRatings }
+		)
+	</insert>
+	
+	<!-- 현재 리뷰번호 조회 -->
+	<select id="checkCurrReviewNo" resultType="int">
+		SELECT
+			   SEQ_REVIEW_NO.CURRVAL
+		  FROM DUAL
+	</select>
+	
+	<!-- 리뷰 이미지 등록 -->
+	<insert id="attachReviewImages">
+		INSERT
+		  INTO TBL_ATTACHMENT
+		(
+		  ATTACHMENT_NO
+		, REF_PROD_NO
+		, REF_REVW_NO
+		, ORIG_FILE_NAME
+		, SAVE_FILE_NAME
+		, SAVE_PATH
+		, THUMBNAIL_PATH
+		, FILE_TYPE
+		, ATTACH_STATUS_YN
+		)
+		VALUES
+		(
+		  SEQ_ATTACH_NO.NEXTVAL
+		, NULL
+		, #{ refRevwNo }
+		, #{ origFileName }
+		, #{ saveFileName }
+		, #{ savePath }
+		, #{ thumbnailPath }
+		, #{ fileType }
+		, DEFAULT
+		)
+	</insert>
+	
+	<!-- 리뷰 조회수 증가 -->
+	<update id="incrementReviewViewCount">
+		UPDATE
+			   TBL_REVIEW A
+		   SET A.REVW_HITS = (SELECT
+		   							 B.REVW_HITS
+		   						FROM TBL_PRODUCT B
+		   					   WHERE B.REVIEW_NO = #{ reviewNo }
+		   					  ) + 1
+		 WHERE A.REVIEW_NO = #{ reviewNo }
+	</update>
+</mapper>

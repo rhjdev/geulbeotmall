@@ -9,6 +9,7 @@ import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 
 /**
  * Spring Security 모듈 UserDetailsService 상속 받아 로그인/로그아웃 로직 처리
@@ -51,4 +52,8 @@ public interface MemberService extends UserDetailsService {
 	int getTotalOrderAmountByOrderNo(String orderNo);
 
 	List<OrderDTO> getItemsToPostAReview(String memberId);
+
+	OrderDTO postAReview(String memberId, String orderNo, int optionNo);
+
+	List<ReviewDTO> getMemberReviewPosts(String memberId);
 }
