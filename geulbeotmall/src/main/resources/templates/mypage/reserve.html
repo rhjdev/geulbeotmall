@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+   	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">적립금</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>적립금 사용내역</legend>
+			</fieldset>
+			<div class="dataTable-container">
+				<table class="orderlist-table dataTable-table table-striped">
+					<thead>
+			    		<tr>
+			    			<th><span>구분</span></th>
+			    			<th><span>적립정보</span></th>
+			    			<th><span>금액</span></th>
+			    		</tr>
+			    	</thead>
+			    	<tbody>
+			    		<tr th:each="pointList : ${ memberPointList }" th:if="${not #lists.isEmpty(pointList)}">
+			    			<td th:text="${ pointList.pointStatus }"></td>
+			    			<td th:text="${ pointList.pointDateTime }"></td>
+			    			<td th:text="${ pointList.pointAmount }"></td>
+			    		</tr>
+			    	</tbody>
+			    </table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

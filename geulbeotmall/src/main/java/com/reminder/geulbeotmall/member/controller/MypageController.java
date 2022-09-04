@@ -24,6 +24,7 @@ import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +89,9 @@ public class MypageController {
 	@GetMapping("review")
 	public void getReviewList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<OrderDTO> itemList = memberService.getItemsToPostAReview(user.getMemberId());
+		List<ReviewDTO> postList = memberService.getMemberReviewPosts(user.getMemberId());
 		model.addAttribute("itemList", itemList);
+		model.addAttribute("postList", postList);
 	}
 	
 	/**

@@ -10,4 +10,5 @@ public class PointDTO {
 	private int pointAmount;
 	private String pointDateTime;
 	private String pointStatus;
+	private PaymentDTO payment;
 }
