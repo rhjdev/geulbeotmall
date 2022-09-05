@@ -577,4 +577,18 @@
 		  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
 		 WHERE C.MEMBER_ID = #{ memberId }
 	</select>
+	
+	<!-- 현재 보유 적립금 -->
+	<select id="getMemberPoint" resultType="_int">
+		SELECT
+			   (SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
+				  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+				  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+				 WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립') - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
+																				  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+																				  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+																				 WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용')
+		  FROM DUAL
+	</select>
+	
 </mapper>

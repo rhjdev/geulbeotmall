@@ -44,8 +44,9 @@ public class MypageController {
 	 * 마이페이지 메인
 	 */
 	@GetMapping("main")
-	public void getMypage(@AuthenticationPrincipal UserImpl user) { //로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
+	public void getMypage(@AuthenticationPrincipal UserImpl user, Model model) { //로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 	}
 	
 	/**
@@ -54,6 +55,7 @@ public class MypageController {
 	@GetMapping("order")
 	public void getOrderList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<OrderDetailDTO> memberOrderList = memberService.getMemberOrderList(user.getMemberId());
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("memberOrderList", memberOrderList);
 	}
 	
@@ -78,6 +80,7 @@ public class MypageController {
 		
 		int totalOrderAmount = memberService.getTotalOrderAmountByOrderNo(orderNo);
 		
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("memberOrderDetails", memberOrderDetails);
 		model.addAttribute("orderOptionList", orderOptionList);
 		model.addAttribute("totalOrderAmount", totalOrderAmount);
@@ -90,6 +93,7 @@ public class MypageController {
 	public void getReviewList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<OrderDTO> itemList = memberService.getItemsToPostAReview(user.getMemberId());
 		List<ReviewDTO> postList = memberService.getMemberReviewPosts(user.getMemberId());
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("itemList", itemList);
 		model.addAttribute("postList", postList);
 	}
@@ -100,6 +104,7 @@ public class MypageController {
 	@GetMapping("wishlist")
 	public void getWishList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<WishListDTO> memberWishList = memberService.getMemberWishList(user.getMemberId());
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("memberWishList", memberWishList);
 	}
 
@@ -193,6 +198,7 @@ public class MypageController {
 	@GetMapping("reserve")
 	public void getReserveDetails(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<PointDTO> memberPointList = memberService.getReserveDetails(user.getMemberId());
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("memberPointList", memberPointList);
 	}
 }

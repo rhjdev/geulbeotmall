@@ -77,4 +77,33 @@
 		   					  ) + 1
 		 WHERE A.REVIEW_NO = #{ reviewNo }
 	</update>
+	
+	<!-- 주문번호 기준 결제번호 조회 -->
+	<select id="getPaymentNoByOrderNo" resultType="string">
+		SELECT
+			   PAYMENT_NO
+		  FROM TBL_PAYMENT
+		 WHERE ORDER_NO = #{ orderNo }
+	</select>
+	
+	<!-- 리뷰 적립금 추가 -->
+	<insert id="savePoints">
+		INSERT
+		  INTO TBL_POINT
+		(
+		  POINT_NO
+		, PAYMENT_NO
+		, POINT_AMOUNT
+		, POINT_DATETIME
+		, POINT_STATUS
+		)
+		VALUES
+		(
+		  SEQ_POINT_NO.NEXTVAL
+		, #{ paymentNo }
+		, #{ pointAmount }
+		, SYSDATE
+		, #{ pointStatus }
+		)
+	</insert>
 </mapper>

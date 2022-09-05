@@ -3,6 +3,7 @@ package com.reminder.geulbeotmall.review.model.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.review.model.dao.ReviewMapper;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
@@ -30,5 +31,15 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public int postAReview(ReviewDTO reviewDTO) {
 		return reviewMapper.postAReview(reviewDTO);
+	}
+	
+	@Override
+	public String getPaymentNoByOrderNo(String orderNo) {
+		return reviewMapper.getPaymentNoByOrderNo(orderNo);
+	}
+
+	@Override
+	public int savePoints(PointDTO pointDTO) {
+		return reviewMapper.savePoints(pointDTO);
 	}
 }

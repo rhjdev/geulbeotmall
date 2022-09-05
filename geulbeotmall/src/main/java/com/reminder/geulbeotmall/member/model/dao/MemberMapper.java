@@ -61,4 +61,6 @@ public interface MemberMapper {
 	OrderDTO postAReview(String memberId, String orderNo, int optionNo);
 
 	List<ReviewDTO> getMemberReviewPosts(String memberId);
+
+	int getMemberPoint(String memberId);
 }

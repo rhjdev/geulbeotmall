@@ -199,4 +199,9 @@ public class MemberServiceImpl implements MemberService {
 	public List<ReviewDTO> getMemberReviewPosts(String memberId) {
 		return memberMapper.getMemberReviewPosts(memberId);
 	}
+
+	@Override
+	public int getMemberPoint(String memberId) {
+		return memberMapper.getMemberPoint(memberId);
+	}
 }

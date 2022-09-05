@@ -13,8 +13,33 @@
 				border-bottom: 0 !important;
 				cursor: default;
 			}
+			#imageNotFound {
+				width: 80px;
+			    height: 80px;
+			    background-color: #f9f9f9;
+			    border: 1px solid #E5E5E5;
+			    font-size: 36px;
+			    color: #6c757d;
+			    text-align: center;
+			    margin: 0 auto;
+			    cursor: pointer;
+			}
+			#imageNotFound > i {
+			    text-align: center;
+			    vertical-align: sub;
+			}
 	    </style>
 	</th:block>
+	<!-- 리뷰 작성 결과 메시지 -->
+	<script>
+		const successMessage = '[[${successMessage}]]'
+		const errorMessage = '[[${errorMessage}]]'
+		if(successMessage) {
+			alert(successMessage);
+		} else if(errorMessage) {
+			alert(errorMessage);
+		}
+	</script>
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
 	<div layout:fragment="mypageContent">
@@ -30,13 +55,13 @@
 				<legend>상품리뷰</legend>
 			</fieldset>
 			<ul class="review-notice">
-				<li>글벗문구는 상품리뷰 <b>100원</b> / 포토리뷰 <b>300원</b>을 적립해 드리고 있습니다.</li>
+				<li>글벗문구는 텍스트리뷰 <b>100원</b> / 포토리뷰 <b>300원</b>을 적립해 드리고 있습니다.</li>
 				<li>상품 문의, 확인되지 않은 사항, 미풍양속을 해치는 글은 관리자가 임의로 삭제할 수 있으니 양해 바랍니다.</li>
 			</ul>
-			<!-- 작성가능한 리뷰 | 나의 상품리뷰 -->
+			<!-- 작성 가능한 리뷰 | 나의 상품리뷰 -->
 			<ul class="nav nav-tabs" id="reviewTab" role="tablist">
 				<li class="nav-item" role="presentation">
-					<button class="nav-link active" id="write-tab" data-bs-toggle="tab" data-bs-target="#write" type="button" role="tab" aria-controls="write" aria-selected="true">작성가능한 리뷰</button>
+					<button class="nav-link active" id="write-tab" data-bs-toggle="tab" data-bs-target="#write" type="button" role="tab" aria-controls="write" aria-selected="true">작성 가능한 리뷰</button>
 				</li>
 				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">나의 상품리뷰</button>
@@ -91,8 +116,13 @@
 					    	<tbody>
 					    		<tr th:each="postList : ${ postList }" th:if="${not #lists.isEmpty(postList)}">
 					    			<td th:text="${ postListStat.count }"></td>
-					    			<td th:value="${ postList.orderNo }"><img th:src="${ postList.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
-					    			<td th:text="${ postList.revwTitle }"></td>
+					    			<th:block th:if="${ postList.attachmentList[0].thumbnailPath != null }">
+						    			<td th:value="${ postList.orderNo }"><img th:src="${ postList.attachmentList[0].thumbnailPath }" style="width: 80px; height: 80px;"></td>
+					    			</th:block>
+					    			<th:block th:if="${ postList.attachmentList[0].thumbnailPath == null }">
+					    				<td th:value="${ postList.orderNo }" style="text-align: center;"><div id="imageNotFound"><i class="fa-solid fa-slash"></i></div></td>
+					    			</th:block>
+					    			<td><p><a>[[${ postList.revwTitle }]]</a></p></td>
 					    			<td th:text="${#dates.format(postList.revwRegDate, 'yy.MM.dd')}"></td>
 					    			<td th:text="${ postList.revwHits }"></td>
 					    		</tr>
