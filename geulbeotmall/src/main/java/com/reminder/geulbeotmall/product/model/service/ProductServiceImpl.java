@@ -13,6 +13,7 @@ import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 @Service("productService")
@@ -234,5 +235,20 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public BrandDTO getBrandByProdNo(int prodNo) {
 		return productMapper.getBrandByProdNo(prodNo);
+	}
+
+	@Override
+	public List<ReviewDTO> getReviewListByProdNo(int prodNo) {
+		return productMapper.getReviewListByProdNo(prodNo);
+	}
+
+	@Override
+	public double averageReviewRating(int prodNo) {
+		return productMapper.averageReviewRating(prodNo);
+	}
+
+	@Override
+	public int getPercentageOfRating(int total, int prodNo, int star) {
+		return productMapper.getPercentageOfRating(total, prodNo, star);
 	}
 }

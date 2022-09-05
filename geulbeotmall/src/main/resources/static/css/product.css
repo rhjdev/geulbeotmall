@@ -461,6 +461,129 @@ a:hover {
 	color: #00008b;
 }
 
+/* 상품리뷰 */
+.notice-area {
+	margin-top: 40px;
+}
+
+.review-notice {
+	display: block !important;
+}
+
+.review-notice > li {
+	position: relative;
+    padding-left: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.review-notice > li:before {
+    position: absolute;
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    bottom: 10px;
+    left: 0;
+    content: "";
+    background-color: #000;
+}
+
+.rating-area ul {
+    display: flex;
+    position: relative;
+    width: 100%;
+	height: 100%;
+    align-items: center;
+    margin: 14px auto;
+    padding-inline-start: 0;
+    margin-block-end: 0;
+}
+
+.rating-area ul > li {
+	list-style: none;
+}
+
+.rating-area {
+	display: table;
+	width: 100%;
+	height: 110px;
+	table-layout: fixed;
+	border-top: 1px solid #6c757d;
+    border-bottom: 1px solid #E5E5E5;
+    background-color: #f9f9f9;
+	margin-top: 16px;
+	margin-bottom: 40px;
+	cursor: default;
+}
+
+.info-title {
+	display: table-cell;
+	width: 320px;
+	font-size: 22px;
+	font-weight: 700;
+	text-align: center;
+	vertical-align: middle;
+}
+.info-list {
+	display: table-cell;
+	width: 70%;
+	padding: 24px 0;
+	text-align: center;
+}
+
+.info-list > ul {
+	display: flex !important;
+	margin: auto;
+}
+
+.info-list > ul > li {
+	position: relative;
+	float: left;
+	width: 33%;
+}
+
+.info-list > ul > li > a {
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.info-list > ul > li > a > b {
+	font-size: 32px;
+}
+
+.info-list > ul > li:after {
+	position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 1px;
+    height: 100%;
+    min-height: 20px;
+    background-color: #E5E5E5;
+    content: '';
+}
+
+.info-list > ul > li:nth-child(3):after {
+	display: none;
+}
+
+.progress-area {
+	display: inline-flex;
+	width: 400px;
+	font-size: 12px;
+	text-align: left !important;
+}
+
+.progress-area > .stars {
+	width: 30%;
+	text-align: right;
+}
+
+.progress-area > .progress {
+	width: 220px;
+	margin-inline-start: 8px;
+}
+
 /* ====================================== */
 
 .product-breadcrumb {

@@ -21,14 +21,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,6 +44,7 @@ import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.dto.StockDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -617,6 +616,16 @@ public class ProductController {
 			}
 		}
 		
+		/* 상품별 리뷰 목록 조회 */
+		List<ReviewDTO> reviewList = productService.getReviewListByProdNo(prodNo);
+		double averageRating = productService.averageReviewRating(prodNo);
+		List<Integer> percentageList = new ArrayList<>();
+		for(int i=1; i <= 5; i++) {
+			int percentage = productService.getPercentageOfRating(reviewList.size(), prodNo, i);
+			log.info("i : {}", percentage);
+			percentageList.add(percentage);
+		}
+		
 		model.addAttribute("detail", detail);
 		model.addAttribute("option", option);
 		model.addAttribute("bodyColor", bodyColor);
@@ -625,6 +634,9 @@ public class ProductController {
 		model.addAttribute("tagList", tagList);
 		model.addAttribute("mainThumb", mainThumb);
 		model.addAttribute("subThumb", subThumb);
+		model.addAttribute("reviewList", reviewList);
+		model.addAttribute("averageRating", averageRating);
+		model.addAttribute("percentageList", percentageList);
 	}
 	
 	/**

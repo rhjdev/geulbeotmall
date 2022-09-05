@@ -9,6 +9,7 @@ import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 @Mapper
@@ -106,4 +107,10 @@ public interface ProductMapper {
 	CategoryDTO getCategoryByProdNo(int prodNo);
 
 	BrandDTO getBrandByProdNo(int prodNo);
+
+	List<ReviewDTO> getReviewListByProdNo(int prodNo);
+
+	double averageReviewRating(int prodNo);
+
+	int getPercentageOfRating(int total, int prodNo, int star);
 }

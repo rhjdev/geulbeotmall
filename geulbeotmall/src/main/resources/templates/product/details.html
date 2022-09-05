@@ -179,13 +179,65 @@
 				<button class="nav-link active" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail" type="button" role="tab" aria-controls="detail" aria-selected="true">상품상세정보</button>
 			</li>
 			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">상품리뷰</button>
+				<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">상품리뷰([[${#lists.size(reviewList)}]])</button>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<!-- 상품상세정보 -->
 			<div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab" style="text-align: center;">[(${ detail.prodDetailContent })]</div>
 			<!-- 상품리뷰 -->
+			<div class="tab-pane fade show" id="review" role="tabpanel" aria-labelledby="review-tab">
+				<div class="notice-area">
+					<ul class="review-notice">
+						<li>글벗문구는 텍스트리뷰 <b>100원</b> / 포토리뷰 <b>300원</b>을 적립해 드리고 있습니다.</li>
+						<li>상품 문의, 확인되지 않은 사항, 미풍양속을 해치는 글은 관리자가 임의로 삭제할 수 있으니 양해 바랍니다.</li>
+					</ul>
+				</div>
+				<div class="rating-area">
+					<div class="info-list">
+						<ul>
+							<li>
+								<a>사용자 총 평점<br><b>[[${ averageRating }]]</b><b style="color: #E5E5E5; font-weight: 400;">/5</b></a>
+							</li>
+							<li>
+								<a>전체 리뷰수<br><b>[[${#lists.size(reviewList)}]]</b></a>
+							</li>
+							<li>
+								<div class="progress-area">
+									<div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" aria-label="five-star" th:aria-valuenow="${percentageList[4]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[4]}]]%</div>
+									</div>
+								</div>
+								<div class="progress-area">
+									<div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" aria-label="four-star" th:aria-valuenow="${percentageList[3]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[3]}]]%</div>
+									</div>
+								</div>
+								<div class="progress-area">
+									<div class="stars">&#9733;&#9733;&#9733;</div>
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" aria-label="three-star" th:aria-valuenow="${percentageList[2]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[2]}]]%</div>
+									</div>
+								</div>
+								<div class="progress-area">
+									<div class="stars">&#9733;&#9733;</div>
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" aria-label="two-star" th:aria-valuenow="${percentageList[1]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[1]}]]%</div>
+									</div>
+								</div>
+								<div class="progress-area">
+									<div class="stars">&#9733;</div>
+									<div class="progress">
+										<div class="progress-bar" role="progressbar" aria-label="one-star" th:aria-valuenow="${percentageList[0]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[0]}]]%</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<!-- JS -->

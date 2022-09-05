@@ -16,13 +16,13 @@ function previewImage() {
 	} else {
 		thumbTd.forEach(item => item.addEventListener('click', reselectImage));
 	}
-}
+};
 
 function reselectImage() {
 	let index = Array.from(thumbTd).indexOf(this); //thumbTd 기준으로 index 생성
 	//console.log(index);
 	if(index == 0) {
-		fileItems[index].click();	
+		fileItems[index].click();
 	}
 };
 
@@ -125,7 +125,6 @@ function addABrand() {
 				},
 				error : function(status, error){ console.log(status, error); }
 			});
-			
 		})
 	//다른 값 선택 시 입력란 초기화 및 비활성화
 	} else {
@@ -295,11 +294,13 @@ $('#addNextOpt').on('click', function(){ //상품 수정
 
 /* 옵션 초기화 */
 $('#deleteOpt').on('click', function(){
+	console.log(optArr);
 	for(let i=0; i < 10; i++) {
 		let index = $('#addedOption' + [i]).val();
 		if(index) { //추가된 옵션이 존재하는 경우
 			document.getElementById('addedOption' + [i]).value = ''; //값 초기화
-			optArr = []; //저장된 배열 초기화
+			bodyColor = []; inkColor = []; pointSize = []; stockAmount = []; extraCharge = []; optArr = []; //저장된 배열 초기화
+			console.log(optArr);
 			if(i != 0) {
 				$('#addedOption' + [i]).parent().parent().attr('hidden', true); //첫번째 이후의 옵션은 다시 hidden
 			}
@@ -660,6 +661,7 @@ function addToCart() {
 				Swal.fire({
 					icon: 'warning',
 					title: result,
+					text: '해당 상품의 수량을 추가했습니다',
 					confirmButtonColor: '#00008b',
 					confirmButtonText: '확인'
 				}).then((result) => {
@@ -712,3 +714,78 @@ function orderProduct() {
 		});
 	}
 };
+
+/* 찜하기 */
+function addToWishList() { //wish 버튼
+	setOrderList();
+	console.log(orderOptionNo);
+	//로그인 여부 확인
+	if(!document.getElementById('isLoggedInAs')) {
+		$.ajax({
+			url : '/member/signin',
+			type : 'post',
+			traditional : true,
+			dataType : 'text',
+			data : {
+				orderOptionNo : orderOptionNo,
+				orderOptionQt : orderOptionQt
+			},
+			success : function(result){
+				console.log('로그인 요청');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	} else {
+		$.ajax({
+			url : '/mypage/wishlist/add',
+			type : 'post',
+			traditional : true, //배열 넘기기 위한 세팅
+			dataType : 'text',
+			data : { arr : orderOptionNo },
+			success : function(result){
+				if(result == '성공') {
+					Swal.fire({
+						icon: 'success',
+						title: '찜하기가 완료되었습니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.reload(); //페이지 새로고침
+							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+						}
+					})
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: '이미 찜하기 목록에 존재하는 상품입니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.reload(); //페이지 새로고침
+							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+						}
+					})
+				}
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	}
+};
+
+/* 평점 비율 반영 */
+let bar = document.querySelectorAll('.progress-bar');
+for(let i=0; i < bar.length; i++) {
+	if(bar[i].ariaValueNow > 0) {
+		let length = bar[i].ariaValueNow;
+		bar[i].style.width = length + '%';
+		bar[i].style.backgroundColor = '#00008d';
+		console.log(length);
+	} else {
+		bar[i].style.backgroundColor = '#e9ecef';
+		
+	}
+}
+console.log(bar);
