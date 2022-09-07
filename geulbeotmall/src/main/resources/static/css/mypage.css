@@ -236,6 +236,40 @@
 	vertical-align: middle;
 }
 
+.review-detail {
+	margin-bottom: 0 !important;
+}
+
+.review-detail > a {
+	font-weight: bold;
+    color: #000;
+    text-decoration: none;
+}
+
+.review-detail > a:hover {
+	opacity: 93%;
+}
+
+.modal-content {
+	padding: 10px 40px 20px;
+}
+
+.modal-footer {
+	border-top: 0;
+	justify-content: center;
+}
+
+.modal-footer > button {
+	width: 120px;
+	height: 44px;
+	box-shadow: none !important;
+}
+
+.modal-body {
+	max-height: 400px;
+	padding-bottom: 0;
+}
+
 .orderdetail-container {
 	margin-top: 30px;
 }
