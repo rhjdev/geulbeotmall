@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.Data;
@@ -21,5 +22,6 @@ public class ReviewDTO {
 	private int revwHits;
 	private int revwRatings;
 	private OptionDTO option;
+	private ProductDTO product;
 	private List<AttachmentDTO> attachmentList;
 }

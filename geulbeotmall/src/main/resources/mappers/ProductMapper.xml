@@ -81,6 +81,7 @@
 		<result property="revwHits" column="REVW_HITS"/>
 		<result property="revwRatings" column="REVW_RATINGS"/>
 		<association property="option" resultMap="optionResultMap"/>
+		<association property="product" resultMap="productResultMap"/>
 		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
 	</resultMap>
 	
@@ -714,7 +715,7 @@
 			   A.REVIEW_NO
 			 , A.OPTION_NO
 			 , A.ORDER_NO
-			 , A.MEMBER_ID
+			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
 			 , A.REVW_TITLE
 			 , A.REVW_CONTENT
 			 , A.REVW_REG_DATE
@@ -724,6 +725,19 @@
 			 , C.OPT_BODY_COLOR
 			 , C.OPT_INK_COLOR
 			 , C.OPT_POINT_SIZE
+			 , D.PROD_NAME
+		  FROM TBL_REVIEW A
+		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
+		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
+		 WHERE C.REF_PROD_NO = #{ prodNo }
+		 ORDER BY A.REVW_REG_DATE DESC
+	</select>
+	
+	<!-- 상품별 전체 리뷰수 -->
+	<select id="getTotalNumberOfReviews" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT(A.REVIEW_NO))
 		  FROM TBL_REVIEW A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
 		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
@@ -731,24 +745,13 @@
 		 WHERE D.PROD_NO = #{ prodNo }
 	</select>
 	
-	<!-- 상품별 사용자 총 평점 조회 -->
+	<!-- 상품별 사용자 총 평점 조회 *반올림* -->
 	<select id="averageReviewRating" resultType="double">
 		SELECT
-			   AVG(REVW_RATINGS)
+			   ROUND(AVG(RATING), 1)
 		  FROM (SELECT
-					   A.REVIEW_NO
-					 , A.OPTION_NO
-					 , A.ORDER_NO
-					 , A.MEMBER_ID
-					 , A.REVW_TITLE
-					 , A.REVW_CONTENT
-					 , A.REVW_REG_DATE
-					 , A.REVW_HITS
-					 , A.REVW_RATINGS
-					 , B.THUMBNAIL_PATH
-					 , C.OPT_BODY_COLOR
-					 , C.OPT_INK_COLOR
-					 , C.OPT_POINT_SIZE
+					   DISTINCT(A.REVIEW_NO)
+					 , A.REVW_RATINGS RATING
 				  FROM TBL_REVIEW A
 				  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
 				  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
@@ -756,12 +759,13 @@
 				 WHERE D.PROD_NO = #{ prodNo })
 	</select>
 	
-	<!-- 상품별 평점 비율 조회 -->
+	<!-- 상품별 평점 비율 조회 *반올림* -->
 	<select id="getPercentageOfRating" resultType="_int">
-		SELECT NUM / #{ total } * 100
+		SELECT ROUND(NUM / #{ total } * 100)
 		  FROM (SELECT COUNT(REVW_RATINGS) NUM
 		  		  FROM (SELECT
-							   A.REVW_RATINGS
+							   DISTINCT(A.REVIEW_NO)
+							 , A.REVW_RATINGS
 						  FROM TBL_REVIEW A
 				 		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
 						  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
@@ -769,6 +773,20 @@
 						 WHERE D.PROD_NO = #{ prodNo }
 		  			    )
 				 WHERE REVW_RATINGS = #{ star })
+	</select>
+	
+	<!-- 상품 평점별 누적 리뷰수 조회 -->
+	<select id="getNumberOfRatings" resultType="_int">
+		SELECT COUNT(REVW_RATINGS) NUM
+		  FROM (SELECT
+		  			   DISTINCT(A.REVIEW_NO)
+		  			 , A.REVW_RATINGS
+				  FROM TBL_REVIEW A
+				  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
+				  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
+				  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
+				 WHERE D.PROD_NO = #{ prodNo })
+		 WHERE REVW_RATINGS = #{ star }
 	</select>
 	
 	<!-- 옵션번호 기준 상품번호 조회 -->

@@ -2,14 +2,11 @@ package com.reminder.geulbeotmall.product.model.service;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
-import com.reminder.geulbeotmall.product.model.dto.StockDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
@@ -101,4 +98,8 @@ public interface ProductService {
 	double averageReviewRating(int prodNo);
 
 	int getPercentageOfRating(int total, int prodNo, int star);
+
+	int getNumberOfRatings(int prodNo, int star);
+
+	int getTotalNumberOfReviews(int prodNo);
 }

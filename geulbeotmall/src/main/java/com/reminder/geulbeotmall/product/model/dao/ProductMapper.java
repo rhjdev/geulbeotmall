@@ -113,4 +113,10 @@ public interface ProductMapper {
 	double averageReviewRating(int prodNo);
 
 	int getPercentageOfRating(int total, int prodNo, int star);
+
+	int getNumberOfRatings(int prodNo, int star);
+
+	int getTotalNumberOfReviews(int prodNo);
+
+	List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo);
 }

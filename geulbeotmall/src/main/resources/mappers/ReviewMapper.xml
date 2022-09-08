@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.reminder.geulbeotmall.review.model.dao.ReviewMapper">
+	<!-- 썸네일 조회용 -->
+	<resultMap id="thumbnailResultMap" type="com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="origFileName" column="ORIG_FILE_NAME"/>
+		<result property="saveFileName" column="SAVE_FILE_NAME"/>
+		<result property="savePath" column="SAVE_PATH"/>
+		<result property="thumbnailPath" column="THUMBNAIL_PATH"/>
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="attachStatusYn" column="ATTACH_STATUS_YN"/>
+	</resultMap>
+	
 	<!-- 리뷰 작성 -->
 	<insert id="postAReview">
 		INSERT
@@ -72,11 +85,19 @@
 			   TBL_REVIEW A
 		   SET A.REVW_HITS = (SELECT
 		   							 B.REVW_HITS
-		   						FROM TBL_PRODUCT B
+		   						FROM TBL_REVIEW B
 		   					   WHERE B.REVIEW_NO = #{ reviewNo }
 		   					  ) + 1
 		 WHERE A.REVIEW_NO = #{ reviewNo }
 	</update>
+	
+	<!-- 리뷰별 첨부파일 조회 -->
+	<select id="getAttachmentByReviewNo" resultMap="thumbnailResultMap">
+		SELECT
+			   THUMBNAIL_PATH
+		  FROM TBL_ATTACHMENT
+		 WHERE REF_REVW_NO = #{ reviewNo }
+	</select>
 	
 	<!-- 주문번호 기준 결제번호 조회 -->
 	<select id="getPaymentNoByOrderNo" resultType="string">

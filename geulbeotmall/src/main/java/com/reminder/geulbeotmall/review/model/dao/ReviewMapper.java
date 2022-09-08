@@ -1,5 +1,7 @@
 package com.reminder.geulbeotmall.review.model.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
@@ -18,4 +20,8 @@ public interface ReviewMapper {
 	String getPaymentNoByOrderNo(String orderNo);
 
 	int savePoints(PointDTO pointDTO);
+
+	int incrementReviewViewCount(int reviewNo);
+
+	List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo);
 }

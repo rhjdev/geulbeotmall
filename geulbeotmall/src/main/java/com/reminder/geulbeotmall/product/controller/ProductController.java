@@ -617,13 +617,17 @@ public class ProductController {
 		}
 		
 		/* 상품별 리뷰 목록 조회 */
-		List<ReviewDTO> reviewList = productService.getReviewListByProdNo(prodNo);
+		List<ReviewDTO> reviewList = productService.getReviewListByProdNo(prodNo); //첨부파일 포함 리뷰
+		int total = productService.getTotalNumberOfReviews(prodNo); //첨부파일 제외 개수
 		double averageRating = productService.averageReviewRating(prodNo);
 		List<Integer> percentageList = new ArrayList<>();
-		for(int i=1; i <= 5; i++) {
-			int percentage = productService.getPercentageOfRating(reviewList.size(), prodNo, i);
-			log.info("i : {}", percentage);
+		List<Integer> numberList = new ArrayList<>();
+		for(int i=1; i <= 5; i++) { //1~5 평점 비율
+			int percentage = productService.getPercentageOfRating(total, prodNo, i);
+			int number = productService.getNumberOfRatings(prodNo, i);
 			percentageList.add(percentage);
+			numberList.add(number);
+			log.info("i : {}, {}", percentage, number);
 		}
 		
 		model.addAttribute("detail", detail);
@@ -635,8 +639,10 @@ public class ProductController {
 		model.addAttribute("mainThumb", mainThumb);
 		model.addAttribute("subThumb", subThumb);
 		model.addAttribute("reviewList", reviewList);
+		model.addAttribute("total", total);
 		model.addAttribute("averageRating", averageRating);
 		model.addAttribute("percentageList", percentageList);
+		model.addAttribute("numberList", numberList);
 	}
 	
 	/**

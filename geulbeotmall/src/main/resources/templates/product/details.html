@@ -6,6 +6,7 @@
 	<!-- CSS -->
 	<th:block layout:fragment="css">
 		<link th:href="@{/css/product.css}" rel="stylesheet">
+		<link th:href="@{/css/post.css}" rel="stylesheet">
 	</th:block>
 </head>
 <body layout:fragment="content">
@@ -200,7 +201,7 @@
 								<a>사용자 총 평점<br><b>[[${ averageRating }]]</b><b style="color: #E5E5E5; font-weight: 400;">/5</b></a>
 							</li>
 							<li>
-								<a>전체 리뷰수<br><b>[[${#lists.size(reviewList)}]]</b></a>
+								<a>전체 리뷰수<br><b>[[${ total }]]</b></a>
 							</li>
 							<li>
 								<div class="progress-area">
@@ -208,35 +209,150 @@
 									<div class="progress">
 										<div class="progress-bar" role="progressbar" aria-label="five-star" th:aria-valuenow="${percentageList[4]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[4]}]]%</div>
 									</div>
+									<div style="margin-left: 10px; font-weight: bold; line-height: 12px;">[[${numberList[4]}]]</div>
 								</div>
 								<div class="progress-area">
 									<div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar" aria-label="four-star" th:aria-valuenow="${percentageList[3]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[3]}]]%</div>
 									</div>
+									<div style="margin-left: 10px; font-weight: bold; line-height: 12px;">[[${numberList[3]}]]</div>
 								</div>
 								<div class="progress-area">
 									<div class="stars">&#9733;&#9733;&#9733;</div>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar" aria-label="three-star" th:aria-valuenow="${percentageList[2]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[2]}]]%</div>
 									</div>
+									<div style="margin-left: 10px; font-weight: bold; line-height: 12px;">[[${numberList[2]}]]</div>
 								</div>
 								<div class="progress-area">
 									<div class="stars">&#9733;&#9733;</div>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar" aria-label="two-star" th:aria-valuenow="${percentageList[1]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[1]}]]%</div>
 									</div>
+									<div style="margin-left: 10px; font-weight: bold; line-height: 12px;">[[${numberList[1]}]]</div>
 								</div>
 								<div class="progress-area">
 									<div class="stars">&#9733;</div>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar" aria-label="one-star" th:aria-valuenow="${percentageList[0]}" aria-valuemin="0" aria-valuemax="100">[[${percentageList[0]}]]%</div>
 									</div>
+									<div style="margin-left: 10px; font-weight: bold; line-height: 12px;">[[${numberList[0]}]]</div>
 								</div>
 							</li>
 						</ul>
 					</div>
 				</div>
+				<div class="post-area" th:each="reviewList : ${ reviewList }" th:value="${ reviewList.reviewNo }">
+					<div><h4><a data-toggle="modal" th:href="'#review-content' + ${ reviewList.reviewNo }">[[${ reviewList.revwTitle }]]</a></h4></div>
+					<div class="info">
+						<span class="writer">[[${ reviewList.memberId }]]</span><br>
+						<span class="star" th:value="${ reviewList.revwRatings }"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+						<span class="date">[[${#dates.format(reviewList.revwRegDate, 'yyyy.MM.dd')}]]</span>
+						<span class="store">&#8729;&nbsp;신고</span>
+					</div>
+					<div class="image" th:each="attachment : ${ reviewList.attachmentList }" th:if="${ attachmentStat.first == true }"><img th:src="${ attachment.thumbnailPath }"></div>
+					<div class="option">
+	    				<p>
+	    					<span th:text="|&nbsp;${ reviewList.option.pointSize }mm|"></span>
+		    				<th:block th:if="${ reviewList.option.bodyColor != '(해당없음)' }">
+		    					<span th:text="|/ ${#strings.replace(reviewList.option.bodyColor, '$', ',')}|"></span>
+		    				</th:block>
+		    				<th:block th:if="${ reviewList.option.inkColor != '(해당없음)' }">
+		    					<span th:text="|/ ${#strings.replace(reviewList.option.inkColor, '$', ',')}|"></span>
+		    				</th:block>
+		    			</p>
+					</div>
+					<div class="content">
+						<span>[(${ reviewList.revwContent })]</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:each="reviewList : ${ reviewList }" th:id="'review-content' + ${ reviewList.reviewNo }" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-lg modal-dialog modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+    			<div class="modal-header">
+    				<div class="product">
+    					<a th:text="|[${ reviewList.product.prodName }]|"></a>
+    				</div>
+					<h5>[[${ reviewList.revwTitle }]]</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<th:block th:if="${ reviewList.attachmentList != null }">
+					<div class="body">
+						<div id="carouselIndicators" class="carousel slide" data-bs-ride="true">
+							<div class="carousel-indicators">
+								<th:block th:if="${#lists.size(reviewList) >= 1}">
+									<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+								</th:block>
+								<th:block th:if="${#lists.size(reviewList) >= 2}">
+									<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+								</th:block>
+								<th:block th:if="${#lists.size(reviewList) >= 3}">
+									<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+								</th:block>
+							</div>
+							<div class="carousel-inner">
+								<div class="carousel-item active">
+									<img src="#" class="d-block w-100" alt="attachment 1">
+								</div>
+							</div>
+							<button class="carousel-control-prev" type="button" data-bs-target="#carouselIndicators" data-bs-slide="prev">
+								<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+								<span class="visually-hidden">Previous</span>
+							</button>
+							<button class="carousel-control-next" type="button" data-bs-target="#carouselIndicators" data-bs-slide="next">
+								<span class="carousel-control-next-icon" aria-hidden="true"></span>
+								<span class="visually-hidden">Next</span>
+							</button>
+						</div>
+					</div>
+					</th:block>
+					<th:block th:if="${ reviewList.attachmentList == null }">
+					<div class="body">
+						<div id="imageNotFound"><span class="fs-4">글벗문구</span></div>
+					</div>
+					</th:block>
+					<div class="body">
+						<div class="menu">
+							<ul>
+								<li>
+									<span>신고</span>
+								</li>
+								<li>
+									<span>삭제</span>
+								</li>
+							</ul>
+						</div>
+						<div class="profile"><a><i class="fa-solid fa-user"></i></a></div>
+						<div class="info">
+							<span class="writer">[[${ reviewList.memberId }]]</span><br>
+							<span class="star" th:value="${ reviewList.revwRatings }"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
+							<span class="date">[[${#dates.format(reviewList.revwRegDate, 'yyyy.MM.dd')}]]</span>
+							<span class="store">&#8729;&nbsp;글벗문구 구매</span>
+						</div>
+						<div class="option">
+		    				<p>
+		    					<span th:text="|&nbsp;${ reviewList.option.pointSize }mm|"></span>
+			    				<th:block th:if="${ reviewList.option.bodyColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(reviewList.option.bodyColor, '$', ',')}|"></span>
+			    				</th:block>
+			    				<th:block th:if="${ reviewList.option.inkColor != '(해당없음)' }">
+			    					<span th:text="|/ ${#strings.replace(reviewList.option.inkColor, '$', ',')}|"></span>
+			    				</th:block>
+			    			</p>
+						</div>
+						<div class="content">
+							<span>[(${ reviewList.revwContent })]</span>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
+				</div> 
 			</div>
 		</div>
 	</div>
@@ -244,14 +360,42 @@
     <th:block layout:fragment="script">
     	<script th:src="@{/js/product.js}" type="text/javascript"></script>
     	<script>
-    	/* 썸네일박스 상단 고정 */
-    	$(window).scroll(function(){
-    		let contentTop = $('.thumbnailBox').outerHeight() - $('.infoBox').outerHeight();
-    		let scrollTop = $(this).scrollTop();
-    		if(scrollTop > contentTop) {
-    			$('.thumbnailBox').css('position', 'absolute');
-    		}
-    	});
+	    	/* 썸네일박스 상단 고정 */
+	    	$(window).scroll(function(){
+	    		let contentTop = $('.thumbnailBox').outerHeight() - $('.infoBox').outerHeight();
+	    		let scrollTop = $(this).scrollTop();
+	    		if(scrollTop > contentTop) {
+	    			$('.thumbnailBox').css('position', 'absolute');
+	    		}
+	    	});
+	    	
+	    	document.addEventListener('DOMContentLoaded', function(){
+	    		/* 리뷰별 별점 색상 반영 */
+	    		let rated = document.querySelectorAll('.star').length;
+	    		for(let i=0; i < rated; i++) {
+	    			let star = document.querySelectorAll('.star');
+			    	let value = star[i].attributes[1].textContent;
+			    	for(let j=0; j < value; j++) {
+			    		star[i].children[j].style.color = '#00008b';
+			    	}
+	    		}
+		    	/* 리뷰 상세보기 Modal */
+		    	$('.post-area').on('click', function(){
+		    		let reviewNo = $(this)[0].attributes[1].textContent;
+		    		let target = '#review-content' + reviewNo;
+		    		console.log(target);
+		    		$(target).modal('show');
+		    		//조회수 증가
+		    		$.ajax({
+		    			url : '/review/read',
+		    			type : 'get',
+		    			data : { no : reviewNo },
+		    			success : function(result){ console.log('리뷰 조회수+1') },
+		    			error : function(status, error){ console.log(status, error); }
+		    		});
+		    		return false;
+		    	});
+	    	});
     	</script>
     	<!-- ElevateZoom-Plus -->
 		<script type="text/javascript" src="https://cdn.rawgit.com/igorlino/elevatezoom-plus/1.1.6/src/jquery.ez-plus.js"></script>

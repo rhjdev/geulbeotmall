@@ -2,8 +2,6 @@ package com.reminder.geulbeotmall.product.model.service;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -250,5 +248,15 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public int getPercentageOfRating(int total, int prodNo, int star) {
 		return productMapper.getPercentageOfRating(total, prodNo, star);
+	}
+
+	@Override
+	public int getNumberOfRatings(int prodNo, int star) {
+		return productMapper.getNumberOfRatings(prodNo, star);
+	}
+
+	@Override
+	public int getTotalNumberOfReviews(int prodNo) {
+		return productMapper.getTotalNumberOfReviews(prodNo);
 	}
 }

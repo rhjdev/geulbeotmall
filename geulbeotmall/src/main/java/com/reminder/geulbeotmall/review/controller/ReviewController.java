@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -173,5 +174,17 @@ public class ReviewController {
 			}
 		}
 		return "redirect:/mypage/review";
+	}
+	
+	/**
+	 * 리뷰 조회수 증가
+	 */
+	@GetMapping("/read")
+	@ResponseBody
+	public void readReviewDetails(@ModelAttribute("no") int reviewNo, Model model) {
+		int count = reviewService.incrementReviewViewCount(reviewNo);
+		if(count == 1) {
+			log.info("리뷰 조회수 + 1");
+		}
 	}
 }

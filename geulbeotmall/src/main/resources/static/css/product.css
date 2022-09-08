@@ -575,13 +575,121 @@ a:hover {
 }
 
 .progress-area > .stars {
-	width: 30%;
+	width: 28%;
 	text-align: right;
 }
 
 .progress-area > .progress {
 	width: 220px;
 	margin-inline-start: 8px;
+}
+
+.post-area {
+	position: relative;
+	display: inline-block;
+	width: 30%;
+	margin: 20px auto;
+	border-bottom: 1px solid #E5E5E5;
+	margin-inline-start: 20px;
+	margin-inline-end: 20px;
+}
+
+.post-area:hover {
+	border-bottom: 2px solid #000;
+	cursor: pointer;
+}
+
+.post-area > .profile {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	background-color: #f9f9f9;
+	border-radius: 50%;
+	border: 1px solid #E5E5E5;
+	font-size: 36px;
+	color: #6c757d;
+	vertical-align: bottom;
+	margin-inline-end: 8px;
+	cursor: pointer;
+}
+
+.post-area > .profile > a {
+	position: absolute;
+	font-size: 20px;
+	vertical-align: middle;
+	margin-inline-start: 10px;
+	margin-block-start: 2px;
+}
+
+.post-area > .info > .star {
+	font-size: 16px;
+	color: #E5E5E5;
+}
+
+.post-area > .info > .date, .store {
+	font-size: 12px;
+	color: #6c757d;
+}
+
+.post-area > .info {
+	display: inline-block;
+	font-size: 14px;
+}
+
+.post-area > .image {
+	position: absolute;
+	display: inherit;
+	width: 200px;
+}
+
+.post-area > .image > img {
+	width: 100px;
+	height: 100px;
+	float: right;
+	margin-right: 52px;
+}
+
+.post-area > .option {
+	position: relative;
+    margin-block-start: 18px;
+}
+
+.post-area > .option:before {
+	position: absolute;
+    left: 0;
+    content: "";
+    width: 3px;
+    height: 100%;
+    background-color: #E5E5E5;
+    border-radius: 2px;
+}
+
+.post-area > .option > p {
+	font-size: 12px;
+	color: #6c757d;
+	margin-inline-start: 10px;
+}
+
+.post-area > .content {
+	margin-top: 30px;
+}
+
+/* 출력 글자수 제한 */
+.post-area > div > h4 {
+	display: inline-block;
+	max-width: 300px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.post-area > .content > span > p {
+	display: inline-block;
+	max-width: 382px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 /* ====================================== */
