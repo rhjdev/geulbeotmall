@@ -28,6 +28,10 @@
     line-height: 74px !important;
 }
 
+.modal-header > .product {
+	width: fit-content;
+}
+
 .modal-header > .product > a {
 	font-size: 15px;
 	font-weight: bold;
@@ -37,7 +41,10 @@
 }
 
 .modal-header > h5 {
+	display: inline-block;
+	width: 80%;
 	margin-bottom: 0 !important;
+	text-align: left;
 }
 			
 .modal-body {
@@ -133,6 +140,10 @@
 	margin-inline-start: 10px;
 }
 
+.modal-body > .body > .menu > .views {
+	font-size: 14px;
+}
+
 .modal-body > .body > .menu > ul {
 	display: contents;
 	width: 100%;
@@ -166,4 +177,24 @@
 
 .modal-body > .body > .content {
 	margin-top: 30px;
+}
+
+.modal-content {
+	padding: 10px 40px 20px;
+}
+
+.modal-footer {
+	border-top: 0;
+	justify-content: center;
+}
+
+.modal-footer > button {
+	width: 120px;
+	height: 44px;
+	box-shadow: none !important;
+}
+
+.modal-body {
+	max-height: 400px;
+	padding-bottom: 0;
 }

@@ -45,6 +45,7 @@ import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.dto.StockDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
+import com.reminder.geulbeotmall.review.model.service.ReviewService;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,11 +60,13 @@ public class ProductController {
 	public static final int THUMB_HEIGHT_SIZE = 540;
 	
 	private final ProductService productService;
+	private final ReviewService reviewService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public ProductController(ProductService productService, MessageSource messageSource) {
+	public ProductController(ProductService productService, ReviewService reviewService, MessageSource messageSource) {
 		this.productService = productService;
+		this.reviewService = reviewService;
 		this.messageSource = messageSource;
 	}
 	
@@ -618,16 +621,32 @@ public class ProductController {
 		
 		/* 상품별 리뷰 목록 조회 */
 		List<ReviewDTO> reviewList = productService.getReviewListByProdNo(prodNo); //첨부파일 포함 리뷰
+		Map<String, Integer> attachmentMap = new HashMap<>(); //리뷰별 첨부파일
+		for(int i=0; i < reviewList.size(); i++) {
+			int reviewNo = reviewList.get(i).getReviewNo();
+			for(int j=1; j <= 3; j++) {
+				String thumbnailPath = reviewService.getAttachmentByReviewNo(reviewNo, j);
+				if(thumbnailPath != null) {
+					log.info("attachment : {}", thumbnailPath);
+					attachmentMap.put(thumbnailPath, reviewNo);
+				}
+			}
+		}
 		int total = productService.getTotalNumberOfReviews(prodNo); //첨부파일 제외 개수
-		double averageRating = productService.averageReviewRating(prodNo);
-		List<Integer> percentageList = new ArrayList<>();
-		List<Integer> numberList = new ArrayList<>();
-		for(int i=1; i <= 5; i++) { //1~5 평점 비율
-			int percentage = productService.getPercentageOfRating(total, prodNo, i);
-			int number = productService.getNumberOfRatings(prodNo, i);
-			percentageList.add(percentage);
-			numberList.add(number);
-			log.info("i : {}, {}", percentage, number);
+		if(reviewList.size() > 0) {
+			double averageRating = productService.averageReviewRating(prodNo);
+			List<Integer> percentageList = new ArrayList<>();
+			List<Integer> numberList = new ArrayList<>();
+			for(int i=1; i <= 5; i++) { //1~5 평점 비율
+				int percentage = productService.getPercentageOfRating(total, prodNo, i);
+				int number = productService.getNumberOfRatings(prodNo, i);
+				percentageList.add(percentage);
+				numberList.add(number);
+				log.info("i : {}, {}", percentage, number);
+			}
+			model.addAttribute("averageRating", averageRating);
+			model.addAttribute("percentageList", percentageList);
+			model.addAttribute("numberList", numberList);
 		}
 		
 		model.addAttribute("detail", detail);
@@ -639,20 +658,18 @@ public class ProductController {
 		model.addAttribute("mainThumb", mainThumb);
 		model.addAttribute("subThumb", subThumb);
 		model.addAttribute("reviewList", reviewList);
+		model.addAttribute("attachmentMap", attachmentMap);
 		model.addAttribute("total", total);
-		model.addAttribute("averageRating", averageRating);
-		model.addAttribute("percentageList", percentageList);
-		model.addAttribute("numberList", numberList);
 	}
 	
 	/**
 	 * 상품 목록
 	 */
-	@GetMapping(value={"/product/list", "/product/list/{category}"}) //{이름}과 @PathVariable로 쓴 변수명은 일치해야 함
-	public void getProductListByCategory(@RequestParam(required=false) String category, Model model) {
+	@GetMapping(value={"/product/list", "/product/list/{category}"})
+	public void getProductListByCategory(@RequestParam(value="category", required=false) String category, Model model) {
 		log.info("요첨 category : {}", category);
-		String tag = "";
-		List<ProductDTO> productList = productService.getProductListByCategorySection(category, tag);
+		//String tag = "";
+		List<ProductDTO> productList = productService.getProductListByCategorySection(category);
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
 		for(int i=0; i < productList.size(); i++) {
 			int prodNo = productList.get(i).getProdNo();
@@ -666,14 +683,14 @@ public class ProductController {
 		int totalNumberBySection = productService.getTotalNumberBySection(category);
 		
 		/* 드로잉, 선물용, 세밀한필기용, 중간굵기필기용, 컬러링용 */
-		tag = "드로잉";
-		List<ProductDTO> forDrawing = productService.getProductListByCategorySection(category, tag);
+//		tag = "드로잉";
+//		List<ProductDTO> forDrawing = productService.getProductListByCategorySection(category, tag);
 		
 		model.addAttribute("section", section);
 		model.addAttribute("categoryBySection", categoryBySection);
 		model.addAttribute("total", totalNumberBySection);
 		model.addAttribute("category", category == null ? "전체 상품" : category);
-		model.addAttribute("forDrawing", forDrawing);
+		//model.addAttribute("forDrawing", forDrawing);
 		model.addAttribute("productList", productList);
 		model.addAttribute("thumbnailList", thumbnailList);
 	}

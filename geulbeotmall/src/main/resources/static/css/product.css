@@ -692,6 +692,17 @@ a:hover {
 	white-space: nowrap;
 }
 
+.nopost {
+	color: #E5E5E5;
+	text-align: center;
+	margin-top: 150px;
+	margin-bottom: 300px !important;
+}
+
+.nopost > div:last-child {
+	margin-top: 20px;
+}
+
 /* ====================================== */
 
 .product-breadcrumb {

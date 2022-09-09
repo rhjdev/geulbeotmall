@@ -1,7 +1,5 @@
 package com.reminder.geulbeotmall.review.model.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
-	public List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo) {
-		return reviewMapper.getAttachmentByReviewNo(reviewNo);
+	public String getAttachmentByReviewNo(int reviewNo, int num) {
+		return reviewMapper.getAttachmentByReviewNo(reviewNo, num);
 	}
 }

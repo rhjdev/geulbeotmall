@@ -1,7 +1,5 @@
 package com.reminder.geulbeotmall.review.model.service;
 
-import java.util.List;
-
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
@@ -20,5 +18,5 @@ public interface ReviewService {
 
 	int incrementReviewViewCount(int reviewNo);
 
-	List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo);
+	String getAttachmentByReviewNo(int reviewNo, int num);
 }
