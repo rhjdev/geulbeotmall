@@ -186,6 +186,7 @@
 		<result property="revwHits" column="REVW_HITS"/>
 		<result property="revwRatings" column="REVW_RATINGS"/>
 		<association property="option" resultMap="optionResultMap"/>
+		<association property="product" resultMap="productResultMap"/>
 		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
 	</resultMap>
 	
@@ -504,7 +505,7 @@
 			   A.REVIEW_NO
 			 , A.OPTION_NO
 			 , A.ORDER_NO
-			 , A.MEMBER_ID
+			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
 			 , A.REVW_TITLE
 			 , A.REVW_CONTENT
 			 , A.REVW_REG_DATE
@@ -512,9 +513,15 @@
 			 , A.REVW_RATINGS
 			 , B.THUMBNAIL_PATH
 			 , C.REF_PROD_NO
+			 , C.OPT_BODY_COLOR
+			 , C.OPT_INK_COLOR
+			 , C.OPT_POINT_SIZE
+			 , C.OPT_EXTRA_CHARGE
+			 , D.PROD_NAME
 		  FROM TBL_REVIEW A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
 		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
 	</select>
 	
@@ -533,6 +540,18 @@
 			 , O.OPT_INK_COLOR
 			 , O.OPT_POINT_SIZE
 			 , O.OPT_EXTRA_CHARGE 
+		  FROM TBL_WISHLIST A
+		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT B ON(O.REF_PROD_NO = B.PROD_NO)
+		  LEFT JOIN TBL_BRAND C ON(C.BRAND_NO = B.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(B.PROD_NO = T.REF_PROD_NO)
+		 WHERE A.MEMBER_ID = #{ memberId }
+	</select>
+	
+	<!-- 위시리스트 상품번호 조회 -->
+	<select id="getProdNoFromWishList" resultType="_int">
+		SELECT
+			   DISTINCT(B.PROD_NO)
 		  FROM TBL_WISHLIST A
 		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
 		  LEFT JOIN TBL_PRODUCT B ON(O.REF_PROD_NO = B.PROD_NO)
@@ -590,5 +609,4 @@
 																				 WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용')
 		  FROM DUAL
 	</select>
-	
 </mapper>

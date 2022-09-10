@@ -168,7 +168,14 @@
 					<div class="buttonBox">
 						<button type="button" class="btn" id="cartBtn" onclick="addToCart()">장바구니</button>
 						<button type="button" class="btn btn-dark" id="orderBtn" onclick="orderProduct()">바로구매</button>
-						<button type="button" class="btn" id="wishBtn"><i class="fa-regular fa-heart" onclick="addToWishList()"></i> 찜</button>
+						<button type="button" class="btn" id="wishBtn" th:unless="${ memberWishItem }">
+							<i class="fa-regular fa-heart" onclick="addToWishList()"></i>
+						&nbsp;찜</button>
+						<!-- 회원의 경우 위시리스트 상품은 별도 표시 -->
+						<button type="button" class="btn" id="wishBtn" th:if="${ memberWishItem }">
+							<i th:if="${#lists.contains(memberWishItem, detail.prodNo)}" style="color: #ff0000;" class="fa-solid fa-heart" onclick="addToWishList()"></i>
+							<i th:unless="${#lists.contains(memberWishItem, detail.prodNo)}" class="fa-regular fa-heart" onclick="addToWishList()"></i>
+						&nbsp;찜</button>
 					</div>
 				</form>
 			</div>

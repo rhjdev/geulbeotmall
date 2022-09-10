@@ -156,6 +156,11 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
+	public List<Integer> getProdNoFromWishList(String memberId) {
+		return memberMapper.getProdNoFromWishList(memberId);
+	}
+	
+	@Override
 	public int deleteItemFromWishList(String memberId, int optionNo) {
 		return memberMapper.deleteItemFromWishList(memberId, optionNo);
 	}

@@ -38,6 +38,8 @@ public interface MemberService extends UserDetailsService {
 	void addToWishList(String memberId, int optionNo);
 
 	List<WishListDTO> getMemberWishList(String memberId);
+	
+	List<Integer> getProdNoFromWishList(String memberId);
 
 	int deleteItemFromWishList(String memberId, int optionNo);
 
