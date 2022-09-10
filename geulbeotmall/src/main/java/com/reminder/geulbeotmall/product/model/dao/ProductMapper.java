@@ -119,4 +119,6 @@ public interface ProductMapper {
 	int getTotalNumberOfReviews(int prodNo);
 
 	List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo);
+
+	List<String> getBrandNameBySection(String category);
 }

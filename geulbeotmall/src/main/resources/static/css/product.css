@@ -804,7 +804,12 @@ a:hover {
 }
 
 .filter > ul > .th > p {
-	text-align: center !important;
+	margin-inline-start: 28px;
+	text-align: start;
+}
+
+.filter-brand > ul > .th > p {
+	letter-spacing: 7px;
 }
 
 .filter-color > ul > .td {
@@ -818,6 +823,26 @@ a:hover {
 
 .filter-color > ul > .td > .color-span > a > i {
 	transform: none !important;
+}
+
+.filter-brand > ul > .td > .brand-span,
+.filter-price > ul > .td > .price-span {
+	font-size: 14px;
+	margin-inline-end: 20px;
+}
+
+.filter-price > ul > .td > .price-span:first-child {
+	font-weight: bold;
+}
+
+.filter-brand > ul > .td > .brand-span > a:hover,
+.filter-price > ul > .td > .price-span > a:hover {
+	color: #000 !important;
+	text-decoration: underline;
+}
+
+.filter-tag > ul > .td > .tag-span > a:hover {
+	color: #000 !important;
 }
 
 /* 카드 */
@@ -859,14 +884,52 @@ a:hover {
     text-decoration: none;
 }
 
+.card > a > .card-body {
+	display: inline-flex;
+}
+
+.card > a > .card-body > .text-left > b,
+.card > a > .card-body > .text-left > span > b {
+	color: #00008b;
+}
+
+.card > a > .card-body > .text-left > .price {
+	color: #000;
+}
+
+.card > a > .card-body > .text-left > del {
+	font-size: 14px;
+}
+
+.card > a > .card-body > .text-left > h6 {
+	display: inline-block;
+	width: 180px;
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+    margin-top: 3px;
+    margin-bottom: 6px;
+    vertical-align: middle;
+}
+
+.card > a > .card-body > .text-left > span {
+	display: block;
+	color: #000;
+	font-size: 0.85rem;
+	margin-top: 10px;
+}
+
+.card > a > .card-body > .text-right > i {
+	font-size: 20px;
+}
+.row > * {
+	max-width: 330px !important;
+}
+
 /* 전체 폰트 적용 */
 h2 {
     margin-bottom: 30px;
-}
-
-h6 {
-    margin-top: 3px;
-    margin-bottom: 6px;
 }
 
 small {

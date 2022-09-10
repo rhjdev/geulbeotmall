@@ -26,22 +26,42 @@
 					<li th:each="section : ${ section }"><a th:text="${ section.categorySection }"></a></li>
 				</th:block>
 				<th:block th:unless="${ category == '전체 상품' }">
-					<li th:each="category : ${ category }"><a th:text="${ category }"></a></li>
+					<li th:each="category : ${ categoryBySection }"><a th:text="${ category.categoryName }"></a></li>
 				</th:block>
 			</ul>
 		</div>
 	</div>
 	<div class="product-filter">
+		<div class="filter filter-brand">
+			<ul>
+				<li class="th"><p>브랜드</p></li>
+				<li class="td">
+					<span class="brand-span" th:each="brand : ${ brandBySection }" th:data-target="${ brand }"><a href="#">[[${ brand }]]</a></span>
+				</li>
+			</ul>
+		</div>
+		<div class="filter filter-price">
+			<ul>
+				<li class="th"><p>가격범위</p></li>
+				<li class="td">
+					<span class="price-span" data-target="all"><a href="#">전체보기</a></span>
+					<span class="price-span" data-target="10000"><a href="#">~10,000원</a></span>
+					<span class="price-span" data-target="30000"><a href="#">10,000~30,000원</a></span>
+					<span class="price-span" data-target="50000"><a href="#">30,000~50,000원</a></span>
+					<span class="price-span" data-target="80000"><a href="#">50,000~80,000원</a></span>
+					<span class="price-span" data-target="over"><a href="#">80,000원~</a></span>
+				</li>
+			</ul>
+		</div>
 		<div class="filter filter-tag">
 			<ul>
 				<li class="th"><p>인기태그</p></li>
 				<li class="td">
-					<span class="tag-span">태그태그</span>
-					<span class="tag-span">태그태그</span>
-					<span class="tag-span">태그태그</span>
-					<span class="tag-span">태그태그</span>
-					<span class="tag-span">태그태그</span>
-					<span class="tag-span">태그태그</span>
+					<span class="tag-span" data-target="드로잉"><a href="#">드로잉</a></span>
+					<span class="tag-span" data-target="선물용"><a href="#">선물용</a></span>
+					<span class="tag-span" data-target="세밀한필기용"><a href="#">세밀한필기용</a></span>
+					<span class="tag-span" data-target="중간굵기필기용"><a href="#">중간굵기필기용</a></span>
+					<span class="tag-span" data-target="컬러링용"><a href="#">컬러링용</a></span>
 				</li>
 			</ul>
 		</div>
@@ -50,7 +70,7 @@
 				<li class="th"><p>잉크색상</p></li>
 				<li class="td">
 					<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
-						<span class="color-span">
+						<span class="color-span" th:data-target="${ ink.getLabel() }">
 							<a href="#" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${ ink.getLabel() }">
 								<i class="fa-solid fa-square-full" th:style="${ ink.getColor() }"></i>
 							</a>
@@ -61,39 +81,58 @@
 		</div>
 	</div>
 	<div class="product-desc">
-		<p>총 <b>0</b>개의 상품이 있습니다.</p>
+		<p th:if="${ total }">총 <b>[[${ total }]]</b>개의 상품이 있습니다.</p>
+		<p th:if="!${ total }">총 <b>0</b>개의 상품이 있습니다.</p>
 	</div>
 	<section class="product-section">
-		<div class="product-list row gx-4 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+		<div class="product-list row">
 		    <div class="col mb-5" th:each="product : ${ productList }">
-		        <div class="card">
-		            <a th:href="@{/product/details/(no=${product.prodNo})}">
+		        <div class="card" th:data-id="|${product.productTag},${product.brand.brandName}$${ product.option.inkColor }$|">
+		            <a th:href="@{/product/details(no=${product.prodNo})}">
 		                <!-- Product image-->
 		               <div class="card-img-wrapper" th:each="thumbnail : ${ thumbnailList }" th:if="${product.prodNo == thumbnail.refProdNo}">
 		                   <img class="card-img-top" th:src="${ thumbnail.thumbnailPath }">
 		               </div>
 		               <!-- Product details-->
 		               <div class="card-body">
-		                   <div class="text-left">
-		                       <!-- Product category -->
-		                       <small>[[${ product.brand.brandName }]]</small>
-		                       <!-- Product name-->
-		                       <h6>[[${ product.prodName }]]</h6>
-		                       <!-- Product price-->
-		                       [[${ product.prodPrice }]]
-		                   </div>
-		               </div>
-		           </a>
+							<div class="text-left" th:value="${ product.prodPrice - (product.prodPrice * product.discountRate / 100) }">
+								<small>[[${ product.brand.brandName }]]</small>
+								<h6>[[${ product.prodName }]]</h6>
+								<!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+								<th:block th:if="${product.discountRate} == 0">
+									<b class="price">[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]원</b>
+								</th:block>
+								<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+								<th:block th:if="${product.discountRate} > 0">
+									<b class="price">
+										[[${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')}]]원
+									</b>
+									<del>[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]</del>
+									<b>&nbsp;[[${ product.discountRate }]]%</b>
+								</th:block>
+								<span>
+									리뷰수&nbsp;<b>[[${ reviewNumberMap.get(product.prodNo) }]]</b>&nbsp;&#8729;
+									평점&nbsp;<b>[[${ reviewRatingMap.get(product.prodNo) }]]</b>/<b>5</b>
+								</span>
+							</div>
+							<div class="text-right" th:unless="${ memberWishItem }">
+								<i class="fa-regular fa-heart"></i>
+							</div>
+							<!-- 회원의 경우 위시리스트 상품은 별도 표시 -->
+							<div class="text-right" th:if="${ memberWishItem }">
+								<i th:if="${#lists.contains(memberWishItem, product.prodNo)}" style="color: #ff0000;" class="fa-solid fa-heart"></i>
+								<i th:unless="${#lists.contains(memberWishItem, product.prodNo)}" class="fa-regular fa-heart"></i>
+							</div>
+						</div>
+					</a>
 		       </div>
 		   </div>
 		</div>
     </section>
 	</div>
-	<script type="text/javascript">
-		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		  return new bootstrap.Tooltip(tooltipTriggerEl)
-		})
-	</script>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/filter.js}" type="text/javascript"></script>
+	</th:block>
 </body>
 </html>

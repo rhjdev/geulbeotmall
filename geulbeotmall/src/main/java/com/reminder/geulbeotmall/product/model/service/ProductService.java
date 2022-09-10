@@ -102,4 +102,6 @@ public interface ProductService {
 	int getNumberOfRatings(int prodNo, int star);
 
 	int getTotalNumberOfReviews(int prodNo);
+
+	List<String> getBrandNameBySection(String category);
 }

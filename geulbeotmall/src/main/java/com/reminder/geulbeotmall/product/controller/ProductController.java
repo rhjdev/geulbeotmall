@@ -32,10 +32,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
@@ -53,6 +55,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 @Slf4j
 @Controller
+@SessionAttributes({"loginMember", "geulbeotCart"})
 public class ProductController {
 	
 	//썸네일 크기
@@ -61,12 +64,14 @@ public class ProductController {
 	
 	private final ProductService productService;
 	private final ReviewService reviewService;
+	private final MemberService memberService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public ProductController(ProductService productService, ReviewService reviewService, MessageSource messageSource) {
+	public ProductController(ProductService productService, ReviewService reviewService, MemberService memberService, MessageSource messageSource) {
 		this.productService = productService;
 		this.reviewService = reviewService;
+		this.memberService = memberService;
 		this.messageSource = messageSource;
 	}
 	
@@ -649,6 +654,14 @@ public class ProductController {
 			model.addAttribute("numberList", numberList);
 		}
 		
+		/* 회원의 경우 위시리스트 상품은 별도 표시 */
+		String loginMember = (String) session.getAttribute("loginMember");
+		if(loginMember != null) {
+			log.info("loginMember : {}", loginMember);
+			List<Integer> memberWishItem = memberService.getProdNoFromWishList(loginMember);
+			model.addAttribute("memberWishItem", memberWishItem);
+		}
+		
 		model.addAttribute("detail", detail);
 		model.addAttribute("option", option);
 		model.addAttribute("bodyColor", bodyColor);
@@ -666,32 +679,48 @@ public class ProductController {
 	 * 상품 목록
 	 */
 	@GetMapping(value={"/product/list", "/product/list/{category}"})
-	public void getProductListByCategory(@RequestParam(value="category", required=false) String category, Model model) {
+	public void getProductListByCategory(@RequestParam(value="category", required=false) String category, HttpSession session, Model model) {
 		log.info("요첨 category : {}", category);
-		//String tag = "";
 		List<ProductDTO> productList = productService.getProductListByCategorySection(category);
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
-		for(int i=0; i < productList.size(); i++) {
+		Map<Integer, Integer> reviewNumberMap = new HashMap<>();
+		Map<Integer, Double> reviewRatingMap = new HashMap<>();
+		for(int i=0; i < productList.size(); i++) { //출력용 상품별 메인썸네일, 리뷰수, 평점
 			int prodNo = productList.get(i).getProdNo();
 			AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
 			thumbnailList.add(mainThumb);
+			int number = productService.getTotalNumberOfReviews(prodNo);
+			reviewNumberMap.put(prodNo, number);
+			if(number > 0) {
+				double averageRating = productService.averageReviewRating(prodNo);
+				reviewRatingMap.put(prodNo, averageRating);
+			} else {
+				reviewRatingMap.put(prodNo, 0.0);
+			}
 		}
 		log.info("productList : {}", productList);
+		
+		/* 회원의 경우 위시리스트 상품은 별도 표시 */
+		String loginMember = (String) session.getAttribute("loginMember");
+		if(loginMember != null) {
+			log.info("loginMember : {}", loginMember);
+			List<Integer> memberWishItem = memberService.getProdNoFromWishList(loginMember);
+			model.addAttribute("memberWishItem", memberWishItem);
+		}
 		
 		List<String> section = productService.getCategorySection();
 		List<CategoryDTO> categoryBySection = productService.getCategoryListBySection(category);
 		int totalNumberBySection = productService.getTotalNumberBySection(category);
-		
-		/* 드로잉, 선물용, 세밀한필기용, 중간굵기필기용, 컬러링용 */
-//		tag = "드로잉";
-//		List<ProductDTO> forDrawing = productService.getProductListByCategorySection(category, tag);
+		List<String> brandBySection = productService.getBrandNameBySection(category);
 		
 		model.addAttribute("section", section);
 		model.addAttribute("categoryBySection", categoryBySection);
+		model.addAttribute("brandBySection", brandBySection);
 		model.addAttribute("total", totalNumberBySection);
 		model.addAttribute("category", category == null ? "전체 상품" : category);
-		//model.addAttribute("forDrawing", forDrawing);
 		model.addAttribute("productList", productList);
 		model.addAttribute("thumbnailList", thumbnailList);
+		model.addAttribute("reviewNumberMap", reviewNumberMap);
+		model.addAttribute("reviewRatingMap", reviewRatingMap);
 	}
 }

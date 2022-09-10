@@ -945,4 +945,15 @@
 		 	<if test="category != null">B.CATEGORY_SECTION = #{ category }</if>
 		 </trim>
 	</select>
+	
+	<!-- 카테고리 섹션별 브랜드 목록 조회 -->
+	<select id="getBrandNameBySection" resultType="string">
+		SELECT
+			   DISTINCT(A.BRAND_NAME)
+		  FROM TBL_BRAND A
+		  LEFT JOIN TBL_PRODUCT B ON(A.BRAND_NO = B.BRAND_NO)
+		  LEFT JOIN TBL_CATEGORY C ON(B.CATEGORY_NO = C.CATEGORY_NO)
+		 WHERE C.CATEGORY_SECTION = #{ category }
+		  
+	</select>
 </mapper>

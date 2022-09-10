@@ -259,4 +259,9 @@ public class ProductServiceImpl implements ProductService {
 	public int getTotalNumberOfReviews(int prodNo) {
 		return productMapper.getTotalNumberOfReviews(prodNo);
 	}
+
+	@Override
+	public List<String> getBrandNameBySection(String category) {
+		return productMapper.getBrandNameBySection(category);
+	}
 }
