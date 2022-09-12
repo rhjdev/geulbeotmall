@@ -1,0 +1,36 @@
+@charset "UTF-8";
+
+/* 페이징 */
+.pagination { 
+	justify-content: center;
+}
+
+.page-item a:hover { 
+	background-color: transparent;
+	border-color: #dee2e6;
+	color: #000;
+}
+
+.page-item a:focus {
+	box-shadow: none;
+	outline: none;
+}
+
+.page-link { 
+	margin-left: 5px;
+	margin-right: 5px;
+	border-radius: 2px;
+	border-color: transparent;
+	color: #000;
+}
+
+.page-item.disabled .page-link {
+	border-color: transparent;
+}
+
+.page-item.active .page-link {
+	background-color: transparent;
+	border: 2px solid #000;
+	font-weight: bold;
+	color: #000;
+}

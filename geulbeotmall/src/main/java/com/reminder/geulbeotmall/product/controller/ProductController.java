@@ -39,6 +39,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.ItemCriteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
@@ -678,10 +679,12 @@ public class ProductController {
 	/**
 	 * 상품 목록
 	 */
-	@GetMapping(value={"/product/list", "/product/list/{category}"})
-	public void getProductListByCategory(@RequestParam(value="category", required=false) String category, HttpSession session, Model model) {
-		log.info("요첨 category : {}", category);
-		List<ProductDTO> productList = productService.getProductListByCategorySection(category);
+	@GetMapping("/product/list")
+	public void getProductListByCategory(@Valid @ModelAttribute("itemCriteria") ItemCriteria itemCriteria, @RequestParam(value="section", required=false) String section, HttpSession session, Model model) {
+		log.info("요첨 section : {}", section);
+		log.info("요첨 itemCriteria : {}", itemCriteria);
+		itemCriteria.setSection(section); //대분류 카테고리 섹션
+		List<ProductDTO> productList = productService.getProductListByCategorySection(itemCriteria);
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
 		Map<Integer, Integer> reviewNumberMap = new HashMap<>();
 		Map<Integer, Double> reviewRatingMap = new HashMap<>();
@@ -708,19 +711,26 @@ public class ProductController {
 			model.addAttribute("memberWishItem", memberWishItem);
 		}
 		
-		List<String> section = productService.getCategorySection();
-		List<CategoryDTO> categoryBySection = productService.getCategoryListBySection(category);
-		int totalNumberBySection = productService.getTotalNumberBySection(category);
-		List<String> brandBySection = productService.getBrandNameBySection(category);
+		//List<String> section = productService.getCategorySection();
+		List<String> categoryBySection = productService.getCategoryListBySection(section);
+		Map<String, Integer> totalNumberMap = new HashMap<>();
+		for(int i=0; i < categoryBySection.size(); i++) {
+			int num = productService.getTotalNumberByMinorCategory(categoryBySection.get(i));
+			totalNumberMap.put(categoryBySection.get(i), num);
+		}
+		int totalNumberBySection = productService.getTotalNumberBySection(section);
+		List<String> brandBySection = productService.getBrandNameBySection(section);
 		
 		model.addAttribute("section", section);
 		model.addAttribute("categoryBySection", categoryBySection);
 		model.addAttribute("brandBySection", brandBySection);
 		model.addAttribute("total", totalNumberBySection);
-		model.addAttribute("category", category == null ? "전체 상품" : category);
+		model.addAttribute("totalNumberMap", totalNumberMap);
+		model.addAttribute("section", section == null ? "전체 상품" : section);
 		model.addAttribute("productList", productList);
 		model.addAttribute("thumbnailList", thumbnailList);
 		model.addAttribute("reviewNumberMap", reviewNumberMap);
 		model.addAttribute("reviewRatingMap", reviewRatingMap);
+		model.addAttribute("pageMaker", new PageDTO(productList.size(), 10, itemCriteria));
 	}
 }

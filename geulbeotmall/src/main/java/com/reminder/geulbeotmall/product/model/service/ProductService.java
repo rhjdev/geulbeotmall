@@ -3,6 +3,7 @@ package com.reminder.geulbeotmall.product.model.service;
 import java.util.List;
 
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.ItemCriteria;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
@@ -79,11 +80,11 @@ public interface ProductService {
 
 	int searchProdNoByOptionNo(int optionNo);
 
-	List<ProductDTO> getProductListByCategorySection(String category);
+	List<ProductDTO> getProductListByCategorySection(ItemCriteria itemCriteria);
 
 	List<String> getCategorySection();
 
-	List<CategoryDTO> getCategoryListBySection(String category);
+	List<String> getCategoryListBySection(String category);
 
 	int getTotalNumberBySection(String category);
 
@@ -104,4 +105,6 @@ public interface ProductService {
 	int getTotalNumberOfReviews(int prodNo);
 
 	List<String> getBrandNameBySection(String category);
+
+	int getTotalNumberByMinorCategory(String category);
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.ItemCriteria;
 import com.reminder.geulbeotmall.product.model.dao.ProductMapper;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
@@ -201,8 +202,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<ProductDTO> getProductListByCategorySection(String category) {
-		return productMapper.getProductListByCategorySection(category);
+	public List<ProductDTO> getProductListByCategorySection(ItemCriteria itemCriteria) {
+		return productMapper.getProductListByCategorySection(itemCriteria);
 	}
 
 	@Override
@@ -211,7 +212,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<CategoryDTO> getCategoryListBySection(String category) {
+	public List<String> getCategoryListBySection(String category) {
 		return productMapper.getCategoryListBySection(category);
 	}
 
@@ -263,5 +264,10 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<String> getBrandNameBySection(String category) {
 		return productMapper.getBrandNameBySection(category);
+	}
+
+	@Override
+	public int getTotalNumberByMinorCategory(String category) {
+		return productMapper.getTotalNumberByMinorCategory(category);
 	}
 }

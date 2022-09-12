@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.ItemCriteria;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.CategoryDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
@@ -94,11 +95,11 @@ public interface ProductMapper {
 
 	int searchProdNoByOptionNo(int optionNo);
 
-	List<ProductDTO> getProductListByCategorySection(String category);
+	List<ProductDTO> getProductListByCategorySection(ItemCriteria itemCriteria);
 
 	List<String> getCategorySection();
 
-	List<CategoryDTO> getCategoryListBySection(String category);
+	List<String> getCategoryListBySection(String category);
 
 	int getTotalNumberBySection(String category);
 
@@ -121,4 +122,6 @@ public interface ProductMapper {
 	List<AttachmentDTO> getAttachmentByReviewNo(int reviewNo);
 
 	List<String> getBrandNameBySection(String category);
+
+	int getTotalNumberByMinorCategory(String category);
 }

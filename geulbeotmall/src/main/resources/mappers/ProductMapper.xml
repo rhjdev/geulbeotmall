@@ -326,7 +326,7 @@
 	<!-- 전체상품 개수 조회 -->
 	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(DISTINCT A.PROD_NAME)
+			   COUNT(DISTINCT A.PROD_NO)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -345,7 +345,7 @@
 	<!-- 판매중 상품 개수 조회 -->
 	<select id="getOnSaleNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(DISTINCT A.PROD_NAME)
+			   COUNT(DISTINCT A.PROD_NO)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -365,7 +365,7 @@
 	<!-- 판매중지 상품 개수 조회 -->
 	<select id="getStopSaleNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(DISTINCT A.PROD_NAME)
+			   COUNT(DISTINCT A.PROD_NO)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -385,7 +385,7 @@
 	<!-- 할인중 상품 개수 조회 -->
 	<select id="getOnDiscountNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(DISTINCT A.PROD_NAME)
+			   COUNT(DISTINCT A.PROD_NO)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -405,7 +405,7 @@
 	<!-- 품절 상품 개수 조회 -->
 	<select id="getSoldOutNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(DISTINCT A.PROD_NAME)
+			   COUNT(DISTINCT A.PROD_NO)
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -899,12 +899,29 @@
 		  FROM TBL_CATEGORY
 	</select>
 	
-	<!-- 카테고리 섹션별 소분류 목록 조회 -->
-	<select id="getCategoryListBySection" resultMap="categoryResultMap">
+	<!-- 카테고리 섹션별 소분류 이름 조회 *상품많은순* -->
+	<select id="getCategoryListBySection" resultType="string">
 		SELECT
-			   DISTINCT(CATEGORY_NAME)
-		  FROM TBL_CATEGORY
-		 WHERE CATEGORY_SECTION = #{ category }
+			   T.CATEGORY_NAME
+		  FROM (SELECT
+		  			   A.CATEGORY_NAME
+		  			 , A.CATEGORY_SECTION
+		  			 , COUNT(B.CATEGORY_NO)
+		  		  FROM TBL_CATEGORY A
+		  		  LEFT JOIN TBL_PRODUCT B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		  		  WHERE A.CATEGORY_SECTION = #{ category }
+		  		  GROUP BY A.CATEGORY_NAME, A.CATEGORY_SECTION
+		  		  ORDER BY COUNT(B.CATEGORY_NO) DESC) T
+	</select>
+	
+	<!-- 카테고리 섹션별 소분류 상품 개수 조회 -->
+	<select id="getTotalNumberByMinorCategory" resultType="_int">
+		SELECT
+			   COUNT(B.CATEGORY_NO)
+		  FROM TBL_CATEGORY A
+		  LEFT JOIN TBL_PRODUCT B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		 WHERE A.CATEGORY_NAME = #{ category }
+		 GROUP BY A.CATEGORY_NAME
 	</select>
 	
 	<!-- 카테고리 섹션별 상품 개수 조회 -->
@@ -916,37 +933,89 @@
 		 WHERE B.CATEGORY_SECTION = #{ category }
 	</select>
 	
+	<!-- 상품 정렬 --> <!-- sql 구문은 사용하고자 하는 쿼리 이전에 선언되어야 함 -->
+	<sql id="sortBy">
+		<if test="sortBy == null">A.PROD_NO DESC</if>
+		<if test="sortBy == 'popularity'">A.PROD_DETAIL_VIEW_COUNT DESC</if>
+		<if test="sortBy == 'lowest'">A.PROD_PRICE ASC</if>
+		<if test="sortBy == 'latest'">A.PROD_ENROLL_DATE DESC</if>
+	</sql>
+	
 	<!-- 카테고리 섹션별 상품 목록 조회 -->
-	<select id="getProductListByCategorySection" resultMap="productResultMap">
+	<select id="getProductListByCategorySection" parameterType="com.reminder.geulbeotmall.paging.model.dto.ItemCriteria" resultMap="productResultMap">
+	<![CDATA[
 		SELECT
-  			     A.PROD_NO
-  			   , B.CATEGORY_NAME
-  			   , C.BRAND_NAME
-  			   , A.PROD_NAME
-  			   , A.PROD_DESC
-  			   , A.PRODUCT_TAG
-  			   , A.DISCOUNT_RATE
-  			   , A.PROD_PRICE
-  			   , A.PROD_ORIGIN
-  			   , A.PROD_DETAIL_CONTENT
-  			   , A.PROD_DETAIL_VIEW_COUNT
-  			   , A.PROD_ENROLL_DATE
-  			   , A.PROD_CHANGE_DATE
-  			   , A.PROD_AVAIL_YN
-  			   , O.OPT_BODY_COLOR
-  			   , O.OPT_INK_COLOR
-  			   , O.OPT_POINT_SIZE
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		 WHERE A.PROD_AVAIL_YN = 'Y'
-		 <trim prefix="AND">
-		 	<if test="category != null">B.CATEGORY_SECTION = #{ category }</if>
-		 </trim>
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+			 , E.OPT_BODY_COLOR
+			 , E.OPT_INK_COLOR
+			 , E.OPT_POINT_SIZE
+		  FROM (SELECT D.RANK RK
+  				     , D.PROD_NO
+  				     , D.CATEGORY_NAME
+  				     , D.BRAND_NAME
+  				     , D.PROD_NAME
+  				     , D.PROD_DESC
+  				     , D.PRODUCT_TAG
+  				     , D.DISCOUNT_RATE
+  				     , D.PROD_PRICE
+  				     , D.PROD_ORIGIN
+  				     , D.PROD_DETAIL_CONTENT
+  				     , D.PROD_DETAIL_VIEW_COUNT
+  				     , D.PROD_ENROLL_DATE
+  				     , D.PROD_CHANGE_DATE
+  				     , D.PROD_AVAIL_YN
+  				     , D.OPT_BODY_COLOR
+  				     , D.OPT_INK_COLOR
+  				     , D.OPT_POINT_SIZE
+  				  FROM (SELECT
+	]]>
+		  					   DENSE_RANK() OVER (ORDER BY <include refid="sortBy"/>) RANK
+	<![CDATA[
+							 , A.PROD_NO
+							 , B.CATEGORY_NAME
+							 , C.BRAND_NAME
+							 , A.PROD_NAME
+							 , A.PROD_DESC
+							 , A.PRODUCT_TAG
+							 , A.DISCOUNT_RATE
+							 , A.PROD_PRICE
+							 , A.PROD_ORIGIN
+							 , A.PROD_DETAIL_CONTENT
+							 , A.PROD_DETAIL_VIEW_COUNT
+							 , A.PROD_ENROLL_DATE
+							 , A.PROD_CHANGE_DATE
+							 , A.PROD_AVAIL_YN
+							 , O.OPT_BODY_COLOR
+							 , O.OPT_INK_COLOR
+							 , O.OPT_POINT_SIZE
+						  FROM TBL_PRODUCT A
+						  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+						  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+						  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+						 WHERE A.PROD_AVAIL_YN = 'Y'
+	]]>
+						<if test="section != null">AND B.CATEGORY_SECTION = #{ section }</if>
+					  ) D
+	<![CDATA[
+				 WHERE D.RANK <= #{ page } * #{ items }) E
+		 WHERE E.RK > (#{ page } - 1) * #{ items }
+	]]>
 	</select>
 	
-	<!-- 카테고리 섹션별 브랜드 목록 조회 -->
+	<!-- 카테고리 섹션별 브랜드 목록 조회 *사전순* -->
 	<select id="getBrandNameBySection" resultType="string">
 		SELECT
 			   DISTINCT(A.BRAND_NAME)
@@ -954,6 +1023,6 @@
 		  LEFT JOIN TBL_PRODUCT B ON(A.BRAND_NO = B.BRAND_NO)
 		  LEFT JOIN TBL_CATEGORY C ON(B.CATEGORY_NO = C.CATEGORY_NO)
 		 WHERE C.CATEGORY_SECTION = #{ category }
-		  
+		 ORDER BY A.BRAND_NAME
 	</select>
 </mapper>
