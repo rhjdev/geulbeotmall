@@ -10,6 +10,12 @@ public class ItemCriteria {
 	private int page;
 	private int items; //per page
 	private String section;
+	private String category;
+	private String brand;
+	private int min; //min price
+	private int max; //max price
+	private String tag;
+	private String color; //ink color
 	private String sortBy;
 	
 	public ItemCriteria() {
@@ -26,6 +32,12 @@ public class ItemCriteria {
 				.queryParam("page", page)
 				.queryParam("items", items)
 				.queryParam("section", section)
+				.queryParam("category", this.category)
+				.queryParam("brand", this.brand)
+				.queryParam("min", this.min)
+				.queryParam("max", this.max)
+				.queryParam("tag", this.tag)
+				.queryParam("color", this.color)
 				.queryParam("sortBy", this.sortBy);
 		return builder.toUriString();
 	}

@@ -827,10 +827,14 @@
 			 , A.PROD_CHANGE_DATE
 			 , A.PROD_AVAIL_YN
 			 , T.THUMBNAIL_PATH
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
 		  FROM TBL_PRODUCT A
 		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 		 WHERE A.PROD_NO = #{ prodNo }
 	</select>
 	
@@ -924,94 +928,71 @@
 		 GROUP BY A.CATEGORY_NAME
 	</select>
 	
-	<!-- 카테고리 섹션별 상품 개수 조회 -->
-	<select id="getTotalNumberBySection" resultType="_int">
-		SELECT
-			   COUNT(A.PROD_NO)
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON (A.CATEGORY_NO = B.CATEGORY_NO)
-		 WHERE B.CATEGORY_SECTION = #{ category }
-	</select>
-	
 	<!-- 상품 정렬 --> <!-- sql 구문은 사용하고자 하는 쿼리 이전에 선언되어야 함 -->
 	<sql id="sortBy">
-		<if test="sortBy == null">A.PROD_NO DESC</if>
-		<if test="sortBy == 'popularity'">A.PROD_DETAIL_VIEW_COUNT DESC</if>
-		<if test="sortBy == 'lowest'">A.PROD_PRICE ASC</if>
-		<if test="sortBy == 'latest'">A.PROD_ENROLL_DATE DESC</if>
+		<if test="sortBy == null">D.PROD_NO DESC</if>
+		<if test="sortBy == 'popularity'">D.PROD_DETAIL_VIEW_COUNT DESC</if>
+		<if test="sortBy == 'lowest'">D.PROD_PRICE ASC</if>
+		<if test="sortBy == 'latest'">D.PROD_ENROLL_DATE DESC</if>
 	</sql>
 	
-	<!-- 카테고리 섹션별 상품 목록 조회 -->
+	<!-- 필터별 상품 개수 조회 -->
+	<select id="getTotalNumberByCriteria" parameterType="com.reminder.geulbeotmall.paging.model.dto.ItemCriteria" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT(A.PROD_NO))
+		  FROM TBL_PRODUCT A
+		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+		 WHERE A.PROD_AVAIL_YN = 'Y'
+		<if test="section != null and section != ''">AND B.CATEGORY_SECTION = #{ section }</if>
+		<if test="category != null and category != ''">AND B.CATEGORY_NAME = #{ category }</if>
+		<if test="brand != null and brand != ''">AND C.BRAND_NAME = #{ brand }</if>
+		<if test="tag != null and tag != ''">AND A.PRODUCT_TAG LIKE '%' || #{ tag } || '%'</if>
+		<if test="color != null and color != ''">AND O.OPT_INK_COLOR LIKE '%' || #{ color } || '%'</if>
+		<if test="min == 0 and max == 0">AND A.PROD_PRICE = A.PROD_PRICE</if>
+		<if test="min != null and min != 0 and max == 0">AND (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100) >= #{ min }</if>
+		<if test="min == 0 and max != null and max != 0">AND #{ max } > (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100)</if>
+		<if test="min != null and min != 0 and max != null and max != 0">AND (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100) >= #{ min } AND #{ max } > (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100)</if>
+	</select>
+	
+	<!-- 필터별 상품 목록 조회 -->
 	<select id="getProductListByCategorySection" parameterType="com.reminder.geulbeotmall.paging.model.dto.ItemCriteria" resultMap="productResultMap">
 	<![CDATA[
-		SELECT
-			   E.PROD_NO
-			 , E.CATEGORY_NAME
-			 , E.BRAND_NAME
-			 , E.PROD_NAME
-			 , E.PROD_DESC
-			 , E.PRODUCT_TAG
-			 , E.DISCOUNT_RATE
-			 , E.PROD_PRICE
-			 , E.PROD_ORIGIN
-			 , E.PROD_DETAIL_CONTENT
-			 , E.PROD_DETAIL_VIEW_COUNT
-			 , E.PROD_ENROLL_DATE
-			 , E.PROD_CHANGE_DATE
-			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
-		  FROM (SELECT D.RANK RK
-  				     , D.PROD_NO
-  				     , D.CATEGORY_NAME
-  				     , D.BRAND_NAME
-  				     , D.PROD_NAME
-  				     , D.PROD_DESC
-  				     , D.PRODUCT_TAG
-  				     , D.DISCOUNT_RATE
-  				     , D.PROD_PRICE
-  				     , D.PROD_ORIGIN
-  				     , D.PROD_DETAIL_CONTENT
-  				     , D.PROD_DETAIL_VIEW_COUNT
-  				     , D.PROD_ENROLL_DATE
-  				     , D.PROD_CHANGE_DATE
-  				     , D.PROD_AVAIL_YN
-  				     , D.OPT_BODY_COLOR
-  				     , D.OPT_INK_COLOR
-  				     , D.OPT_POINT_SIZE
-  				  FROM (SELECT
+		SELECT F.*
+		  FROM(SELECT
+					  E.RANK RK
+					, E.*
+				 FROM (SELECT
 	]]>
-		  					   DENSE_RANK() OVER (ORDER BY <include refid="sortBy"/>) RANK
+		  					   ROW_NUMBER() OVER (ORDER BY <include refid="sortBy"/>) RANK
 	<![CDATA[
-							 , A.PROD_NO
-							 , B.CATEGORY_NAME
-							 , C.BRAND_NAME
-							 , A.PROD_NAME
-							 , A.PROD_DESC
-							 , A.PRODUCT_TAG
-							 , A.DISCOUNT_RATE
-							 , A.PROD_PRICE
-							 , A.PROD_ORIGIN
-							 , A.PROD_DETAIL_CONTENT
-							 , A.PROD_DETAIL_VIEW_COUNT
-							 , A.PROD_ENROLL_DATE
-							 , A.PROD_CHANGE_DATE
-							 , A.PROD_AVAIL_YN
-							 , O.OPT_BODY_COLOR
-							 , O.OPT_INK_COLOR
-							 , O.OPT_POINT_SIZE
-						  FROM TBL_PRODUCT A
-						  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-						  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-						  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-						 WHERE A.PROD_AVAIL_YN = 'Y'
+							 , D.*
+						 FROM (SELECT
+									  DISTINCT(A.PROD_NO)
+									, A.PROD_PRICE
+									, A.PROD_DETAIL_VIEW_COUNT
+									, A.PROD_ENROLL_DATE
+								 FROM TBL_PRODUCT A
+								 LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+								 LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+								 LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+								WHERE A.PROD_AVAIL_YN = 'Y'
 	]]>
-						<if test="section != null">AND B.CATEGORY_SECTION = #{ section }</if>
-					  ) D
+								<if test="section != null and section != ''">AND B.CATEGORY_SECTION = #{ section }</if>
+								<if test="category != null and category != ''">AND B.CATEGORY_NAME = #{ category }</if>
+								<if test="brand != null and brand != ''">AND C.BRAND_NAME = #{ brand }</if>
+								<if test="tag != null and tag != ''">AND A.PRODUCT_TAG LIKE '%' || #{ tag } || '%'</if>
+								<if test="color != null and color != ''">AND O.OPT_INK_COLOR LIKE '%' || #{ color } || '%'</if>
+								<if test="min == 0 and max == 0">AND A.PROD_PRICE = A.PROD_PRICE</if>
+								<if test="min != null and min != 0 and max == 0">AND (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100) >= #{ min }</if>
+								<if test="min == 0 and max != null and max != 0">AND #{ max } > (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100)</if>
+								<if test="min != null and min != 0 and max != null and max != 0">AND (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100) >= #{ min } AND #{ max } > (A.PROD_PRICE - A.PROD_PRICE * A.DISCOUNT_RATE / 100)</if>
+							    ) D
+					    ) E
 	<![CDATA[
-				 WHERE D.RANK <= #{ page } * #{ items }) E
-		 WHERE E.RK > (#{ page } - 1) * #{ items }
+				WHERE E.RANK <= #{ page } * #{ items }) F
+		 WHERE F.RK > (#{ page } - 1) * #{ items }
 	]]>
 	</select>
 	

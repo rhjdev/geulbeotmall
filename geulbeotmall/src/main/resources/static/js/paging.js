@@ -23,9 +23,4 @@ $(document).ready(function() {
 		e.preventDefault();
 		searchForm.submit();
 	});
-	/* 정렬 폼 제출 */
-	$(".page-item a").on("click", function(e){
-		e.preventDefault();
-		console.log('click');
-	});
 });

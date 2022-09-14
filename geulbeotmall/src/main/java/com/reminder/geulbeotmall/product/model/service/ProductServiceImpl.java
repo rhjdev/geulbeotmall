@@ -217,8 +217,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public int getTotalNumberBySection(String category) {
-		return productMapper.getTotalNumberBySection(category);
+	public int getTotalNumberByCriteria(ItemCriteria itemCriteria) {
+		return productMapper.getTotalNumberByCriteria(itemCriteria);
 	}
 
 	@Override

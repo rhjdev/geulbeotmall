@@ -680,11 +680,19 @@ public class ProductController {
 	 * 상품 목록
 	 */
 	@GetMapping("/product/list")
-	public void getProductListByCategory(@Valid @ModelAttribute("itemCriteria") ItemCriteria itemCriteria, @RequestParam(value="section", required=false) String section, HttpSession session, Model model) {
+	public void getProductListByCategory(@Valid @ModelAttribute("itemCriteria") ItemCriteria itemCriteria, HttpSession session, Model model) {
+		String section = itemCriteria.getSection();
 		log.info("요첨 section : {}", section);
 		log.info("요첨 itemCriteria : {}", itemCriteria);
 		itemCriteria.setSection(section); //대분류 카테고리 섹션
-		List<ProductDTO> productList = productService.getProductListByCategorySection(itemCriteria);
+		List<ProductDTO> sortedList = productService.getProductListByCategorySection(itemCriteria);
+		List<ProductDTO> productList = new ArrayList<>();
+		for(int i=0; i < sortedList.size(); i++) {
+			int sortedProdNo = sortedList.get(i).getProdNo();
+			//log.info("sortedProdNo : {}", sortedProdNo);
+			ProductDTO productDTO = productService.getProductDetails(sortedProdNo);
+			productList.add(productDTO);
+		}
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
 		Map<Integer, Integer> reviewNumberMap = new HashMap<>();
 		Map<Integer, Double> reviewRatingMap = new HashMap<>();
@@ -711,26 +719,35 @@ public class ProductController {
 			model.addAttribute("memberWishItem", memberWishItem);
 		}
 		
-		//List<String> section = productService.getCategorySection();
-		List<String> categoryBySection = productService.getCategoryListBySection(section);
-		Map<String, Integer> totalNumberMap = new HashMap<>();
-		for(int i=0; i < categoryBySection.size(); i++) {
-			int num = productService.getTotalNumberByMinorCategory(categoryBySection.get(i));
-			totalNumberMap.put(categoryBySection.get(i), num);
+		/* 섹션별 구성 정보 */
+		if(section != null) {
+			List<String> categoryBySection = productService.getCategoryListBySection(section);
+			Map<String, Integer> totalNumberMap = new HashMap<>();
+			for(int i=0; i < categoryBySection.size(); i++) {
+				int num = productService.getTotalNumberByMinorCategory(categoryBySection.get(i));
+				totalNumberMap.put(categoryBySection.get(i), num);
+			}
+			List<String> brandBySection = productService.getBrandNameBySection(section);
+			
+			model.addAttribute("categoryBySection", categoryBySection);
+			model.addAttribute("brandBySection", brandBySection);
+			model.addAttribute("totalNumberMap", totalNumberMap);
 		}
-		int totalNumberBySection = productService.getTotalNumberBySection(section);
-		List<String> brandBySection = productService.getBrandNameBySection(section);
 		
-		model.addAttribute("section", section);
-		model.addAttribute("categoryBySection", categoryBySection);
-		model.addAttribute("brandBySection", brandBySection);
-		model.addAttribute("total", totalNumberBySection);
-		model.addAttribute("totalNumberMap", totalNumberMap);
-		model.addAttribute("section", section == null ? "전체 상품" : section);
+		/* 필터 결과에 따라 페이징 처리 */
+		int totalNumber = productService.getTotalNumberByCriteria(itemCriteria);
+		
+		model.addAttribute("section", section == null || section == "" ? "전체 상품" : section);
 		model.addAttribute("productList", productList);
 		model.addAttribute("thumbnailList", thumbnailList);
 		model.addAttribute("reviewNumberMap", reviewNumberMap);
 		model.addAttribute("reviewRatingMap", reviewRatingMap);
-		model.addAttribute("pageMaker", new PageDTO(productList.size(), 10, itemCriteria));
+		model.addAttribute("total", totalNumber);
+		model.addAttribute("pageMaker", new PageDTO(totalNumber, 10, itemCriteria));
+	}
+	
+	@GetMapping("/product/search")
+	public void searchProduct(@RequestParam(value="keyword", required=false) String keywrod, Model model) {
+		
 	}
 }

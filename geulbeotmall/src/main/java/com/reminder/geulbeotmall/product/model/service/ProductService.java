@@ -86,7 +86,7 @@ public interface ProductService {
 
 	List<String> getCategoryListBySection(String category);
 
-	int getTotalNumberBySection(String category);
+	int getTotalNumberByCriteria(ItemCriteria itemCriteria);
 
 	Integer getSalesByProdNo(int prodNo);
 

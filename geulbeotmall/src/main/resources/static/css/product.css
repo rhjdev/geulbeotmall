@@ -5,6 +5,10 @@
 	margin-top: 20px;
 }
 
+.product-wrapper {
+	margin-bottom: 150px;
+}
+
 .shareBox {
 	position: absolute;
 	right: 2%;
@@ -1091,8 +1095,30 @@ a:hover {
 .card > a > .card-body > .text-right > i {
 	font-size: 20px;
 }
+
 .row > * {
 	max-width: 330px !important;
+}
+
+/* 상품 검색 */
+.keyword-wrapper {
+    display: flex;
+    height: 190px;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.keyword-wrapper h2 {
+    top: 50%;
+    left: 50%;
+	font-family: 'Gowun Dodum', sans-serif;
+    font-size: 38px !important;
+    font-weight: 400 !important;
+}
+
+.result-wrapper {
+	margin-top: 40px;
 }
 
 /* 전체 폰트 적용 */
