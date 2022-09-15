@@ -5,6 +5,13 @@
 }
 
 /* 캐러셀 */
+.dashboard-title {
+	font-family: 'Gowun Dodum', sans-serif;
+    font-weight: 700;
+    margin-top: 1.5rem !important;
+    text-align: center;
+}
+
 .carousel-inner {
     width: auto;
     max-height: 50%;
@@ -52,6 +59,54 @@
 .card a {
     color: #000;
     text-decoration: none;
+}
+
+.card > a > .card-body {
+	display: inline-flex;
+}
+
+.card > a > .card-body > .text-left > b,
+.card > a > .card-body > .text-left > span > b {
+	color: #00008b;
+}
+
+.card > a > .card-body > .text-left > .price {
+	color: #000;
+}
+
+.card > a > .card-body > .text-left > del {
+	font-size: 14px;
+}
+
+.card > a > .card-body > .text-left > h6 {
+	display: inline-block;
+	width: 180px;
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+    margin-top: 3px;
+    margin-bottom: 6px;
+    vertical-align: middle;
+}
+
+.card > a > .card-body > .text-left > span {
+	display: block;
+	color: #000;
+	font-size: 0.85rem;
+	margin-top: 10px;
+}
+
+.card > a > .card-body > .text-right > i {
+	font-size: 20px;
+}
+
+.row > * {
+	max-width: 330px !important;
+}
+
+.fa-heart:hover {
+	color: #ff0000;
 }
 
 /* 스토리 */
