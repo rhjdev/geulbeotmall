@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>검색 결과 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/product.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<div class="keyword-wrapper">
+        <h2>"[[${keyword}]]"</h2><h2>(으)로 검색된 결과</h2>
+    </div>
+	<div class="container result-wrapper">
+		<div class="product-desc">
+			<p th:if="${ total }">총 <b>[[${ total }]]</b>개의 상품이 있습니다.</p>
+			<p th:if="!${ total }">총 <b>0</b>개의 상품이 있습니다.</p>
+		</div>
+		<section class="product-section">
+			<div class="product-list row">
+			    <div class="col mb-5" th:each="product : ${ resultList }" style="flex: none;">
+			        <div class="card" th:data-id="|${product.productTag},${product.brand.brandName}$${ product.option.inkColor }$${product.category.categoryName}|">
+			            <a th:href="@{/product/details(no=${product.prodNo})}">
+			                <!-- Product image-->
+			               <div class="card-img-wrapper" th:each="thumbnail : ${ thumbnailList }" th:if="${product.prodNo == thumbnail.refProdNo}">
+			                   <img class="card-img-top" th:src="${ thumbnail.thumbnailPath }">
+			               </div>
+			               <!-- Product details-->
+			               <div class="card-body">
+								<div class="text-left" th:value="${ product.prodPrice - (product.prodPrice * product.discountRate / 100) }">
+									<small>[[${ product.brand.brandName }]]</small>
+									<h6>[[${ product.prodName }]]</h6>
+									<!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+									<th:block th:if="${product.discountRate} == 0">
+										<b class="price">[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]원</b>
+									</th:block>
+									<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+									<th:block th:if="${product.discountRate} > 0">
+										<b class="price">
+											[[${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')}]]원
+										</b>
+										<del>[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]</del>
+										<b>&nbsp;[[${ product.discountRate }]]%</b>
+									</th:block>
+									<span>
+										리뷰수&nbsp;<b>[[${ reviewNumberMap.get(product.prodNo) }]]</b>&nbsp;&#8729;
+										평점&nbsp;<b>[[${ reviewRatingMap.get(product.prodNo) }]]</b>/<b>5</b>
+									</span>
+								</div>
+								<div class="text-right" th:unless="${ memberWishItem }">
+									<i class="fa-regular fa-heart"></i>
+								</div>
+								<!-- 회원의 경우 위시리스트 상품은 별도 표시 -->
+								<div class="text-right" th:if="${ memberWishItem }">
+									<i th:if="${#lists.contains(memberWishItem, product.prodNo)}" style="color: #ff0000;" class="fa-solid fa-heart"></i>
+									<i th:unless="${#lists.contains(memberWishItem, product.prodNo)}" class="fa-regular fa-heart"></i>
+								</div>
+							</div>
+						</a>
+			       </div>
+			   </div>
+			</div>
+	    </section>
+	</div>
+</body>
+</html>

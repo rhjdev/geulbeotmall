@@ -747,7 +747,29 @@ public class ProductController {
 	}
 	
 	@GetMapping("/product/search")
-	public void searchProduct(@RequestParam(value="keyword", required=false) String keywrod, Model model) {
-		
+	public void searchProduct(@RequestParam("keyword") String keyword, Model model) {
+		List<ProductDTO> resultList = productService.searchProductByKeyword(keyword);
+		List<AttachmentDTO> thumbnailList = new ArrayList<>();
+		Map<Integer, Integer> reviewNumberMap = new HashMap<>();
+		Map<Integer, Double> reviewRatingMap = new HashMap<>();
+		for(int i=0; i < resultList.size(); i++) { //출력용 상품별 메인썸네일, 리뷰수, 평점
+			int prodNo = resultList.get(i).getProdNo();
+			AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+			thumbnailList.add(mainThumb);
+			int number = productService.getTotalNumberOfReviews(prodNo);
+			reviewNumberMap.put(prodNo, number);
+			if(number > 0) {
+				double averageRating = productService.averageReviewRating(prodNo);
+				reviewRatingMap.put(prodNo, averageRating);
+			} else {
+				reviewRatingMap.put(prodNo, 0.0);
+			}
+		}
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("total", resultList.size());
+		model.addAttribute("resultList", resultList);
+		model.addAttribute("thumbnailList", thumbnailList);
+		model.addAttribute("reviewNumberMap", reviewNumberMap);
+		model.addAttribute("reviewRatingMap", reviewRatingMap);
 	}
 }

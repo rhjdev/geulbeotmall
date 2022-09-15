@@ -270,4 +270,9 @@ public class ProductServiceImpl implements ProductService {
 	public int getTotalNumberByMinorCategory(String category) {
 		return productMapper.getTotalNumberByMinorCategory(category);
 	}
+
+	@Override
+	public List<ProductDTO> searchProductByKeyword(String keyword) {
+		return productMapper.searchProductByKeyword(keyword);
+	}
 }

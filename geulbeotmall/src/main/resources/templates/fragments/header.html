@@ -23,7 +23,7 @@
             	<!-- 로그인(회원) -->
             	<th:block sec:authorize="isAuthenticated()">
 		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
-                	<li class="nav-item"><a th:href="@{/member/mypage}" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
+                	<li class="nav-item"><a th:href="@{/mypage/main}" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
             	</th:block>
             	<!-- 비로그인 -->
             	<th:block sec:authorize="isAnonymous()">
@@ -50,15 +50,15 @@
             </a>
             <ul class="nav me-auto">
               <li class="nav-item"><a th:href="@{/product/list}" class="head-menu nav-link link-secondary px-3 active" aria-current="page"><b>전체 상품</b></a></li>
-              <li class="nav-item"><a th:href="@{/product/list?category=프리미엄펜}" class="head-menu nav-link link-secondary px-3">프리미엄 펜</a></li>
-              <li class="nav-item"><a th:href="@{/product/list?category=펜/연필}" class="head-menu nav-link link-secondary px-3">펜/연필</a></li>
-              <li class="nav-item"><a th:href="@{/product/list?category=마카/컬러링}" class="head-menu nav-link link-secondary px-3">마카/컬러링</a></li>
-              <li class="nav-item"><a th:href="@{/product/list?category=디자인문구}" class="head-menu nav-link link-secondary px-3">디자인 문구</a></li>
-              <li class="nav-item"><a th:href="@{/product/list?category=기획전}" class="head-menu nav-link link-secondary px-3">기획전</a></li>
+              <li class="nav-item"><a th:href="@{/product/list?section=프리미엄펜}" class="head-menu nav-link link-secondary px-3">프리미엄 펜</a></li>
+              <li class="nav-item"><a th:href="@{/product/list?section=펜/연필}" class="head-menu nav-link link-secondary px-3">펜/연필</a></li>
+              <li class="nav-item"><a th:href="@{/product/list?section=마카/컬러링}" class="head-menu nav-link link-secondary px-3">마카/컬러링</a></li>
+              <li class="nav-item"><a th:href="@{/product/list?section=디자인문구}" class="head-menu nav-link link-secondary px-3">디자인 문구</a></li>
+              <li class="nav-item"><a th:href="@{/product/list?section=기획전}" class="head-menu nav-link link-secondary px-3">기획전</a></li>
             </ul>
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 search-form" action="#">
-                <input type="search" class="form-control search-bar" placeholder="엠에코 플러스펜 정식 출시🤩" aria-label="Search">
-                <button type="button" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <form id="searchForm" name="searchForm" class="col-12 col-lg-auto mb-3 mb-lg-0 search-form" th:action="@{/product/search}" method="get" onsubmit="checkKeywordToSearch()">
+                <input type="search" name="keyword" class="form-control search-bar">
+                <button type="button" class="search-icon"><i class="fa-solid fa-magnifying-glass" onclick="javascript:document.getElementById('searchForm').submit();"></i></button>
             </form>
         </div>
     </header>
@@ -78,6 +78,10 @@
     		$('html, body').animate({scrollTop: 0}, 600);
     	});
     </script>
+    <!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
+    </th:block>
 </div>
 </body>
 </html>

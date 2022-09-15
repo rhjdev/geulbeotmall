@@ -124,4 +124,6 @@ public interface ProductMapper {
 	List<String> getBrandNameBySection(String category);
 
 	int getTotalNumberByMinorCategory(String category);
+
+	List<ProductDTO> searchProductByKeyword(String keyword);
 }

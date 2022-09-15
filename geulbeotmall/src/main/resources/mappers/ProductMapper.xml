@@ -1006,4 +1006,36 @@
 		 WHERE C.CATEGORY_SECTION = #{ category }
 		 ORDER BY A.BRAND_NAME
 	</select>
+	
+	<!-- 상품 검색 *상품명/브랜드명/주요태그/심두께* -->
+	<select id="searchProductByKeyword" resultMap="productResultMap">
+		SELECT
+			   A.PROD_NO
+			 , B.CATEGORY_NAME
+			 , C.BRAND_NAME
+			 , A.PROD_NAME
+			 , A.PROD_DESC
+			 , A.PRODUCT_TAG
+			 , A.DISCOUNT_RATE
+			 , A.PROD_PRICE
+			 , A.PROD_ORIGIN
+			 , A.PROD_DETAIL_CONTENT
+			 , A.PROD_DETAIL_VIEW_COUNT
+			 , A.PROD_ENROLL_DATE
+			 , A.PROD_CHANGE_DATE
+			 , A.PROD_AVAIL_YN
+			 , T.THUMBNAIL_PATH
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+		  FROM TBL_PRODUCT A
+		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
+		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+		 WHERE A.PROD_NAME LIKE '%' || #{ keyword } || '%'
+		    OR C.BRAND_NAME LIKE '%' || #{ keyword } || '%'
+		    OR A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'
+		    OR O.OPT_POINT_SIZE LIKE TO_NUMBER(#{ keyword })
+	</select>
 </mapper>

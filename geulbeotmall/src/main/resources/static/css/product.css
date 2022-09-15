@@ -1115,6 +1115,11 @@ a:hover {
 	font-family: 'Gowun Dodum', sans-serif;
     font-size: 38px !important;
     font-weight: 400 !important;
+    margin-bottom: 0 !important;
+}
+
+.keyword-wrapper h2:first-child {
+	font-weight: 700 !important;
 }
 
 .result-wrapper {
