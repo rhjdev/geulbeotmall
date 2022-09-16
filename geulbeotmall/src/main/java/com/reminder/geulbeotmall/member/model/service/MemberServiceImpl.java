@@ -70,19 +70,24 @@ public class MemberServiceImpl implements MemberService {
 		
 		member.setMemberPwd(passwordEncoder.encode(member.getMemberPwd()));
 		
+		/* 1. 회원 등록 */
 		int resultA = memberMapper.insertMember(member);
 		
+		/* 2. 권한 등록 */
 		RoleDTO role = new RoleDTO();
 		role.setMemberId(member.getMemberId());
 		role.setAuthorityCode(1); //일반회원
 		int resultB = memberMapper.insertRole(role);
 		
+		/* 3. 인증여부 등록(기본 N) */
+		int resultC = 0;
 		if(resultA <= 0 && resultB <= 0) {
 			throw new Exception("신규 회원 등록에 실패");
+		} else {
+			resultC = memberMapper.insertAuthentication(member.getMemberId());
 		}
 		
-		return resultA > 0 && resultB > 0 ? true : false;
-		
+		return resultA > 0 && resultB > 0 && resultC > 0 ? true : false;
 	}
 
 	/**
@@ -208,5 +213,15 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public int getMemberPoint(String memberId) {
 		return memberMapper.getMemberPoint(memberId);
+	}
+
+	@Override
+	public MemberDTO getMemberDetails(String memberId) {
+		return memberMapper.getMemberDetails(memberId);
+	}
+
+	@Override
+	public char checkIsAuthenticated(String memberId) {
+		return memberMapper.checkIsAuthenticated(memberId);
 	}
 }

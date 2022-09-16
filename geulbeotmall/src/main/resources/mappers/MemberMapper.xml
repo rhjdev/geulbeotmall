@@ -3,7 +3,7 @@
 <mapper namespace="com.reminder.geulbeotmall.member.model.dao.MemberMapper">
 	
 	<!-- 회원 조회용 -->
-	<resultMap id="signInMemberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
+	<resultMap id="memberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
 		<id property="memberId" column="MEMBER_ID"/>
 		<result property="memberPwd" column="MEMBER_PWD"/>
 		<result property="name" column="NAME"/>
@@ -190,7 +190,7 @@
 		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
 	</resultMap>
 	
-	<select id="findMemberById" resultMap="signInMemberResultMap">
+	<select id="findMemberById" resultMap="memberResultMap">
 		SELECT
 			   A.MEMBER_ID
 			 , A.MEMBER_PWD
@@ -276,6 +276,29 @@
 		)
 	</insert>
 	
+	<insert id="insertAuthentication">
+		INSERT
+		  INTO TBL_AUTHENTICATION
+		(
+		  MEMBER_ID
+		, AUTH_PHONE_YN
+		, AUTH_DATE
+		)
+		VALUES
+		(
+		  #{ memberId }
+		, 'N'
+		, NULL
+		)
+	</insert>
+	
+	<select id="checkIsAuthenticated" resultType="java.lang.Character">
+		SELECT
+			   AUTH_PHONE_YN
+		  FROM TBL_AUTHENTICATION
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
 	<!-- 회원가입 중 아이디 중복 검사 -->
 	<select id="checkId" parameterType="String" resultType="int">
 		SELECT
@@ -349,6 +372,32 @@
 		   SET ACC_INACTIVE_YN = 'Y'
 		 WHERE MEMBER_ID = #{ username }
 	</update>
+	
+	<select id="getMemberDetails" resultMap="memberResultMap">
+		SELECT
+			   A.MEMBER_ID
+			 , A.MEMBER_PWD
+			 , A.NAME
+			 , A.PHONE
+			 , A.EMAIL
+			 , A.ADDRESS
+			 , A.AGREEMENT
+			 , A.ACC_INACTIVE_YN
+			 , A.TEMP_PWD_YN
+			 , A.ACCUM_LOGIN_COUNT
+			 , A.LOGIN_FAILED_COUNT
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+			 , A.ACC_CHANGED_DATE
+			 , A.ACC_CLOSING_DATE
+			 , A.ACC_CLOSING_YN
+			 , C.AUTHORITY_DESC
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.MEMBER_ID = #{ memberId }
+		 GROUP BY A.MEMBER_ID, A.MEMBER_PWD, A.NAME, A.PHONE, A.EMAIL, A.ADDRESS, A.AGREEMENT, A.ACC_INACTIVE_YN, A.TEMP_PWD_YN, A.ACCUM_LOGIN_COUNT, A.LOGIN_FAILED_COUNT, A.LATEST_LOGIN_DATE, A.ACC_CREATION_DATE, A.ACC_CHANGED_DATE, A.ACC_CLOSING_DATE, A.ACC_CLOSING_YN, C.AUTHORITY_DESC
+	</select>
 	
 	<!-- 누적 주문/배송목록 조회 -->
 	<select id="getMemberOrderList" resultMap="orderDetailResultMap">

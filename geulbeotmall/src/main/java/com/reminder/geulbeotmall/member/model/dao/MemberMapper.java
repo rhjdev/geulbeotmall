@@ -24,6 +24,8 @@ public interface MemberMapper {
 
 	int insertRole(RoleDTO role);				//회원 권한 등록
 	
+	int insertAuthentication(String memberId);	//회원 인증 등록
+	
 	/* 로그인 */
 	void updateAccumLoginCount(String username);	//성공 시 로그인 횟수 누적
 	
@@ -65,4 +67,8 @@ public interface MemberMapper {
 	List<ReviewDTO> getMemberReviewPosts(String memberId);
 
 	int getMemberPoint(String memberId);
+
+	MemberDTO getMemberDetails(String memberId);
+
+	char checkIsAuthenticated(String memberId);
 }

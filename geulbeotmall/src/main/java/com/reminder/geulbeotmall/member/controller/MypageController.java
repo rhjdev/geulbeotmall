@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
+import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
@@ -200,5 +201,28 @@ public class MypageController {
 		List<PointDTO> memberPointList = memberService.getReserveDetails(user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 		model.addAttribute("memberPointList", memberPointList);
+	}
+	
+	/**
+	 * 회원정보수정
+	 */
+	@GetMapping("change")
+	public void getMyAccountInfo(@AuthenticationPrincipal UserImpl user, Model model) {
+		MemberDTO memberDTO = memberService.getMemberDetails(user.getMemberId());
+		model.addAttribute("detail", memberDTO);
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+	}
+	
+	@PostMapping("change")
+	public void changeMyAccountInfo() {
+		
+	}
+	
+	/**
+	 * 회원탈퇴
+	 */
+	@GetMapping("inactivate")
+	public void inactivateMyAccount(@AuthenticationPrincipal UserImpl user, Model model) {
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 	}
 }

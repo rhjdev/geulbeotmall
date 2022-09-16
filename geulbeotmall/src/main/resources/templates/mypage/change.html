@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/mypage.css}" rel="stylesheet">
+	</th:block>
+	<!-- 본인인증 안내 메시지 -->
+	<script>
+		const errorMessage = '[[${errorMessage}]]'
+		if(errorMessage) {
+			alert(errorMessage);
+		}
+	</script>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">회원정보수정</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>회원정보수정</legend>
+			</fieldset>
+			<form id="changeInfoForm" name="changeInfoForm" class="changeInfo-form" th:action="@{/mypage/change}" method="post">
+				<table class="info-table">
+					<colgroup>
+						<col style="width: 140px;">
+						<col>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th>아이디</th>
+							<td>
+								<input type="text" id="memberId" name="memberId" th:value="${ detail.memberId }" readonly>
+							</td>
+						</tr>
+						<tr>
+							<th>이름</th> 
+							<td>
+								<input type="text" onkeyup="this.value = this.value.replace(/[^가-힣.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="name" name="name" th:value="${ detail.name }" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')">
+							</td>
+						</tr>
+						<tr>
+							<th>휴대폰 번호</th>
+							<td>
+								<div class="phone-info">
+									<input type="text" th:value="${#strings.substring(detail.phone, 0, 3)}" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="phoneA" name="phoneA" class="phone" autocomplete="off" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="3">
+				                    <p class="dash"></p>
+				                    <input type="text" th:value="${#strings.substring(detail.phone, 3, 7)}" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="phoneB" name="phoneB" class="phone" autocomplete="off" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="4">
+				                    <p class="dash"></p>
+				                    <input type="text" th:value="${#strings.substring(detail.phone, 7)}" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="phoneC" name="phoneC" class="phone" autocomplete="off" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="4">
+									<input type="button" class="verifyBtn" style="width: 23%;" value="인증번호전송">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<td>
+								<div class="authentication">
+				                    <input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="verifyPhone" name="verifyPhone" class="typeVerifyCode" autocomplete="off" title="인증번호 입력" placeholder="인증번호를 입력하세요" oninvalid="this.setCustomValidity('인증번호 입력')" oninput="setCustomValidity('')">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>이메일</th> 
+							<td>
+								<div class="email-info">
+									<input type="email" id="email" name="email" th:value="${ detail.email }" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')">
+									<input type="button" class="verifyBtn" style="width: 23%;" value="인증코드전송">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<td>
+								<div class="authentication">
+				                    <input type="text" id="verifyEmail" name="verifyEmail" class="typeVerifyCode" autocomplete="off" title="인증코드 입력" placeholder="인증코드를 입력하세요" oninvalid="this.setCustomValidity('인증코드 입력')" oninput="setCustomValidity('')">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>주소</th>
+							<td th:with="address=${ detail.address }" th:value="${#strings.replace(address,'$',' ')}">
+								<div class="address-info">
+									<input type="button" onclick="DaumPostcode()" class="btn-outline-dark" id="searchPostalCode" style="width: 23%;" value="우편번호검색">
+									<input type="text" id="postalCode" name="postalCode" th:value="${#strings.listSplit(detail.address, '\\$')[0] }" readonly>
+									<input type="text" id="address" name="address" th:value="${#strings.listSplit(detail.address, '\\$')[1] }" readonly>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<td>
+								<div class="address-detail">
+									<input type="text" id="detailAddress" name="detailAddress" th:value="${#strings.listSplit(detail.address, '\\$')[2] }" placeholder="상세 주소 입력">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>마케팅수신동의</th>
+							<td colspan="2">
+								<div class="agreement-yn">
+									<input type="radio" id="agreementY" name="agreementY" th:attr="checked=${ detail.agreement.toString() == 'Y' ? 'true' : 'false' }">
+									<label for="savedAddress">수신 동의</label>
+									<input type="radio" id="agreementN" name="agreementN" th:attr="checked=${ detail.agreement.toString() == 'N' ? 'true' : 'false' }">
+									<label for="setNewAddress">수신 거부</label>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<div class="changeInfo">
+				<button type="button" class="cancelBtn btn" onclick="javascript:window.history.go(-1);">취소</button>
+				<button type="button" class="saveBtn btn btn-dark">저장</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

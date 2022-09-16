@@ -60,4 +60,8 @@ public interface MemberService extends UserDetailsService {
 	List<ReviewDTO> getMemberReviewPosts(String memberId);
 
 	int getMemberPoint(String memberId);
+
+	MemberDTO getMemberDetails(String memberId);
+
+	char checkIsAuthenticated(String memberId);
 }

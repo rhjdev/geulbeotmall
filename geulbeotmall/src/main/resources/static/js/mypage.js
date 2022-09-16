@@ -8,6 +8,8 @@ switch(true) {
 	case link.indexOf('review') > 0: nav[2].className = 'nav-link active'; break;
 	case link.indexOf('wishlist') > 0: nav[3].className = 'nav-link active'; break;
 	case link.indexOf('reserve') > 0: nav[4].className = 'nav-link active'; break;
+	case link.indexOf('change') > 0: nav[5].className = 'nav-link active'; break;
+	case link.indexOf('inactivate') > 0: nav[6].className = 'nav-link active'; break;
 }
 
 /* 위시리스트 항목 전체 선택 */
@@ -201,4 +203,15 @@ $(document).on('click', '.button-delete', function(){ //delete 버튼
 		},
 		error : function(status, error){ console.log(status, error); }
 	});
+});
+
+/* 회원정보수정 */
+$(document).on('change', 'input[class=phone]', function(){ //연락처 input 값 변경
+	$(this).closest('div').find('.verifyBtn').attr('style', 'color: #000; border: 1px solid #000;');
+	$(this).closest('tbody').find('input[name=verifyPhone]').attr('style', 'color: #000; border: 1px solid #000;');
+});
+
+$(document).on('change', 'input[name=email]', function(){ //이메일 input 값 변경
+	$(this).closest('div').find('.verifyBtn').attr('style', 'color: #000; border: 1px solid #000;');
+	$(this).closest('tbody').find('input[name=verifyEmail]').attr('style', 'color: #000; border: 1px solid #000;');
 });

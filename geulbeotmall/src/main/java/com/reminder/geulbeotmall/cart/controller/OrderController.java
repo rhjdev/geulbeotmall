@@ -4,12 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.cart.model.dto.CartDTO;
 import com.reminder.geulbeotmall.cart.model.dto.DeliveryDTO;
@@ -27,6 +30,7 @@ import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.cart.model.service.CartService;
 import com.reminder.geulbeotmall.cart.model.service.OrderService;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
+import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.product.model.dto.BrandDTO;
 import com.reminder.geulbeotmall.product.model.dto.OptionDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
@@ -44,25 +48,38 @@ public class OrderController {
 	private final OrderService orderService;
 	private final CartService cartService;
 	private final ProductService productService;
+	private final MemberService memberService;
+	private final MessageSource messageSource;
 	
 	@Autowired
-	public OrderController(OrderService orderService, CartService cartService, ProductService productService) {
+	public OrderController(OrderService orderService, CartService cartService, ProductService productService, MemberService memberService, MessageSource messageSource) {
 		this.orderService = orderService;
 		this.cartService = cartService;
 		this.productService = productService;
+		this.memberService = memberService;
+		this.messageSource = messageSource;
 	}
 	
 	/**
 	 * 주문결제페이지 호출
 	 */
 	@GetMapping("/cart/order")
-	public void getOrderForm(@AuthenticationPrincipal UserImpl user, HttpServletRequest request, HttpSession session, Model model) {
+	public String getOrderForm(@AuthenticationPrincipal UserImpl user, HttpServletRequest request, HttpSession session, RedirectAttributes rttr, Locale locale, Model model) {
 		String optionNo = request.getParameter("optionNo"); //장바구니 단일상품
 		String[] optionNoArr = request.getParameterValues("arr"); //장바구니 선택상품 또는 전체상품
 		String optionNoFromWishList = request.getParameter("optionNoFromWishList"); //위시리스트 단일상품
 		String[] detailOptionNo = request.getParameterValues("orderOptionNo");
 		String[] detailOptionQt = request.getParameterValues("orderOptionQt");
 		List<CartDTO> memberCart = cartService.getCurrentCart(user.getMemberId());
+		
+		/* 주문 전 본인인증 완료된 계정인지 확인 */
+		boolean isAutehnticated = memberService.checkIsAuthenticated(user.getMemberId()) == 'Y' ? true : false;
+		log.info("isAutehnticated : {}", isAutehnticated);
+		if(!isAutehnticated) { //본인인증이 필요한 경우
+			rttr.addFlashAttribute("errorMessage", messageSource.getMessage("authenticationRequired", null, locale));
+			log.info("마이페이지 연락처 인증란 이동");
+			return "redirect:/mypage/change";
+		}
 		
 		/* A. 상품상세페이지 바로주문 */
 		if(detailOptionNo != null && detailOptionQt != null) {
@@ -151,6 +168,8 @@ public class OrderController {
 			session.setAttribute("orderItem", cartDTO); //선택상품정보 출력용으로 session상에 임시 저장하여 전달
 		}
 		model.addAttribute("member", user);
+		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		return "/cart/order";
 	}
 	
 	/**

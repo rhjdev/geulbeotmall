@@ -244,6 +244,11 @@
 	font-weight: bold;
     color: #000;
     text-decoration: none;
+	display: inline-block;
+	max-width: 300px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .review-detail > a:hover {
@@ -430,6 +435,162 @@
 	color: #6c757d;
 	margin-top: 20px;
 	margin-bottom: 20px;
+}
+
+/* 정보 수정 */
+.changeInfo-form > table {
+	width: 100%;
+    border-top: 2px solid #000;
+    border-bottom: 1px solid #E5E5E5;
+    margin-bottom: 40px;
+}
+
+.changeInfo-form > table > tbody > tr {
+	width: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > th {
+	text-align: inherit;
+}
+
+.changeInfo-form > table > tbody > tr > td {
+	padding: 5px 0;	
+}
+
+.changeInfo-form > table > tbody > tr > td > input {
+	width: 36%;
+}
+
+.changeInfo-form > table > tbody > tr:first-child th,
+.changeInfo-form > table > tbody > tr:first-child td {
+	padding-top: 20px;
+}
+
+.changeInfo-form > table > tbody > tr:last-child th,
+.changeInfo-form > table> tbody > tr:last-child td {
+	padding-bottom: 20px;
+}
+
+.changeInfo-form > table > tbody > tr > td > input[type="text"],
+.changeInfo-form > table > tbody > tr > td > div > input[type="email"],
+.changeInfo-form > table > tbody > tr > td > div > input[type="text"] {
+    display: block;
+    border: 1px solid #E5E5E5;
+    width: 300px;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.changeInfo-form > table > tbody > tr > td > div > input[type="email"] {
+	width: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > div > input[type="radio"] {
+	accent-color: #000;
+	transform: scale(1.2);
+}
+
+.changeInfo-form > table > tbody > tr > td > input:read-only {
+	background-color: #f9f9f9;
+	cursor: default;
+}
+
+.changeInfo-form > table > tbody > tr > td > .phone-info,
+.changeInfo-form > table > tbody > tr > td > .email-info,
+.changeInfo-form > table > tbody > tr > td > .address-info,
+.changeInfo-form > table > tbody > tr > td > .authentication,
+.changeInfo-form > table > tbody > tr > td > .agreement-yn {
+	display: flex;
+	width: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > .agreement-yn > input {
+	margin-inline-end: 6px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .agreement-yn > label {
+	width: max-content;
+	margin-inline-end: 34px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .address-info,
+.changeInfo-form > table > tbody > tr > td > .email-info,
+.changeInfo-form > table > tbody > tr > td > .authentication,
+.changeInfo-form > table > tbody > tr > td > .address-detail {
+	width: 100%;
+	height: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > div > .verifyBtn {
+	width: 204px;
+    height: 44px;
+    margin-inline-start: 10px;
+	background-color: #fff;
+    border: 1px solid #E5E5E5;
+    color: #b7b7b7;
+    cursor: pointer;
+}
+
+.changeInfo-form > table > tbody > tr > td > .authentication > input[type=button],
+.changeInfo-form > table > tbody > tr > td > .address-info > input[type=button] {
+	box-shadow: none !important;
+}
+
+.changeInfo-form > table > tbody > tr > td > .phone-info > input[type="text"] {
+	width: 31.8%;
+}
+
+.changeInfo-form > table > tbody > tr > td > .phone-info > input[name="phoneB"] {
+	margin: 0;
+	margin-inline-start: 10px;
+	margin-inline-end: 10px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .address-info > input[name="postalCode"] {
+	width: 22%;
+	margin: 0;
+	margin-inline-start: 10px;
+	margin-inline-end: 10px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .address-info > input[name="address"] {
+	margin: 0;
+	width: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > .address-detail > input[name="detailAddress"] {
+	width: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > input[name="detailAddress"] {
+	width: 100% !important;
+}
+
+.changeInfo {
+	margin-top: 80px;
+    margin-bottom: 160px;
+    text-align: center;
+}
+
+.changeInfo > button[type="button"] {
+	width: 30%;
+    height: 44px;
+    border-radius: 0;
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+.changeInfo > button[type="button"]:first-child {
+	margin-inline-end: 10px;
+}
+
+.changeInfo > .cancelBtn {
+    color: #000;
+    border-color: #6c757d;
+}
+.changeInfo > .cancelBtn:hover {
+	background-color: #f9f9f9;
 }
 
 /* 전체 폰트 적용 */
