@@ -8,24 +8,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
-@Slf4j
 @RestController
 public class MessageController {
 	
-	private final DefaultMessageService messageService; //coolSMS
+	private DefaultMessageService messageService; //coolSMS
 	
-	@Value("${authentication.message.from}")
+	@Value("${coolsms.message.from}")
 	private String from;
 	
-	public MessageController() {
-		this.messageService = NurigoApp.INSTANCE.initialize("NCS1QIJZQO0EAISK", "U8HNU1JCUM1NJJNCTZSWWUFPJVYHSJRH", "https://api.coolsms.co.kr");
+	public MessageController(@Value("${coolsms.api.key}") String apiKey, @Value("${coolsms.api.secretKey}") String apiSecretKey) {
+		this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecretKey, "https://api.coolsms.co.kr");
 	}
 	
 	/**
@@ -46,7 +44,6 @@ public class MessageController {
 		message.setText("[글벗문구] 본인확인 인증번호는 " + number + "입니다");
 		
 		SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
-		log.info("response : {}", response);
 		
 		return number;
 	}

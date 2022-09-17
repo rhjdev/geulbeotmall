@@ -29,14 +29,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		
+		<!-- thymeleaf layout -->
 		<dependency>
 		    <groupId>nz.net.ultraq.thymeleaf</groupId>
 		    <artifactId>thymeleaf-layout-dialect</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity5</artifactId>
 		</dependency>
+		
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-validation</artifactId>
@@ -47,6 +51,24 @@
 			<artifactId>mybatis-spring-boot-starter</artifactId>
 			<version>2.2.2</version>
 		</dependency>
+		
+		<!-- Jasypt properties 암호화 -->
+		<!-- https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter -->
+		<dependency>
+		    <groupId>com.github.ulisesbocchio</groupId>
+		    <artifactId>jasypt-spring-boot-starter</artifactId>
+		    <version>3.0.4</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/net.sf.json-lib/json-lib -->
+		<dependency>
+		    <groupId>net.sf.json-lib</groupId>
+		    <artifactId>json-lib</artifactId>
+		    <version>2.4</version>
+		    <classifier>jdk15</classifier>
+		</dependency>
+		
+		<!-- fileupload / thumbnailator -->
 		<dependency>
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>
@@ -84,7 +106,27 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- coolSMS -->
+		<dependency>
+		    <groupId>net.nurigo</groupId>
+		    <artifactId>sdk</artifactId>
+		    <version>4.2.4</version>
+		</dependency>
+		
+		<!-- https://jitpack.io/p/iamport/iamport-rest-client-java -->
+		<dependency>
+		    <groupId>com.github.iamport</groupId>
+		    <artifactId>iamport-rest-client-java</artifactId>
+		    <version>0.2.22</version>
+		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>

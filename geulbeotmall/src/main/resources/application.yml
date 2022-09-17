@@ -7,12 +7,13 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     url: jdbc:oracle:thin:@localhost:1521:xe
-    username: C##GBMALL
-    password: GBMALL
+    username: ENC(4rimvGOrXiaqyIUYnYFA5BC+pLVUSS10)
+    password: ENC(utrcF7fapSfC7B0tMd0Kgw==)
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
 # mybatis config
 mybatis:
   mapper-locations: mappers/**/*.xml
@@ -22,3 +23,22 @@ logging:
   level:
     '[com.reminder.geulbeot]': debug
     # content-type 확인용 '[org.apache.coyote.http11]': debug
+
+# jasypt config
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    property:
+      prefix: ENC(
+      suffix: )
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+
+# custom properties
+# sms message
+coolsms:
+  api:
+    key: ENC(nsJBO5z/ErgjV3/8JDvtNlaX0Sz3mXCPvlgpAfsJe4M=)
+    secretKey: ENC(n2LdlZT/jGyN3RLTCL9fX0OWSto2CeQ35gFwSX38dGUac2628jQD7YgRTCRjKUmn)
+  message:
+    from: ENC(Snex5LUGhsTS+mIQ6fSOop/nVpdbTtVE)
