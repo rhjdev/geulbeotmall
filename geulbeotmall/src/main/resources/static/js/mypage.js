@@ -206,12 +206,104 @@ $(document).on('click', '.button-delete', function(){ //delete 버튼
 });
 
 /* 회원정보수정 */
+let isAuthenticatedMember = document.getElementById('isAuthenticatedMember'); //true or false
 $(document).on('change', 'input[class=phone]', function(){ //연락처 input 값 변경
-	$(this).closest('div').find('.verifyBtn').attr('style', 'color: #000; border: 1px solid #000;');
-	$(this).closest('tbody').find('input[name=verifyPhone]').attr('style', 'color: #000; border: 1px solid #000;');
+	let registered = document.getElementById('registeredPhone').value;
+	let phone = document.getElementById('phoneA').value + document.getElementById('phoneB').value + document.getElementById('phoneC').value;
+	//console.log(registered);
+	//console.log(phone);
+	if(registered != phone) {
+		$(this).closest('div').find('.verifyBtn').attr('style', 'color: #ff0000; border: 1px solid #ff0000;');
+		$(this).closest('tbody').find('input[name=verificationNumber]').attr('style', 'color: #ff0000; border: 1px solid #ff0000;');
+	}
 });
 
+function verifyPhone() {
+	let phone = document.getElementById('phoneA').value + document.getElementById('phoneB').value + document.getElementById('phoneC').value;
+	if(isAuthenticatedMember) { //이미 인증된 연락처인 경우 버튼 비활성화
+		return false;
+	} else {
+		/* 1. 인증번호전송 */
+		$.ajax({
+			url : '/member/checkPhone',
+			type : 'post',
+			data : { phone : phone },
+			success : function(data) {
+				let number = data;
+				console.log(number);
+				/* 2. 인증하기 */
+				$('.submitNumberBtn').click(function(){
+					let submitted = document.getElementById('verificationNumber').value;
+					console.log(submitted);
+					if(number == submitted) {
+						$.ajax({
+							url : '/member/authenticated',
+							type : 'post',
+							data : { result : 'Y' },
+							/* 2-1. 인증 성공 시 버튼에 '인증완료' 출력 및 비활성화 */
+							success : function(data) {
+								if(data == 'succeed') {
+									Swal.fire({
+										icon: 'success',
+										title: '휴대폰 본인인증에 성공하였습니다',
+										confirmButtonColor: '#00008b',
+										confirmButtonText: '확인'
+									}).then((result) => {
+										if(result.isConfirmed) {
+											history.go(0);
+										}
+									})
+									$(this).closest('div').find('.verifyBtn').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
+									$(this).closest('div').find('.verifyBtn').attr('value', '인증완료');
+									$(this).closest('div').find('.verifyBtn').attr('disabled', 'disabled');
+									$(this).closest('tbody').find('.typeVerifyPhoneNumber').attr('style', 'display: none;');
+									$(this).closest('tbody').find('input[name=verificationNumber]').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
+								} else {
+									Swal.fire({
+										icon: 'error',
+										title: '잠시 후 다시 시도해 주세요',
+										confirmButtonColor: '#00008b',
+										confirmButtonText: '확인'
+									}).then((result) => {
+										if(result.isConfirmed) {
+											history.go(0);
+										}
+									})
+								}
+							},
+							error : function(status, error){ console.log(status, error); }
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: '인증번호가 일치하지 않습니다',
+							confirmButtonColor: '#00008b',
+							confirmButtonText: '확인'
+						}).then((result) => {
+							if(result.isConfirmed) {
+								console.log('인증번호오류');
+							}
+						})
+					}
+				});
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	}
+}
+
 $(document).on('change', 'input[name=email]', function(){ //이메일 input 값 변경
-	$(this).closest('div').find('.verifyBtn').attr('style', 'color: #000; border: 1px solid #000;');
-	$(this).closest('tbody').find('input[name=verifyEmail]').attr('style', 'color: #000; border: 1px solid #000;');
+	let registered = document.getElementById('registeredEmail').value;
+	let email = document.getElementById('email').value;
+	//console.log(registered);
+	//console.log(email);
+	if(registered != email) { //회원가입 중 이메일 인증 치르므로 기본값 '인증완료', 등록된 이메일 주소에서 변경사항 발생 시 '인증코드전송'
+		$(this).closest('div').find('.verifyBtn').attr('value', '인증코드전송');
+		$(this).closest('tbody').find('.typeVerifyEmailCode').attr('style', 'display: contents;');
+	} else {
+		$(this).closest('div').find('.verifyBtn').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
+		$(this).closest('div').find('.verifyBtn').attr('value', '인증완료');
+		$(this).closest('tbody').find('.typeVerifyEmailCode').attr('style', 'display: none;');
+		$(this).closest('tbody').find('input[name=verifyEmail]').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
+	}
 });

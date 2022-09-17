@@ -224,4 +224,10 @@ public class MemberServiceImpl implements MemberService {
 	public char checkIsAuthenticated(String memberId) {
 		return memberMapper.checkIsAuthenticated(memberId);
 	}
+
+	@Override
+	public boolean updateAuthentication(String memberId, char authPhoneYn) {
+		int result = memberMapper.updateAuthentication(memberId, authPhoneYn);
+		return result == 1 ? true : false;
+	}
 }

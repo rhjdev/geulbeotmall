@@ -209,8 +209,10 @@ public class MypageController {
 	@GetMapping("change")
 	public void getMyAccountInfo(@AuthenticationPrincipal UserImpl user, Model model) {
 		MemberDTO memberDTO = memberService.getMemberDetails(user.getMemberId());
+		boolean isAuthenticatedMember = memberService.checkIsAuthenticated(user.getMemberId()) == 'Y' ? true : false; //th:value 및 th:disabled 활용 위해 boolean 타입으로 전달
 		model.addAttribute("detail", memberDTO);
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("isAuthenticatedMember", isAuthenticatedMember); //현재 본인인증 여부
 	}
 	
 	@PostMapping("change")

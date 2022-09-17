@@ -64,4 +64,6 @@ public interface MemberService extends UserDetailsService {
 	MemberDTO getMemberDetails(String memberId);
 
 	char checkIsAuthenticated(String memberId);
+
+	boolean updateAuthentication(String memberId, char authPhoneYn);
 }

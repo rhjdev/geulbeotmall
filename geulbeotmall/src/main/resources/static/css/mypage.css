@@ -505,6 +505,14 @@
 	width: 100%;
 }
 
+.changeInfo-form > table > tbody > tr > td > .email-info,
+.changeInfo-form > table > tbody > tr > td > .address-info,
+.changeInfo-form > table > tbody > tr > td > .address-detail,
+.changeInfo-form > table > tbody > tr > td > .authentication {
+	width: 100%;
+	height: 100%;
+}
+
 .changeInfo-form > table > tbody > tr > td > .agreement-yn > input {
 	margin-inline-end: 6px;
 }
@@ -514,15 +522,9 @@
 	margin-inline-end: 34px;
 }
 
-.changeInfo-form > table > tbody > tr > td > .address-info,
-.changeInfo-form > table > tbody > tr > td > .email-info,
-.changeInfo-form > table > tbody > tr > td > .authentication,
-.changeInfo-form > table > tbody > tr > td > .address-detail {
-	width: 100%;
-	height: 100%;
-}
-
-.changeInfo-form > table > tbody > tr > td > div > .verifyBtn {
+.changeInfo-form > table > tbody > tr > td > div > .verifyBtn,
+.changeInfo-form > table > tbody > tr > td > div > .submitNumberBtn,
+.changeInfo-form > table > tbody > tr > td > div > .submitCodeBtn {
 	width: 204px;
     height: 44px;
     margin-inline-start: 10px;
@@ -530,6 +532,11 @@
     border: 1px solid #E5E5E5;
     color: #b7b7b7;
     cursor: pointer;
+}
+
+.changeInfo-form > table > tbody > tr > td > div > .submitNumberBtn,
+.changeInfo-form > table > tbody > tr > td > div > .submitCodeBtn {
+	width: 18% !important;
 }
 
 .changeInfo-form > table > tbody > tr > td > .authentication > input[type=button],

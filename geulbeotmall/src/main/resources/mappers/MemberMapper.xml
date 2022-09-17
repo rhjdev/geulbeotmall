@@ -292,12 +292,22 @@
 		)
 	</insert>
 	
+	<!-- 휴대폰 본인인증 여부 조회 -->
 	<select id="checkIsAuthenticated" resultType="java.lang.Character">
 		SELECT
 			   AUTH_PHONE_YN
 		  FROM TBL_AUTHENTICATION
 		 WHERE MEMBER_ID = #{ memberId }
 	</select>
+	
+	<!-- 휴대폰 본인인증 성공 결과 반영 -->
+	<update id="updateAuthentication">
+		UPDATE
+			   TBL_AUTHENTICATION
+		   SET AUTH_PHONE_YN = #{ authPhoneYn }
+		     , AUTH_DATE = SYSDATE
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
 	
 	<!-- 회원가입 중 아이디 중복 검사 -->
 	<select id="checkId" parameterType="String" resultType="int">

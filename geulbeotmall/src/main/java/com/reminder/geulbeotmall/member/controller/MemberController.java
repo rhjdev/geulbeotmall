@@ -2,6 +2,7 @@ package com.reminder.geulbeotmall.member.controller;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -29,6 +30,11 @@ import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 
 @Slf4j
 @Controller
@@ -182,5 +188,16 @@ public class MemberController {
 	@GetMapping("signout")
 	public void signOut(SessionStatus status) {
 		status.setComplete(); //@SessionAttributes 어노테이션과 함께 session에 저장했던 속성 삭제
+	}
+	
+
+	/**
+	 * 휴대폰 본인인증 결과 반영
+	 */
+	@PostMapping("authenticated")
+	@ResponseBody
+	public String authenticatedMember(@RequestParam("result") String authPhoneYn, @AuthenticationPrincipal UserImpl user) {
+		boolean isCommited = memberService.updateAuthentication(user.getMemberId(), authPhoneYn.charAt(0));
+		return isCommited == true ? "succeed" : "fail";
 	}
 }
