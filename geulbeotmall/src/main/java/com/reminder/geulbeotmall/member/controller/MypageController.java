@@ -1,12 +1,16 @@
 package com.reminder.geulbeotmall.member.controller;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
@@ -36,9 +41,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MypageController {
 	
 	private final MemberService memberService;
+	private final MessageSource messageSource;
 	
-	public MypageController(MemberService memberService) {
+	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	public MypageController(MemberService memberService, MessageSource messageSource, PasswordEncoder passwordEncoder) {
 		this.memberService = memberService;
+		this.messageSource = messageSource;
+		this.passwordEncoder = passwordEncoder;
 	}
 	
 	/**
@@ -216,8 +227,41 @@ public class MypageController {
 	}
 	
 	@PostMapping("change")
-	public void changeMyAccountInfo() {
+	public String changeMyAccountInfo(@RequestParam Map<String, Object> params, @AuthenticationPrincipal UserImpl user, RedirectAttributes rttr, Locale locale) {
+		log.info("회원정보수정 요청 : {}", params);
 		
+		/* A. 현재 비밀번호 일치 여부 확인 => PasswordEncoder matches(raw, encoded) 메소드 활용 */
+		if(!passwordEncoder.matches(params.get("memberPwd").toString(), user.getMemberPwd())) {
+			rttr.addFlashAttribute("profileUpdateMessage", messageSource.getMessage("incorrectPassword", null, locale));
+			return "redirect:/mypage/change";
+		/* B. 업데이트 대상 값 토대로 MemberDTO 객체 설정 */
+		} else {
+			MemberDTO memberDTO = new MemberDTO();
+			
+			String phone = params.get("phoneA").toString() + params.get("phoneB").toString() + params.get("phoneC").toString();
+			String address = params.get("postalCode").toString() + "$" + params.get("address").toString() + "$" + params.get("detailAddress").toString();
+			char agreement = params.get("agreement").toString().equals("Y") ? 'Y' : 'N';
+			
+			if(user.getName() != params.get("name").toString()) { memberDTO.setName(params.get("name").toString()); }
+			if(params.get("newPwd").toString() != null) {
+				String newPassword = passwordEncoder.encode(params.get("newPwd").toString());
+				memberDTO.setMemberPwd(newPassword);
+			}
+			if(user.getPhone() != phone) { memberDTO.setPhone(phone); }
+			if(user.getEmail() != params.get("email").toString()) { memberDTO.setEmail(params.get("email").toString()); }
+			if(user.getAddress() != address) { memberDTO.setAddress(address); }
+			if(user.getAgreement() != agreement) { memberDTO.setAgreement(agreement); }
+			log.info("수정 후 memberDTO : {}", memberDTO);
+			
+			/* C. 업데이트 후 결과 안내와 함께 페이지 새로고침 */
+			int result = memberService.changeMemberInfo(memberDTO);
+			if(result == 1) {
+				rttr.addFlashAttribute("profileUpdateMessage", messageSource.getMessage("memberProfileUpdatedSuccessfully", null, locale));
+			} else {
+				rttr.addFlashAttribute("profileUpdateMessage", messageSource.getMessage("errorWhileUpdatingMemberProfile", null, locale));
+			}
+			return "redirect:/mypage/change";
+		}
 	}
 	
 	/**

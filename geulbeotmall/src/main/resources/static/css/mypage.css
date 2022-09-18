@@ -461,17 +461,27 @@
 	width: 36%;
 }
 
-.changeInfo-form > table > tbody > tr:first-child th,
-.changeInfo-form > table > tbody > tr:first-child td {
+.changeInfo-form > table > tbody > tr:nth-child(1) th,
+.changeInfo-form > table > tbody > tr:nth-child(1) td,
+.changeInfo-form > table > tbody > tr:nth-child(3) th,
+.changeInfo-form > table > tbody > tr:nth-child(3) td,
+.changeInfo-form > table > tbody > tr:nth-child(5) th,
+.changeInfo-form > table > tbody > tr:nth-child(5) td {
 	padding-top: 20px;
 }
 
-.changeInfo-form > table > tbody > tr:last-child th,
-.changeInfo-form > table> tbody > tr:last-child td {
+.changeInfo-form > table > tbody > tr:nth-child(2) th,
+.changeInfo-form > table > tbody > tr:nth-child(2) td,
+.changeInfo-form > table > tbody > tr:nth-child(4) th,
+.changeInfo-form > table > tbody > tr:nth-child(4) td,
+.changeInfo-form > table > tbody > tr:nth-child(11) th,
+.changeInfo-form > table > tbody > tr:nth-child(11) td {
 	padding-bottom: 20px;
 }
 
 .changeInfo-form > table > tbody > tr > td > input[type="text"],
+.changeInfo-form > table > tbody > tr > td > input[type="password"],
+.changeInfo-form > table > tbody > tr > td > div > input[type="password"],
 .changeInfo-form > table > tbody > tr > td > div > input[type="email"],
 .changeInfo-form > table > tbody > tr > td > div > input[type="text"] {
     display: block;
@@ -496,6 +506,18 @@
 	cursor: default;
 }
 
+.changeInfo-form > table > tbody > tr:nth-child(3) {
+	position: relative;
+}
+
+.changeInfo-form > table > tbody > tr:nth-child(3) th > b {
+	position: absolute;
+	color: #ff0000;
+	margin-top: 4px;
+	margin-inline-start: 6px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .pwd-info,
 .changeInfo-form > table > tbody > tr > td > .phone-info,
 .changeInfo-form > table > tbody > tr > td > .email-info,
 .changeInfo-form > table > tbody > tr > td > .address-info,
@@ -511,6 +533,17 @@
 .changeInfo-form > table > tbody > tr > td > .authentication {
 	width: 100%;
 	height: 100%;
+}
+
+.changeInfo-form > table > tbody > tr > td > .pwd-info > span {
+	width: 140px;
+	font-weight: bold;
+	margin: auto 0;
+	margin-inline-start: 22px;
+}
+
+.changeInfo-form > table > tbody > tr > td > .pwd-info > input[type="password"] {
+	width: 360px;
 }
 
 .changeInfo-form > table > tbody > tr > td > .agreement-yn > input {
@@ -574,13 +607,13 @@
 	width: 100% !important;
 }
 
-.changeInfo {
+.changeInfo-form > .changeInfo {
 	margin-top: 80px;
     margin-bottom: 160px;
     text-align: center;
 }
 
-.changeInfo > button[type="button"] {
+.changeInfo-form > .changeInfo > button[type="button"], button[type="submit"] {
 	width: 30%;
     height: 44px;
     border-radius: 0;
@@ -588,16 +621,85 @@
     cursor: pointer;
 }
 
-.changeInfo > button[type="button"]:first-child {
+.changeInfo-form > .changeInfo > button[type="button"]:first-child {
 	margin-inline-end: 10px;
 }
 
-.changeInfo > .cancelBtn {
+.changeInfo-form > .changeInfo > .cancelBtn {
     color: #000;
     border-color: #6c757d;
 }
-.changeInfo > .cancelBtn:hover {
+.changeInfo-form > .changeInfo > .cancelBtn:hover {
 	background-color: #f9f9f9;
+}
+
+/* 회원 탈퇴 */
+.mypage-area > .inactivate-note {
+	padding: 30px 30px 20px 30px;
+	border: 1px solid #E5E5E5;
+	margin-bottom: 40px;
+}
+
+.mypage-area > .inactivate-note > ul {
+	padding-left: 0;
+}
+
+.mypage-area > .inactivate-note > ul > li {
+	position: relative;
+    padding-left: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.mypage-area > .inactivate-note > ul > li:before {
+    position: absolute;
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    bottom: 10px;
+    left: 0;
+	content: "";
+    background-color: #000;
+}
+.mypage-area > .inactivate-form {
+	text-align: center;
+}
+
+.mypage-area > .inactivate-form > div > label {
+	width: 90px;
+	font-weight: bold;
+	text-align: left;
+}
+.mypage-area > .inactivate-form > div > label:last-child {
+	display: block;
+}
+
+.mypage-area > .inactivate-form > div > input[type="text"],
+.mypage-area > .inactivate-form > div > input[type="password"] {
+    border: 1px solid #E5E5E5;
+    width: 300px;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+}
+
+.mypage-area > .inactivate-form > .inactivateAccount > div:first-child {
+	margin: 20px 0 40px 0;
+}
+
+.mypage-area > .inactivate-form > .inactivateAccount > div > label {
+    font-weight: bold;
+    margin-inline-start: 4px;
+}
+
+.mypage-area > .inactivate-form > .inactivateAccount > div > input[type="checkbox"] {
+	accent-color: black;
+	transform: scale(1.2);
+	
+}
+.mypage-area > .inactivate-form > .inactivateAccount > .inactivateBtn {
+	margin-bottom: 60px;
 }
 
 /* 전체 폰트 적용 */

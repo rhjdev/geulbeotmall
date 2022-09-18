@@ -14,6 +14,13 @@
 			alert(errorMessage);
 		}
 	</script>
+	<!-- 회원정보수정 결과 메시지 -->
+	<script>
+		const profileUpdateMessage = '[[${profileUpdateMessage}]]'
+		if(profileUpdateMessage) {
+			alert(profileUpdateMessage);
+		}
+	</script>
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
 	<div layout:fragment="mypageContent">
@@ -38,13 +45,29 @@
 						<tr>
 							<th>아이디</th>
 							<td>
-								<input type="text" id="memberId" name="memberId" th:value="${ detail.memberId }" readonly>
+								<input type="text" id="memberId" name="memberId" th:value="${ detail.memberId }" disabled readonly>
 							</td>
 						</tr>
-						<tr>
+						<tr style="margin-bottom: 10px; border-bottom: 1px solid #E5E5E5;">
 							<th>이름</th> 
 							<td>
 								<input type="text" onkeyup="this.value = this.value.replace(/[^가-힣.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="name" name="name" th:value="${ detail.name }" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')">
+							</td>
+						</tr>
+						<tr>
+							<th>현재 비밀번호<b>*</b></th> 
+							<td>
+								<input type="password" id="memberPwd" name="memberPwd" autocomplete="off" title="현재 비밀번호 입력" oninvalid="this.setCustomValidity('현재 비밀번호 입력')" oninput="setCustomValidity('')">
+							</td>
+						</tr>
+						<tr style="margin-bottom: 10px; border-bottom: 1px solid #E5E5E5;">
+							<th>새 비밀번호</th>
+							<td>
+								<div class="pwd-info">
+									<input type="password" id="newPwd" name="newPwd" autocomplete="off" placeholder="영문 대소문자/숫자/특수기호 조합 8~16자" title="새 비밀번호 입력" oninvalid="this.setCustomValidity('새 비밀번호 입력')" oninput="setCustomValidity('')">
+									<span>비밀번호 확인</span>
+									<input type="password" id="confirmPwd" name="confirmPwd" autocomplete="off" placeholder="새 비밀번호 확인" title="새 비밀번호 확인" oninvalid="this.setCustomValidity('새 비밀번호 확인')" oninput="setCustomValidity('')">
+								</div>
 							</td>
 						</tr>
 						
@@ -53,8 +76,8 @@
 							<th>휴대폰 번호</th>
 							<td>
 								<div class="phone-info">
-									<input type="hidden" id="isAuthenticatedYn" name="isAuthenticatedYn" th:value="${ isAuthenticatedMember }">
-									<input type="hidden" id="registeredPhone" name="registeredPhone" th:value="${ detail.phone }">
+									<input type="hidden" id="isAuthenticatedYn" name="isAuthenticatedYn" th:value="${ isAuthenticatedMember }" disabled>
+									<input type="hidden" id="registeredPhone" name="registeredPhone" th:value="${ detail.phone }" disabled>
 									<input type="text" th:value="${#strings.substring(detail.phone, 0, 3)}" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="phoneA" name="phoneA" class="phone" autocomplete="off" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="3">
 				                    <p class="dash"></p>
 				                    <input type="text" th:value="${#strings.substring(detail.phone, 3, 7)}" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="phoneB" name="phoneB" class="phone" autocomplete="off" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="4">
@@ -64,25 +87,23 @@
 								</div>
 							</td>
 						</tr>
-						<th:block th:unless="${ isAuthenticatedMember }">
-							<tr class="typeVerifyPhoneNumber">
-								<th></th>
-								<td>
-									<div class="authentication">
-					                    <input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="verificationNumber" name="verificationNumber" class="verificationNumber" autocomplete="off" title="인증번호 입력" placeholder="인증번호를 입력하세요" oninvalid="this.setCustomValidity('인증번호 입력')" oninput="setCustomValidity('')">
-										<input type="button" class="submitNumberBtn" value="인증하기">
-									</div>
-								</td>
-							</tr>
-						</th:block>
+						<tr class="typeVerifyPhoneNumber" style="display: none;">
+							<th></th>
+							<td>
+								<div class="authentication">
+				                    <input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" id="verificationNumber" name="verificationNumber" class="verificationNumber" autocomplete="off" title="인증번호 입력" placeholder="인증번호를 입력하세요" oninvalid="this.setCustomValidity('인증번호 입력')" oninput="setCustomValidity('')">
+									<input type="button" class="submitNumberBtn" value="인증하기">
+								</div>
+							</td>
+						</tr>
 						
 						<!-- 회원가입 중 이메일 인증 치르므로 기본값 '인증완료', 등록된 이메일 주소에서 변경사항 발생 시 '인증코드전송' -->
 						<tr>
 							<th>이메일</th> 
 							<td>
 								<div class="email-info">
-									<input type="hidden" id="registeredEmail" name="registeredEmail" th:value="${ detail.email }">
-									<input type="email" id="email" name="email" th:value="${ detail.email }" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')">
+									<input type="hidden" id="registeredEmail" name="registeredEmail" th:value="${ detail.email }" disabled>
+									<input type="email" id="email" name="email" th:value="${ detail.email }" onkeyup="autoDomain('email', this.value)" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')">
 									<input type="button" class="verifyBtn" style="width: 23%;" value="인증완료">
 								</div>
 							</td>
@@ -119,20 +140,20 @@
 							<th>마케팅수신동의</th>
 							<td colspan="2">
 								<div class="agreement-yn">
-									<input type="radio" id="agreementY" name="agreementY" th:attr="checked=${ detail.agreement.toString() == 'Y' ? 'true' : 'false' }">
-									<label for="savedAddress">수신 동의</label>
-									<input type="radio" id="agreementN" name="agreementN" th:attr="checked=${ detail.agreement.toString() == 'N' ? 'true' : 'false' }">
-									<label for="setNewAddress">수신 거부</label>
+									<input type="radio" id="agreementY" name="agreement" value="Y" th:attr="checked=${ detail.agreement.toString() == 'Y' ? 'true' : 'false' }">
+									<label for="agreementY">수신 동의</label>
+									<input type="radio" id="agreementN" name="agreement" value="N" th:attr="checked=${ detail.agreement.toString() == 'N' ? 'true' : 'false' }">
+									<label for="agreementN">수신 거부</label>
 								</div>
 							</td>
 						</tr>
 					</tbody>
 				</table>
+				<div class="changeInfo">
+					<button type="button" class="cancelBtn btn" onclick="javascript:window.history.go(-1);">취소</button>
+					<button type="submit" class="saveBtn btn btn-dark" onclick="submitChangeForm();">저장</button>
+				</div>
 			</form>
-			<div class="changeInfo">
-				<button type="button" class="cancelBtn btn" onclick="javascript:window.history.go(-1);">취소</button>
-				<button type="button" class="saveBtn btn btn-dark">저장</button>
-			</div>
 		</div>
 	</div>
 </body>

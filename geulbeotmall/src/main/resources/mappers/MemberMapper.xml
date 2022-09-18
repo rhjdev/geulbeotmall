@@ -333,6 +333,19 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
+	<!-- 회원 정보 수정 -->
+	<update id="changeMemberInfo">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_CHANGED_DATE = SYSDATE
+		<if test="memberPwd != null">, MEMBER_PWD = #{ memberPwd }</if>
+		<if test="name != null">, NAME = #{ name }</if>
+		<if test="phone != null">, PHONE = #{ phone }</if>
+		<if test="email != null">, EMAIL = #{ email }</if>
+		<if test="address != null">, ADDRESS = #{ address }</if>
+		<if test="agreement != null">, AGREEMENT = #{ agreement }</if>
+	</update>
+	
 	<!-- 로그인 성공 횟수 누적 -->
 	<update id="updateAccumLoginCount">
 		UPDATE

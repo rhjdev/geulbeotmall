@@ -230,4 +230,9 @@ public class MemberServiceImpl implements MemberService {
 		int result = memberMapper.updateAuthentication(memberId, authPhoneYn);
 		return result == 1 ? true : false;
 	}
+
+	@Override
+	public int changeMemberInfo(MemberDTO memberDTO) {
+		return memberMapper.changeMemberInfo(memberDTO);
+	}
 }

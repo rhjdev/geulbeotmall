@@ -205,16 +205,16 @@ $(document).on('click', '.button-delete', function(){ //delete 버튼
 	});
 });
 
-/* 회원정보수정 */
+/* 휴대폰 본인인증 */
 let isAuthenticatedMember = document.getElementById('isAuthenticatedMember'); //true or false
 $(document).on('change', 'input[class=phone]', function(){ //연락처 input 값 변경
-	let registered = document.getElementById('registeredPhone').value;
+	let registered = '[[${detail.phone}]]'
 	let phone = document.getElementById('phoneA').value + document.getElementById('phoneB').value + document.getElementById('phoneC').value;
-	//console.log(registered);
+	console.log(registered);
 	//console.log(phone);
 	if(registered != phone) {
-		$(this).closest('div').find('.verifyBtn').attr('style', 'color: #ff0000; border: 1px solid #ff0000;');
-		$(this).closest('tbody').find('input[name=verificationNumber]').attr('style', 'color: #ff0000; border: 1px solid #ff0000;');
+		$(this).closest('div').find('.verifyBtn').attr('value', '인증번호전송');
+		$(this).closest('tbody').find('.typeVerifyPhoneNumber').attr('style', 'display: contents;');
 	}
 });
 
@@ -229,12 +229,18 @@ function verifyPhone() {
 			type : 'post',
 			data : { phone : phone },
 			success : function(data) {
-				let number = data;
-				console.log(number);
+				let number = data; //전송된 인증번호
+				Swal.fire({
+					icon: 'success',
+					title: '휴대폰으로 본인확인용 인증번호가 전송되었습니다',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				}).then((result) => {
+					if(result.isConfirmed) { console.log('인증번호 전송완료'); }
+				})
 				/* 2. 인증하기 */
 				$('.submitNumberBtn').click(function(){
-					let submitted = document.getElementById('verificationNumber').value;
-					console.log(submitted);
+					let submitted = document.getElementById('verificationNumber').value; //사용자의 입력값
 					if(number == submitted) {
 						$.ajax({
 							url : '/member/authenticated',
@@ -253,11 +259,9 @@ function verifyPhone() {
 											history.go(0);
 										}
 									})
-									$(this).closest('div').find('.verifyBtn').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
 									$(this).closest('div').find('.verifyBtn').attr('value', '인증완료');
 									$(this).closest('div').find('.verifyBtn').attr('disabled', 'disabled');
 									$(this).closest('tbody').find('.typeVerifyPhoneNumber').attr('style', 'display: none;');
-									$(this).closest('tbody').find('input[name=verificationNumber]').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
 								} else {
 									Swal.fire({
 										icon: 'error',
@@ -292,6 +296,7 @@ function verifyPhone() {
 	}
 }
 
+/* 이메일 인증 */
 $(document).on('change', 'input[name=email]', function(){ //이메일 input 값 변경
 	let registered = document.getElementById('registeredEmail').value;
 	let email = document.getElementById('email').value;
@@ -301,9 +306,79 @@ $(document).on('change', 'input[name=email]', function(){ //이메일 input 값 
 		$(this).closest('div').find('.verifyBtn').attr('value', '인증코드전송');
 		$(this).closest('tbody').find('.typeVerifyEmailCode').attr('style', 'display: contents;');
 	} else {
-		$(this).closest('div').find('.verifyBtn').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
 		$(this).closest('div').find('.verifyBtn').attr('value', '인증완료');
 		$(this).closest('tbody').find('.typeVerifyEmailCode').attr('style', 'display: none;');
-		$(this).closest('tbody').find('input[name=verifyEmail]').attr('style', 'color: #b7b7b7; border: 1px solid #E5E5E5;');
 	}
 });
+
+/* 이메일 자동완성 */
+function autoDomain(email, value){
+    let emailId = value.split('@');
+    let domainList = ['naver.com','gmail.com','kakao.com','outlook.com','hotmail.com','nate.com','msn.com'];
+    let availableBox = new Array; // 자동완성 키워드 리스트
+    for(let i=0; i < domainList.length; i++ ){
+        availableBox.push( emailId[0] +'@'+ domainList[i] );
+    }
+    $("#"+email).autocomplete({
+        source: availableBox,
+        focus: function(event, ui) {
+            return false;
+        }
+    });
+}
+
+/* 주소 API */
+function DaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            let detail = document.getElementById('detailAddress').value;
+            document.getElementById('postalCode').value = data.zonecode;
+            document.getElementById('address').value = data.roadAddress;
+            if(data.buildingName != '') {
+                document.getElementById('detailAddress').value = data.buildingName;
+            }
+            document.getElementById('detailAddress').focus();
+        }
+    }).open();
+}
+
+/* 회원정보수정 폼 제출 */
+function submitChangeForm() { //업데이트할 내용이 없는 input 항목은 disabled 속성 명시하여 제외
+	event.preventDefault();
+	let form = document.getElementById('changeInfoForm');
+	
+	let agreement = document.querySelector('input[name=agreement]:checked').value; //Y/N 선택값 전달
+	
+	let newPwd = document.querySelector('input[name=newPwd]').value;
+	if(newPwd != '') { //새 비밀번호 작성 시에 한하여 유효성 검사
+		/* 1. 영문, 숫자, 특수기호 포함 여부 검사 */
+		const regexp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,16}$/;
+		/* 2. 아이디와 연속 일치 여부 검사 */
+		let memberPwd = document.querySelector('input[name=memberPwd]').value;
+		let id = document.querySelector('input[name=memberId]').value;
+		let tmp = '';
+		let count = 0;
+		for(i=0; i < id.length-2; i++) {
+			tmp = id.charAt(i) + id.charAt(i+1) + id.charAt(i+2);
+			if(newPwd.indexOf(tmp) > -1) { count = count + 1 };
+		}
+		if(!regexp.test(newPwd)) {
+			alert('비밀번호는 8~16자의 영문 대소문자/숫자/특수기호 조합하여 입력하세요');
+		} if(count > 0) {
+			alert('아이디와 연속 3자리 이상 일치하는 비밀번호는 사용할 수 없어요');
+		/* 3. 현재 비밀번호와 일치 여부 검사 */
+		} else if(memberPwd == newPwd) {
+			alert('현재 사용 중인 비밀번호로는 변경할 수 없습니다');
+		} else {
+			form.submit();
+		}
+	} else {
+		form.submit();
+	}
+}
+
+/* 회원탈퇴 폼 제출 */
+function submitInactivateForm() {
+	event.preventDefault();
+	let form = document.getElementById('inactivateForm');
+}

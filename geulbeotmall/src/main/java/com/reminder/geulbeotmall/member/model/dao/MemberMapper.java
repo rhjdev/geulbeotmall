@@ -73,4 +73,6 @@ public interface MemberMapper {
 	char checkIsAuthenticated(String memberId);
 
 	int updateAuthentication(String memberId, char authPhoneYn);
+
+	int changeMemberInfo(MemberDTO memberDTO);
 }

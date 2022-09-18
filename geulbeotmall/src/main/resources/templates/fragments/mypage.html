@@ -5,6 +5,16 @@
 	<title>mypage</title>
 	<!-- CSS -->
 	<link th:href="@{/css/mypage.css}" rel="stylesheet">
+	<!-- 이메일 자동완성 -->
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <style>
+    	/* 자동완성 선택지 */
+		.ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+		    background: #00008b !important; 
+		    border: solid 1px transparent; 
+		    color: #f9f9f9;
+		}
+    </style>
 </head>
 <body layout:fragment="content">
 	<div class="title-wrapper">
@@ -62,5 +72,10 @@
     </div>
     <!-- JS -->
    	<script th:src="@{/js/mypage.js}" type="text/javascript"></script>
+   	<!-- 이메일 자동완성 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+   	<!-- 주소 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </body>
 </html>
