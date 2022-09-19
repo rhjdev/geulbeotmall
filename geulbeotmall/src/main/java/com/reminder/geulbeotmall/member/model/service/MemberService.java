@@ -68,4 +68,8 @@ public interface MemberService extends UserDetailsService {
 	boolean updateAuthentication(String memberId, char authPhoneYn);
 
 	int changeMemberInfo(MemberDTO memberDTO);
+	
+	int closeMemberAccount(String memberId);
+
+	String findMemberId(String name, String email);
 }

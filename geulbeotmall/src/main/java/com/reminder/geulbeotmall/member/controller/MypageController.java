@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -267,8 +268,27 @@ public class MypageController {
 	/**
 	 * 회원탈퇴
 	 */
-	@GetMapping("inactivate")
-	public void inactivateMyAccount(@AuthenticationPrincipal UserImpl user, Model model) {
+	@GetMapping("close")
+	public void getCloseForm(@AuthenticationPrincipal UserImpl user, Model model) {
+		model.addAttribute("memberId", user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+	}
+	
+	@PostMapping("close")
+	public String closeMyAccount(@RequestParam("memberPwd") String memberPwd, @AuthenticationPrincipal UserImpl user, RedirectAttributes rttr, Model model, Locale locale) {
+		/* 현재 비밀번호 일치 여부 확인 => PasswordEncoder matches(raw, encoded) 메소드 활용 */
+		if(!passwordEncoder.matches(memberPwd, user.getMemberPwd())) {
+			rttr.addFlashAttribute("closeAccountMessage", messageSource.getMessage("incorrectPassword", null, locale));
+			return "redirect:/mypage/close";
+		} else {
+			int result = memberService.closeMemberAccount(user.getMemberId());
+			if(result == 1) {
+				rttr.addFlashAttribute("closeAccountMessage", messageSource.getMessage("memberAccountClosedSuccessfully", null, locale));
+				SecurityContextHolder.clearContext(); //로그아웃
+			} else {
+				rttr.addFlashAttribute("closeAccountMessage", messageSource.getMessage("errorWhileClosingMemberAccount", null, locale));
+			}
+			return "redirect:/";
+		}
 	}
 }

@@ -309,6 +309,27 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
+	<!-- 아이디 찾기 -->
+	<select id="findMemberId" resultType="string">
+		SELECT
+			   MEMBER_ID
+		  FROM TBL_MEMBER
+		 WHERE NAME = #{ name }
+		   AND EMAIL = #{ email }
+	</select>
+	
+	<!-- 비밀번호 찾기 *임시 비밀번호 저장* -->
+	<update id="findMemberPwd">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_CHANGED_DATE = SYSDATE
+		     , MEMBER_PWD = #{ tempPwd }
+		     , TEMP_PWD_YN = 'Y'
+		 WHERE MEMBER_ID = #{ memberId }
+		   AND NAME = #{ name }
+		   AND EMAIL = #{ email }
+	</update>
+	
 	<!-- 회원가입 중 아이디 중복 검사 -->
 	<select id="checkId" parameterType="String" resultType="int">
 		SELECT
@@ -672,13 +693,22 @@
 	<!-- 현재 보유 적립금 -->
 	<select id="getMemberPoint" resultType="_int">
 		SELECT
-			   (SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
-				  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
-				  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-				 WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립') - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
-																				  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
-																				  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-																				 WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용')
+			   NVL((SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
+				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립') - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
+																				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+																				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+																				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용'), 0)
 		  FROM DUAL
 	</select>
+	
+	<!-- 회원 탈퇴 -->
+	<update id="closeMemberAccount">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_CLOSING_DATE = SYSDATE
+		     , ACC_CLOSING_YN = 'Y'
+		 WHERE MEMBER_ID = #{ memberId }
+	</update>
 </mapper>

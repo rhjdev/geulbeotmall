@@ -9,7 +9,7 @@ switch(true) {
 	case link.indexOf('wishlist') > 0: nav[3].className = 'nav-link active'; break;
 	case link.indexOf('reserve') > 0: nav[4].className = 'nav-link active'; break;
 	case link.indexOf('change') > 0: nav[5].className = 'nav-link active'; break;
-	case link.indexOf('inactivate') > 0: nav[6].className = 'nav-link active'; break;
+	case link.indexOf('close') > 0: nav[6].className = 'nav-link active'; break;
 }
 
 /* 위시리스트 항목 전체 선택 */
@@ -378,7 +378,32 @@ function submitChangeForm() { //업데이트할 내용이 없는 input 항목은
 }
 
 /* 회원탈퇴 폼 제출 */
-function submitInactivateForm() {
+function submitCloseForm() {
 	event.preventDefault();
-	let form = document.getElementById('inactivateForm');
+	let form = document.getElementById('closeForm');
+	let isChecked = document.getElementById('check').checked;
+	let memberPwd = document.getElementById('memberPwd').value;
+	if(memberPwd.length == 0) { //1. 비밀번호 확인
+		Swal.fire({
+			icon: 'warning',
+			title: '비밀번호를 입력하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {}
+		})
+	} else {
+		if(isChecked) { //2. 체크박스 선택한 상황에 한하여 탈퇴 진행
+			form.submit();
+		} else {
+			Swal.fire({
+				icon: 'warning',
+				title: '탈퇴 전 안내사항을 읽고 체크박스를 선택하세요',
+				confirmButtonColor: '#00008b',
+				confirmButtonText: '확인'
+			}).then((result) => {
+				if(result.isConfirmed) {}
+			})
+		}
+	}
 }

@@ -2,11 +2,11 @@ package com.reminder.geulbeotmall.member.controller;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,11 +30,6 @@ import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
 import lombok.extern.slf4j.Slf4j;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 
 @Slf4j
 @Controller
@@ -199,5 +194,30 @@ public class MemberController {
 	public String authenticatedMember(@RequestParam("result") String authPhoneYn, @AuthenticationPrincipal UserImpl user) {
 		boolean isCommited = memberService.updateAuthentication(user.getMemberId(), authPhoneYn.charAt(0));
 		return isCommited == true ? "succeed" : "fail";
+	}
+	
+	/**
+	 * 아이디/비밀번호 찾기
+	 */
+	@GetMapping("forgot")
+	public void getfindForm() {}
+	
+	@PostMapping("forgot")
+	public void findAccountAndPassword(@RequestParam Map<String, Object> params) {
+		log.info("params : {}", params);
+		String name = params.get("name").toString();
+		String email = params.get("email").toString();
+		switch(params.size()) {
+			case 2:
+				log.info("find id 요청");
+				String resultId = memberService.findMemberId(name, email);
+				break;
+			case 3:
+				log.info("find pwd 요청");
+				String memberId = params.get("memberId").toString();
+//				String token = RandomString.make(30);
+//				int result = memberService.createTempPassword(memberId, name, email);
+				break;
+		}
 	}
 }

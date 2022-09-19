@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>마이페이지 | 글벗문구</title>
+</head>
+<body th:replace="/fragments/mypage.html :: mypage">
+	<div layout:fragment="mypageContent">
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/mypage/main}">마이페이지</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">회원탈퇴</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>회원탈퇴</legend>
+			</fieldset>
+			<div class="close-note">
+				<h4><b>그동안 글벗문구 서비스를 이용해 주셔서 감사합니다.</b></h4>
+				<ul class="close-notice">
+					<li>현재 진행 중인 주문이 1건 이상 존재하는 경우 탈퇴가 불가합니다.</li>
+					<li>회원탈퇴 시 보유하고 있는 적립금은 자동 소멸되며, 재가입하는 경우에도 복원되지 않습니다.</li>
+					<li>회원탈퇴 후 재가입 시 기존 아이디는 사용할 수 없습니다.</li>
+				</ul>
+			</div>
+			<form id="closeForm" name="closeForm" class="close-form" th:action="@{/mypage/close}" method="post">
+				<div>
+					<label for="memberId">아이디</label>
+					<input type="text" id="memberId" name="memberId" th:value="${ memberId }" readonly>
+				</div>
+				<div>
+					<label for="memberPwd">비밀번호</label>
+					<input type="password" id="memberPwd" name="memberPwd" autocomplete="off" title="비밀번호 입력" oninvalid="this.setCustomValidity('비밀번호 입력')" oninput="setCustomValidity('')">
+				</div>
+				<div class="closeAccount">
+					<div>
+						<input type="checkbox" class="input-checkbox" id="check" name="check">
+						<label for="check">상기 내용을 숙지하였으며, 탈퇴를 진행합니다.</label>
+					</div>
+					<button type="submit" class="closeBtn btn btn-dark" onclick="submitCloseForm();">회원탈퇴</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

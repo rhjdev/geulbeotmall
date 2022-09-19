@@ -634,24 +634,24 @@
 }
 
 /* 회원 탈퇴 */
-.mypage-area > .inactivate-note {
+.mypage-area > .close-note {
 	padding: 30px 30px 20px 30px;
 	border: 1px solid #E5E5E5;
 	margin-bottom: 40px;
 }
 
-.mypage-area > .inactivate-note > ul {
+.mypage-area > .close-note > ul {
 	padding-left: 0;
 }
 
-.mypage-area > .inactivate-note > ul > li {
+.mypage-area > .close-note > ul > li {
 	position: relative;
     padding-left: 10px;
     font-size: 14px;
     list-style: none;
 }
 
-.mypage-area > .inactivate-note > ul > li:before {
+.mypage-area > .close-note > ul > li:before {
     position: absolute;
     display: inline-block;
     width: 2px;
@@ -661,21 +661,22 @@
 	content: "";
     background-color: #000;
 }
-.mypage-area > .inactivate-form {
+
+.mypage-area > .close-form {
 	text-align: center;
 }
 
-.mypage-area > .inactivate-form > div > label {
+.mypage-area > .close-form > div > label {
 	width: 90px;
 	font-weight: bold;
 	text-align: left;
 }
-.mypage-area > .inactivate-form > div > label:last-child {
+.mypage-area > .close-form > div > label:last-child {
 	display: block;
 }
 
-.mypage-area > .inactivate-form > div > input[type="text"],
-.mypage-area > .inactivate-form > div > input[type="password"] {
+.mypage-area > .close-form > div > input[type="text"],
+.mypage-area > .close-form > div > input[type="password"] {
     border: 1px solid #E5E5E5;
     width: 300px;
     height: 44px;
@@ -684,21 +685,26 @@
     margin-bottom: 10px;
 }
 
-.mypage-area > .inactivate-form > .inactivateAccount > div:first-child {
+.mypage-area > .close-form > div:first-child > input:read-only  {
+	background-color: #f9f9f9;
+    cursor: default;
+}
+
+.mypage-area > .close-form > .closeAccount > div:first-child {
 	margin: 20px 0 40px 0;
 }
 
-.mypage-area > .inactivate-form > .inactivateAccount > div > label {
+.mypage-area > .close-form > .closeAccount > div > label {
     font-weight: bold;
     margin-inline-start: 4px;
 }
 
-.mypage-area > .inactivate-form > .inactivateAccount > div > input[type="checkbox"] {
+.mypage-area > .close-form > .closeAccount > div > input[type="checkbox"] {
 	accent-color: black;
 	transform: scale(1.2);
-	
 }
-.mypage-area > .inactivate-form > .inactivateAccount > .inactivateBtn {
+
+.mypage-area > .close-form > .closeAccount > .closeBtn {
 	margin-bottom: 60px;
 }
 

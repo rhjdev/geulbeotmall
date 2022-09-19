@@ -235,4 +235,14 @@ public class MemberServiceImpl implements MemberService {
 	public int changeMemberInfo(MemberDTO memberDTO) {
 		return memberMapper.changeMemberInfo(memberDTO);
 	}
+	
+	@Override
+	public int closeMemberAccount(String memberId) {
+		return memberMapper.closeMemberAccount(memberId);
+	}
+
+	@Override
+	public String findMemberId(String name, String email) {
+		return memberMapper.findMemberId(name, email);
+	}
 }
