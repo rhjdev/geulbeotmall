@@ -9,16 +9,6 @@
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
 	    <link th:href="@{/css/post.css}" rel="stylesheet">
 	</th:block>
-	<!-- 리뷰 작성 결과 메시지 -->
-	<script>
-		const successMessage = '[[${successMessage}]]'
-		const errorMessage = '[[${errorMessage}]]'
-		if(successMessage) {
-			alert(successMessage);
-		} else if(errorMessage) {
-			alert(errorMessage);
-		}
-	</script>
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
 	<div layout:fragment="mypageContent">
@@ -46,7 +36,7 @@
 					<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="false">나의 상품리뷰</button>
 				</li>
 			</ul>
-			<div class="tab-content" id="myTabContent">
+			<div class="tab-content" id="myReviewTabContent">
 				<div class="tab-pane fade show active" id="write" role="tabpanel" aria-labelledby="write-tab">
 					<div class="dataTable-container">
 						<table class="reviewlist-table dataTable-table">
@@ -165,6 +155,7 @@
 														</th:block>
 														<div class="body">
 															<div class="menu">
+																<span class="views">조회수&nbsp;<b>[[${postList.revwHits}]]</b></span>
 																<ul>
 																	<li>
 																		<span>신고</span>
@@ -220,6 +211,8 @@
 			</div>
 		</div>
 	</div>
+	<!-- Alert Messages -->
+    <section th:replace="/fragments/alert.html :: alert"></section>
 	<!-- JS -->
     <th:block layout:fragment="script">
     	<script type="text/javascript">

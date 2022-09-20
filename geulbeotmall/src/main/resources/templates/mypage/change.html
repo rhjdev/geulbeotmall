@@ -7,20 +7,6 @@
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/mypage.css}" rel="stylesheet">
 	</th:block>
-	<!-- 본인인증 안내 메시지 -->
-	<script>
-		const errorMessage = '[[${errorMessage}]]'
-		if(errorMessage) {
-			alert(errorMessage);
-		}
-	</script>
-	<!-- 회원정보수정 결과 메시지 -->
-	<script>
-		const profileUpdateMessage = '[[${profileUpdateMessage}]]'
-		if(profileUpdateMessage) {
-			alert(profileUpdateMessage);
-		}
-	</script>
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
 	<div layout:fragment="mypageContent">

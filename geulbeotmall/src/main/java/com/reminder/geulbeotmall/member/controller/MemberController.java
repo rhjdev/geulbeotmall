@@ -98,7 +98,7 @@ public class MemberController {
 	 * @return 회원가입 폼 또는 에러 페이지로 연결
 	 */
 	@GetMapping("signup")
-	public String signUpForm(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+	public String signUpForm(@AuthenticationPrincipal UserImpl user, Model model) {
 		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 denied 페이지로 연결
 			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
 			return "/common/denied";
@@ -128,14 +128,10 @@ public class MemberController {
 		/* 리다이렉트 시에는 요청이 새로 생겨나는 것이므로 RedirectAttributes 사용 
 		 * 메시지 목록을 리터럴리하게 쓰지 않고 따로 목록화 해서 관리되도록 ContextConfiguration에 bean으로 등록
 		 * 상단에 MessageSource 타입에 대하여 의존성 주입
-		 * 
-		 * 결과적으로 request scope 안에 successMessage가 담김
-		 * alert를 띄우기 위해서는 main html 안에 작성
-		 * */
-		rttr.addFlashAttribute("successMessage", messageSource.getMessage("signUpMember", null, locale));
-		
+		 * 결과적으로 request scope 안에 successMessage가 담기는 것
+		 */
+		rttr.addFlashAttribute("signUpMessage", messageSource.getMessage("signUpMember", null, locale));
 		log.info("성공 로직 실행 완료");
-		
 		return "redirect:/";
 	}
 	
@@ -144,23 +140,29 @@ public class MemberController {
 	 * @return 로그인 폼 또는 에러 페이지로 연결
 	 */
 	@GetMapping("signin")
-	public String signInForm(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, Model model) {
+	public String signInForm(@AuthenticationPrincipal UserImpl user, Model model, Locale locale) {
 		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 denied 페이지로 연결
-			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
+			model.addAttribute("loginAccessDenied", messageSource.getMessage("loginAccessDenied", null, locale));
 			return "/common/denied";
 		}
 		return "/member/signin";
 	}
 	
 	@PostMapping("signin")
-	public void signInMember(@AuthenticationPrincipal UserImpl user, @RequestParam(required=false) String errorMessage, HttpServletRequest request, HttpSession session, Model model) {
-		/* 상품상세페이지에서 바로주문 요청한 경우 선택값을 session상에 임시 저장 */
+	public void signInMember(@RequestParam(required=false) String errorTitle, @RequestParam(required=false) String errorText,
+			@AuthenticationPrincipal UserImpl user, HttpServletRequest request, HttpSession session,
+			RedirectAttributes rttr, Model model, Locale locale) {
+		/* 
+		 * [Handler 이동 전 요청별 확인]
+		 * who : 비로그인 상태의 회원
+		 * what : 1)상품상세페이지 > '바로주문' 요청 => @SessionAttributes 어노테이션 활용해 선택값을 session상에 임시 저장
+		 * 		  2)이전 경로가 존재 => 이를 session상에 임시 저장
+		 */
 		String[] detailOptionNo = request.getParameterValues("orderOptionNo");
 		String[] detailOptionQt = request.getParameterValues("orderOptionQt");
 		session.setAttribute("detailOptionNo", detailOptionNo);
 		session.setAttribute("detailOptionQt", detailOptionQt);
 		
-		/* 로그인 요청 중 이전 경로가 존재하면 이를 session상에 임시 저장 */
 		String uri = request.getHeader("Referer"); //사용자의 이전 경로
 		
 		String loginMember = (String) session.getAttribute("loginMember");
@@ -170,11 +172,16 @@ public class MemberController {
 			}
 		}
 		
-		/* 로그인 실패 */
-		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 에러메시지 전달
-			model.addAttribute("errorMessage", "이미 로그인한 상태이거나 접근 권한이 없는 페이지입니다.");
+		/*
+		 * 로그인 실패
+		 * : LoginFailureHandler로부터 @RequestParam 어노테이션 통해 넘어온 에러메시지 출력
+		 */
+		if(errorTitle != null) {
+//			rttr.addFlashAttribute("signInMessageTitle", errorTitle);
+//			rttr.addFlashAttribute("signInMessageText", errorText);
+			model.addAttribute("signInMessageTitle", errorTitle);
+			model.addAttribute("signInMessageText", errorText);
 		}
-		model.addAttribute("errorMessage", errorMessage); //비밀번호 입력 오류 등
 	}
 		
 	/**

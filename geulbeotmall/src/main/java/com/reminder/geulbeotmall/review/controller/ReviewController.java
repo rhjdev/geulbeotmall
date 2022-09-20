@@ -168,9 +168,9 @@ public class ReviewController {
 			pointDTO.setPointAmount(100);
 			int point100 = reviewService.savePoints(pointDTO);
 			if(posting == 1 && point100 == 1) {
-				rttr.addFlashAttribute("successMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
+				rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
 			} else {
-				rttr.addFlashAttribute("errorMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
+				rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
 			}
 		}
 		return "redirect:/mypage/review";

@@ -1,20 +1,4 @@
 @charset "UTF-8";
-
-/* alert */
-.alert {
-	display: flex;
-	padding: 0.5rem 1rem;
-	margin-top: 40px;
-}
-
-.alert-dismissible .btn-close {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    padding: 1.25rem 1rem;
-}
-
 /* 타이틀 */
 .title-wrapper {
     display: flex;
@@ -30,42 +14,43 @@
 }
 
 /* 본문 */
-.content-wrapper {
+.signin-wrapper {
     width: 580px !important;
 }
 
-.inputBox {
+.signin-wrapper > form > .inputBox {
     display: flexbox;
     width: 100%;
     border-top: 3px solid #000;
     margin-top: 40px;
 }
 
-.form-floating {
+.signin-wrapper > form > .inputBox > .required label {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.signin-wrapper > form > .inputBox > .form-floating {
     position: relative;
     display: flex;
     margin: 14px auto;
     padding-left: 0;
 }
 
-.required label {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.form-floating>.form-control:focus~label,
-.form-floating>.form-control:not(:placeholder-shown)~label {
+.signin-wrapper > form > .inputBox > .form-floating > .form-control:focus~label,
+.signin-wrapper > form > .inputBox > .form-floating > .form-control:not(:placeholder-shown)~label {
     opacity: 1 !important;
     color: #00008b !important;
 }
 
-.required input {
+.signin-wrapper > form > .inputBox > .required input {
     width: 100%;
     height: 44px;
     align-items: center;
 }
 
-input[type="text"], input[type="password"] {
+.signin-wrapper > form > .inputBox > .required > input[type="text"],
+.signin-wrapper > form > .inputBox > .required > input[type="password"] {
     border: 0;
     border-radius: 0;
     border-bottom: 1px solid #ced4da;
@@ -78,16 +63,16 @@ input[type="text"], input[type="password"] {
     margin: 6px 0;
 }
 
-input[type="text"]:focus, input[type="password"]:focus {
+.signin-wrapper > form > .inputBox > .required > input[type="text"]:focus, input[type="password"]:focus {
     box-shadow: none;
     border-bottom: 1px solid #00008b;
 }
 
-input::placeholder {
+.signin-wrapper > form > .inputBox > .required > input::placeholder {
     opacity: 0;
 }
 
-.visibility {
+.signin-wrapper > form > .inputBox > .required > .visibility {
     display: inline-block;
     position: absolute;
     background-color: transparent;
@@ -97,12 +82,12 @@ input::placeholder {
 }
 
 /* 버튼 */
-.buttonBox {
+.signin-wrapper > form > .buttonBox {
     display: flex;
     margin-block-end: 10%;
 }
 
-button[type="submit"] {
+.signin-wrapper > form > .buttonBox > button[type="submit"] {
     width: 70%;
     height: 44px;
     box-shadow: none !important;
@@ -111,26 +96,26 @@ button[type="submit"] {
     margin-inline-end: 12px;
 }
 
-.btn-dark:hover {
+.signin-wrapper > form > .buttonBox > .btn-dark:hover {
 	opacity: 93%;
 }
 
 /* 체크박스 */
-.remember-wrapper {
+.signin-wrapper > form > .buttonBox > .remember-wrapper {
     display: inline-block;
     width: 100%;
 }
 
-input[type="checkbox"] {
+.signin-wrapper > form > .buttonBox > .remember-wrapper > label > input[type="checkbox"] {
     transform : scale(1.5);
     cursor: pointer;
 }
 
-input[type="checkbox"]:checked {
+.signin-wrapper > form > .buttonBox > .remember-wrapper > label > input[type="checkbox"]:checked {
 	accent-color: black;
 }
 
-.label-checkbox {
+.signin-wrapper > form > .buttonBox > .remember-wrapper > .label-checkbox {
     top: 50%;
     margin-block-start: 12px;
     margin-block-end: 12px;
@@ -138,14 +123,14 @@ input[type="checkbox"]:checked {
     margin-inline-end: 12px;
 }
 
-.label-checkbox span {
+.signin-wrapper > form > .buttonBox > .remember-wrapper > .label-checkbox span {
     font-size: medium;
     font-weight: bold;
     margin-inline-start: 8px;
 }
 
 /* 링크 */
-.cut-in-title {
+.signin-wrapper > form > .cut-in-title {
     display: flex;
 	flex-basis: 100%;
 	align-items: center;
@@ -154,8 +139,8 @@ input[type="checkbox"]:checked {
     margin-block-end: 2%;
 }
 
-.cut-in-title::before,
-.cut-in-title::after {
+.signin-wrapper > form > .cut-in-title::before,
+.signin-wrapper > form > .cut-in-title::after {
 	content: "";
 	flex-grow: 1;
 	background: #ced4da;
@@ -166,7 +151,7 @@ input[type="checkbox"]:checked {
     margin-inline-start: 25px;
 }
 
-.link-list {
+.signin-wrapper > form > .linkBox > .link-list {
     display: flex;
     list-style: none;
     justify-content: center;
@@ -176,12 +161,12 @@ input[type="checkbox"]:checked {
     width: 400px;
 }
 
-.link-list li {
+.signin-wrapper > form > .linkBox > .link-list li {
     display: list-item;
     width: 100%;
 }
 
-.link-list > span {
+.signin-wrapper > form > .linkBox > .link-list > span {
     content: "";
     width: 1px;
     height: 8px;
@@ -189,8 +174,8 @@ input[type="checkbox"]:checked {
     margin-block-start: 2%;
 }
 
-
-.link > a {
+/* NEED HELP */
+.signin-wrapper > form > .linkBox > .link-list > .link > a {
     display: block;
     color: #000;
     text-decoration: none;
@@ -198,8 +183,121 @@ input[type="checkbox"]:checked {
     text-align: center;
 }
 
-.link > a:hover {
+.signin-wrapper > form > .linkBox > .link-list > .link > a:hover {
     color: #00008b;
+}
+
+/* ======================================= */
+
+.forgotIdPwd-wrapper {
+	width: 700px;
+}
+
+#forgotIdPwdTab {
+	border-bottom: 0;
+	width: 100%;
+	height: 44px;
+	margin-top: 40px;
+}
+
+#forgotIdPwdTab > li {
+	width: 50%;
+	height: 100%;
+}
+
+#forgotIdPwdTab > .nav-item > .nav-link {
+	border-bottom: 2px solid #000;
+	color: #E5E5E5;
+}
+
+#forgotIdPwdTab > .nav-item > .nav-link.active {
+	border: 0;
+	border-radius: 0;
+	border-bottom: 2px solid #000;
+	background-color: #000;
+	color: #fff;
+}
+
+#forgotIdPwdTab > li > button {
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0 auto;
+	border: 0;
+	background-color: transparent;
+	vertical-align: middle;
+}
+
+.forgotIdPwd-wrapper > .tab-content {
+	margin-top: 40px;
+}
+
+.forgotIdPwd-wrapper > .tab-content > div > .find-note {
+	padding: 30px 30px 16px 30px;
+	border: 1px solid #E5E5E5;
+	margin-bottom: 40px;
+}
+
+.forgotIdPwd-wrapper > .tab-content > div > .find-note > ul {
+	padding-left: 0;
+}
+
+.forgotIdPwd-wrapper > .tab-content > div > .find-note > ul > li {
+	position: relative;
+    padding-left: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.forgotIdPwd-wrapper > .tab-content > div > .find-note > ul > li:before {
+    position: absolute;
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    bottom: 9px;
+    left: 0;
+	content: "";
+    background-color: #000;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form {
+	text-align: center;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > label {
+	width: 90px;
+	font-weight: bold;
+	text-align: left;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > label:last-child {
+	display: block;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > input[type="text"],
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > input[type="email"],
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > input[type="password"] {
+    border: 1px solid #E5E5E5;
+    width: 300px;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > .buttonBox {
+	margin-block-start: 10%;
+    margin-block-end: 20%;
+    margin-inline-start: 20%;
+    margin-inline-end: 20%;
+}
+
+.forgotIdPwd-wrapper > .tab-content > .tab-pane > .find-form > div > button[type="submit"] {
+	width: 100%;
+    height: 44px;
+    border-radius: 0;
+    box-shadow: none !important;
+    cursor: pointer;
 }
 
 /* 전체 폰트 적용 */

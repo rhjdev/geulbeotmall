@@ -7,19 +7,6 @@
 	<th:block layout:fragment="css">
 		<link th:href="@{/css/main.css}" rel="stylesheet">
 	</th:block>
-	<script>
-		/* 회원가입 성공 메시지 */
-		const successMessage = '[[${successMessage}]]'
-		if(successMessage) {
-			Swal.fire({
-				icon: 'success',
-				title: '회원가입이 완료되었습니다',
-				text: '본인인증메일 확인 통해 계정을 활성화하세요',
-				confirmButtonColor: '#00008b',
-				confirmButtonText: '확인'
-			})
-		}
-	</script>
 </head>
 <body layout:fragment="content">
 	<!-- Slider -->
@@ -186,7 +173,8 @@
             </div>
         </div>
     </section>
-    
+    <!-- Alert Messages -->
+    <section th:replace="/fragments/alert.html :: alert"></section>
 	<!-- JS -->
 	<th:block layout:fragment="script">
 		<script th:src="@{/js/main.js}" type="text/javascript"></script>

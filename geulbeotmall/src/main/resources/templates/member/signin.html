@@ -12,15 +12,8 @@
 	<div class="title-wrapper">
         <h2>로그인</h2>
     </div>
-    <div class="container content-wrapper">
+    <div class="container content-wrapper signin-wrapper">
         <form id="loginForm" name="loginForm" th:action="@{/member/signin}" method="post">
-    		<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-	    		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
-	    			<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-	    		</svg>
-    			<p class="msg">[[${errorMessage}]]</p>
-    			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    		</div>
             <div class="inputBox">
                 <div class="form-floating required">
                     <input type="text" class="form-control" id="username" name="username" autocomplete="off" placeholder="아이디" title="아이디 입력" oninvalid="this.setCustomValidity('아이디 입력')" oninput="setCustomValidity('')">
@@ -46,22 +39,18 @@
             <div class="cut-in-title"><small>NEED HELP?</small></div>
             <div class="linkBox">
                 <ul class="link-list">
-                    <li class="link findId">
-                        <a href="#">아이디 찾기</a>
+                    <li class="link findIdPwd">
+                        <a th:href="@{/member/forgot}">아이디/비밀번호 찾기</a>
                     </li>
-                    <span></span>
-                    <li class="link findPwd">
-                        <a href="#">비밀번호 찾기</a>
-                    </li>
-                    <span></span>
                     <li class="link signup">
-                        <a href="#">회원가입</a>
+                        <a th:href="@{/member/signup}">회원가입</a>
                     </li>
                 </ul>
             </div>
         </form>
     </div>
-    
+    <!-- Alert Messages -->
+    <section th:replace="/fragments/alert.html :: alert"></section>
     <!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/signin.js}" type="text/javascript"></script>

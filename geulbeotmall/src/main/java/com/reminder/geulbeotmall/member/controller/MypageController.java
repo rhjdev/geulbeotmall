@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/mypage")
-@SessionAttributes({"loginMember", "geulbeotCart"})
+@SessionAttributes({"loginMember", "geulbeotCart", "recentlyViewed"})
 public class MypageController {
 	
 	private final MemberService memberService;
@@ -57,8 +57,10 @@ public class MypageController {
 	 * 마이페이지 메인
 	 */
 	@GetMapping("main")
-	public void getMypage(@AuthenticationPrincipal UserImpl user, Model model) { //로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
+	public void getMypage(@AuthenticationPrincipal UserImpl user, HttpSession session, Model model) { //로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
+		List<Integer> recentlyViewed = (List<Integer>) session.getAttribute("recentlyViewed");
+		model.addAttribute("recentlyViewed", recentlyViewed); //최근 본 상품
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 	}
 	

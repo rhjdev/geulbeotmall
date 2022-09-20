@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<meta charset="UTF-8">
+	<title>alert</title>
+</head>
+<body>
+	<section th:fragment="alert">
+		<!--/* 회원가입 */-->
+		<script th:if="${signUpMessage}" type="text/javascript">
+			const result = '[[${signUpMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					text: '본인인증메일 확인 통해 계정을 활성화하세요',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+		
+		<!--/* 로그인 */-->
+		<script th:if="${signInMessageTitle}" type="text/javascript">
+			const title = '[[${signInMessageTitle}]]'
+			const text = '[[${signInMessageText}]]'
+			Swal.fire({
+				position: 'top-end',
+				icon: 'error',
+				title: title,
+				text: text,
+				showConfirmButton: false,
+				timer: 3000
+			})
+		</script>
+		
+		<!--/* 휴대폰 실명인증 안내 */-->
+		<script th:if="${authenticationRequired}" type="text/javascript">
+			const text = '[[${authenticationRequired}]]'
+			Swal.fire({
+				icon: 'error',
+				title: '휴대폰 실명인증을 진행하세요',
+				text: text,
+				confirmButtonColor: '#00008b',
+				confirmButtonText: '확인'
+			}).then((result) => {
+				if(result.isConfirmed) {}
+			})
+		</script>
+		
+		<!--/* 리뷰 작성 결과 */-->
+		<script th:if="${writeReviewMessage}" type="text/javascript">
+			const result = '[[${writeReviewMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+		
+		<!--/* 회원정보수정 */-->
+		<script th:if="${profileUpdateMessage}" type="text/javascript">
+			const result = '[[${profileUpdateMessage}]]'
+			Swal.fire({
+				position: 'top-end',
+				icon: 'error',
+				title: result,
+				showConfirmButton: false,
+				timer: 3000
+			})
+		</script>
+	
+		<!--/* 회원탈퇴 */-->
+		<script th:if="${closeAccountMessage}" type="text/javascript">
+			const result = '[[${closeAccountMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					text: '그동안 글벗문구를 이용해 주셔서 감사합니다',
+					timer: 1500
+				})
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+	</section>
+</body>
+</html>
