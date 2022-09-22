@@ -56,7 +56,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 @Slf4j
 @Controller
-@SessionAttributes({"loginMember", "geulbeotCart"})
+@SessionAttributes({"loginMember", "geulbeotCart", "recentlyViewed"})
 public class ProductController {
 	
 	//썸네일 크기
@@ -555,6 +555,18 @@ public class ProductController {
 	 */
 	@GetMapping("/product/details")
 	public void getProductDetails(@RequestParam("no") int prodNo, HttpSession session, Model model) {
+		/* 최근 본 상품으로 저장 */
+		List<Integer> recentlyViewed = (List<Integer>) session.getAttribute("recentlyViewed");
+		if(recentlyViewed == null) recentlyViewed = new ArrayList<>();
+		if(recentlyViewed.size() == 0) {
+			recentlyViewed.add(prodNo);
+		} else {
+			if(recentlyViewed.indexOf(prodNo)== -1) recentlyViewed.add(prodNo); //중복 방지
+		}
+		log.info("recently viewed items: {}", recentlyViewed);
+		session.removeAttribute("recentlyViewed");
+		session.setAttribute("recentlyViewed", recentlyViewed);
+		
 		session.removeAttribute("orderItem"); //주문 요청 시마다 주문목록 session 갱신
 		
 		/* 상품 상세 정보 호출 */

@@ -1,5 +1,4 @@
 @charset "UTF-8";
-
 /* 타이틀 */
 .title-wrapper {
     display: flex;
@@ -12,6 +11,103 @@
 .title-wrapper h2 {
     top: 50%;
     left: 50%;
+}
+
+/* 카드 */
+.browsing-history {
+	margin-bottom: 60px;
+}
+
+.browsing-history > .recently-viewed > .noitemViewed {
+	color: #E5E5E5;
+    text-align: center;
+    margin-top: 150px;
+    margin-bottom: 300px !important;
+}
+
+.browsing-history > .recently-viewed > .noitemViewed > div {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card {
+    border: 0;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-img-wrapper > .card-img-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    transform: scale(1);
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transition: all 0.3s ease-in-out;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-img-wrapper > .card-img-top:hover {
+    transform: scale(1.2);
+    -webkit-transform: scale(1.2);
+    -moz-transform: scale(1.2);
+    -ms-transform: scale(1.2);
+    -o-transform: scale(1.2);
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-img-wrapper {
+    overflow: hidden;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card a {
+    color: #000;
+    text-decoration: none;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body {
+	display: inline-flex;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > b,
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > span > b {
+	color: #00008b;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > .price {
+	color: #000;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > del {
+	font-size: 14px;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > h6 {
+	display: inline-block;
+	width: 180px;
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+    margin-top: 3px;
+    margin-bottom: 6px;
+    vertical-align: middle;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > small {
+	color: #6c757d;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-left > span {
+	display: block;
+	color: #000;
+	font-size: 0.85rem;
+	margin-top: 10px;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-right > i {
+	font-size: 20px;
+}
+
+.browsing-history > .recently-viewed > .container > .row > .col > .card > a > .card-body > .text-right > .fa-heart:hover {
+	color: #ff0000;
 }
 
 /* 본문 */
@@ -157,10 +253,7 @@
 	background-color: #f9f9f9 !important;
 }
 
-.mypage-area {
-	margin-left: 58px;
-}
-
+/* 마이페이지 브레드크럼 */
 .mypage-breadcrumb {
     font-size: 12px;
     float: right;
@@ -174,6 +267,62 @@
 
 .mypage-breadcrumb > ol > li > a:hover {
 	color: #00008b;
+}
+
+/* 메인 */
+.mypage-area {
+	margin-left: 58px;
+}
+
+.mypage-area > .latest-orders {
+    height: 140px;
+	padding: 30px 30px 20px 30px;
+    border: 1px solid #E5E5E5;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.mypage-area > .latest-orders > ul {
+	display: contents !important;
+	position: relative;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    margin: 14px auto;
+    padding-inline-start: 0;
+    margin-block-end: 0;
+}
+
+.mypage-area > .latest-orders > ul > li {
+    position: relative;
+    float: left;
+    width: 20%;
+    list-style: none;
+}
+
+.mypage-area > .latest-orders > ul > li:not(:last-child):after {
+    position: absolute;
+    right: 0;
+    font: var(--fa-font-solid);
+    content: "\f105";
+    font-size: 140%;
+    color: #6c757d;
+    line-height: 20px;
+}
+
+.mypage-area > .latest-orders > ul > li > a {
+	text-decoration: none;
+	font-size: 14px;
+	color: #b7b7b7;
+    cursor: pointer;
+}
+
+.mypage-area > .latest-orders > ul > li > a:hover {
+	color: #000;
+}
+
+.mypage-area > .latest-orders > ul > li > a > b {
+	font-size: 32px;
 }
 
 .dataTable-table {

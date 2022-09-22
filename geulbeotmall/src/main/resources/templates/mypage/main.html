@@ -6,7 +6,88 @@
 </head>
 <body th:replace="/fragments/mypage.html :: mypage">
 	<div layout:fragment="mypageContent">
-		<div class="mypage-area"></div>
+		<nav class="mypage-breadcrumb" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">HOME</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">마이페이지</li>
+			</ol>
+		</nav>
+		<div class="mypage-area">
+			<fieldset>
+				<legend>최근 주문내역<small style="color: #b7b7b7;">&nbsp;&nbsp;최근 3개월</small></legend>
+			</fieldset>
+			<div class="latest-orders">
+				<ul>
+					<li>
+						<a th:href="@{/mypage/order}">입금대기<br><b>0</b></a>
+					</li>
+					<li>
+						<a th:href="@{/mypage/order}">결제완료<br><b>0</b></a>
+					</li>
+					<li>
+						<a th:href="@{/mypage/order}">상품준비중<br><b>0</b></a>
+					</li>
+					<li>
+						<a th:href="@{/mypage/order}">배송중<br><b>0</b></a>
+					</li>
+					<li>
+						<a th:href="@{/mypage/order}">배송완료<br><b>0</b></a>
+					</li>
+				</ul>
+		    </div>
+		    <fieldset>
+				<legend>최근 본 상품</legend>
+			</fieldset>
+			<div class="browsing-history">
+				<section class="recently-viewed" th:if="${ recentlyViewedItems }">
+			        <div class="container">
+			            <div class="row gx-4 row-cols-2 row-cols-md-3 row-cols-xl-4">
+			                <div class="col" th:each="product : ${ recentlyViewedItems }">
+			                    <div class="card">
+			                        <a th:href="@{/product/details(no=${product.prodNo})}">
+			                            <div class="card-img-wrapper" th:each="thumbnail : ${ recentlyViewedThumbnailList }" th:if="${product.prodNo == thumbnail.refProdNo}">
+											<img class="card-img-top" th:src="${ thumbnail.thumbnailPath }">
+										</div>
+			                            <div class="card-body">
+			                                <div class="text-left">
+			                                    <small>[[${ product.brand.brandName }]]</small>
+			                                    <h6>[[${ product.prodName }]]</h6>
+			                                    <!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+												<th:block th:if="${product.discountRate} == 0">
+													<b class="price">[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]원</b>
+												</th:block>
+												<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+												<th:block th:if="${product.discountRate} > 0">
+													<b class="price">
+														[[${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')}]]원
+													</b>
+													<del>[[${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')}]]</del>
+													<b>&nbsp;[[${ product.discountRate }]]%</b>
+												</th:block>
+			                                </div>
+											<div class="text-right" th:unless="${ memberWishItem }">
+												<i class="fa-regular fa-heart"></i>
+											</div>
+											<!-- 회원의 경우 위시리스트 상품은 별도 표시 -->
+											<div class="text-right" th:if="${ memberWishItem }">
+												<i th:if="${#lists.contains(memberWishItem, product.prodNo)}" style="color: #ff0000;" class="fa-solid fa-heart"></i>
+												<i th:unless="${#lists.contains(memberWishItem, product.prodNo)}" class="fa-regular fa-heart"></i>
+											</div>
+										</div>
+			                        </a>
+			                    </div>
+			                </div>
+						</div>
+			        </div>
+			    </section>
+			    <section class="recently-viewed" th:unless="${ recentlyViewedItems }">
+			    	<div class="noitemViewed">
+						<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                <div>조회된 상품이 없습니다.</div>
+					</div>
+			    </section>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

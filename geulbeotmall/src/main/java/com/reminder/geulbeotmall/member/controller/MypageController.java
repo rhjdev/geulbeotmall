@@ -1,5 +1,6 @@
 package com.reminder.geulbeotmall.member.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +32,10 @@ import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.product.model.service.ProductService;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
+import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,13 +46,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MypageController {
 	
 	private final MemberService memberService;
+	private final ProductService productService;
 	private final MessageSource messageSource;
 	
 	private PasswordEncoder passwordEncoder;
 	
 	@Autowired
-	public MypageController(MemberService memberService, MessageSource messageSource, PasswordEncoder passwordEncoder) {
+	public MypageController(MemberService memberService, ProductService productService, MessageSource messageSource, PasswordEncoder passwordEncoder) {
 		this.memberService = memberService;
+		this.productService = productService;
 		this.messageSource = messageSource;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -60,7 +66,26 @@ public class MypageController {
 	public void getMypage(@AuthenticationPrincipal UserImpl user, HttpSession session, Model model) { //로그인 된 객체를 UserImpl 타입의 데이터로 관리하고 있으므로 매개변수에 어노테이션과 함께 불러옴
 		log.info("로그인 된 유저 : {}", user);
 		List<Integer> recentlyViewed = (List<Integer>) session.getAttribute("recentlyViewed");
-		model.addAttribute("recentlyViewed", recentlyViewed); //최근 본 상품
+		if(recentlyViewed != null) {
+			List<ProductDTO> recentlyViewedItems = new ArrayList<>();
+			List<AttachmentDTO> recentlyViewedThumbnailList = new ArrayList<>();
+			for(int i=0; i < recentlyViewed.size(); i++) { //출력용 상품 이름, 메인썸네일
+				int prodNo = recentlyViewed.get(i);
+				ProductDTO productDTO = productService.getProductDetails(prodNo);
+				recentlyViewedItems.add(productDTO);
+				AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);
+				recentlyViewedThumbnailList.add(mainThumb);
+			}
+			/* 회원의 위시리스트 상품은 별도 표시 */
+			String loginMember = (String) session.getAttribute("loginMember");
+			if(loginMember != null) {
+				log.info("loginMember : {}", loginMember);
+				List<Integer> memberWishItem = memberService.getProdNoFromWishList(loginMember);
+				model.addAttribute("memberWishItem", memberWishItem);
+			}
+			model.addAttribute("recentlyViewedItems", recentlyViewedItems); //최근 본 상품
+			model.addAttribute("recentlyViewedThumbnailList", recentlyViewedThumbnailList);
+		}
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
 	}
 	
@@ -240,10 +265,12 @@ public class MypageController {
 		/* B. 업데이트 대상 값 토대로 MemberDTO 객체 설정 */
 		} else {
 			MemberDTO memberDTO = new MemberDTO();
-			
 			String phone = params.get("phoneA").toString() + params.get("phoneB").toString() + params.get("phoneC").toString();
 			String address = params.get("postalCode").toString() + "$" + params.get("address").toString() + "$" + params.get("detailAddress").toString();
 			char agreement = params.get("agreement").toString().equals("Y") ? 'Y' : 'N';
+			memberDTO.setMemberId(params.get("memberId").toString());
+			memberDTO.setAgreement(agreement);
+			memberDTO.setTempPwdYn('N'); //비밀번호를 직접 변경하는 과정이므로 '임시비밀번호여부' 기본값 N
 			
 			if(user.getName() != params.get("name").toString()) { memberDTO.setName(params.get("name").toString()); }
 			if(params.get("newPwd").toString() != null) {
@@ -253,7 +280,6 @@ public class MypageController {
 			if(user.getPhone() != phone) { memberDTO.setPhone(phone); }
 			if(user.getEmail() != params.get("email").toString()) { memberDTO.setEmail(params.get("email").toString()); }
 			if(user.getAddress() != address) { memberDTO.setAddress(address); }
-			if(user.getAgreement() != agreement) { memberDTO.setAgreement(agreement); }
 			log.info("수정 후 memberDTO : {}", memberDTO);
 			
 			/* C. 업데이트 후 결과 안내와 함께 페이지 새로고침 */
