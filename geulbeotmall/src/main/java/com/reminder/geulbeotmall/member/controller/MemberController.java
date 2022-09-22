@@ -1,15 +1,17 @@
 package com.reminder.geulbeotmall.member.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.mail.model.service.MailService;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
@@ -38,7 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	
 	private final MemberService memberService;
+	private final MailService mailService;
 	private final MessageSource messageSource;
+	private final PasswordEncoder passwordEncoder;
 	private final SignUpValidator signUpValidator;
 	
 	/* MessageSource
@@ -46,9 +51,12 @@ public class MemberController {
 	 * 2. classpath 하위에 messages 폴더 및 properties 파일 생성
 	 */
 	@Autowired
-	public MemberController(MemberService memberService, MessageSource messageSource, SignUpValidator signUpValidator) {
+	public MemberController(MemberService memberService, MailService mailService, MessageSource messageSource,
+			PasswordEncoder passwordEncoder, SignUpValidator signUpValidator) {
 		this.memberService = memberService;
+		this.mailService = mailService;
 		this.messageSource = messageSource;
+		this.passwordEncoder = passwordEncoder;
 		this.signUpValidator = signUpValidator;
 	}
 	
@@ -149,9 +157,9 @@ public class MemberController {
 	}
 	
 	@PostMapping("signin")
-	public void signInMember(@RequestParam(required=false) String errorTitle, @RequestParam(required=false) String errorText,
-			@AuthenticationPrincipal UserImpl user, HttpServletRequest request, HttpSession session,
-			RedirectAttributes rttr, Model model, Locale locale) {
+	public String signInMember(@RequestParam(required=false) String errorTitle, @RequestParam(required=false) String errorText,
+			@RequestParam(required=false) String resetPasswordRequired, HttpServletRequest request, HttpSession session,
+			RedirectAttributes rttr, Locale locale) {
 		/* 
 		 * [Handler 이동 전 요청별 확인]
 		 * who : 비로그인 상태의 회원
@@ -173,15 +181,23 @@ public class MemberController {
 		}
 		
 		/*
+		 * 임시 비밀번호로 로그인에 성공
+		 */
+		if(resetPasswordRequired != null ) {
+			rttr.addFlashAttribute("resetPasswordRequired", messageSource.getMessage("resetPasswordRequired", null, locale));
+			return "redirect:/mypage/change";
+		}
+		
+		/*
 		 * 로그인 실패
 		 * : LoginFailureHandler로부터 @RequestParam 어노테이션 통해 넘어온 에러메시지 출력
 		 */
 		if(errorTitle != null) {
-//			rttr.addFlashAttribute("signInMessageTitle", errorTitle);
-//			rttr.addFlashAttribute("signInMessageText", errorText);
-			model.addAttribute("signInMessageTitle", errorTitle);
-			model.addAttribute("signInMessageText", errorText);
+			rttr.addFlashAttribute("signInMessageTitle", errorTitle);
+			rttr.addFlashAttribute("signInMessageText", errorText);
+			return "redirect:/member/signin";
 		}
+		return uri;
 	}
 		
 	/**
@@ -210,21 +226,50 @@ public class MemberController {
 	public void getfindForm() {}
 	
 	@PostMapping("forgot")
-	public void findAccountAndPassword(@RequestParam Map<String, Object> params) {
+	public String findAccountAndPassword(@RequestParam Map<String, Object> params, Model model, RedirectAttributes rttr, Locale locale) {
 		log.info("params : {}", params);
 		String name = params.get("name").toString();
 		String email = params.get("email").toString();
 		switch(params.size()) {
+			/* 아이디 찾기(이름, 이메일) */
 			case 2:
 				log.info("find id 요청");
-				String resultId = memberService.findMemberId(name, email);
+				MemberDTO resultId = memberService.findMemberId(name, email);
+				if(resultId == null) {
+					rttr.addFlashAttribute("forgotIdMessage", messageSource.getMessage("memberIdNotFound", null, locale));
+				} else {
+					SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
+					String accCreationDate = simpleDateFormat.format(resultId.getAccCreationDate());
+					rttr.addFlashAttribute("forgotIdMessage", resultId.getMemberId());
+					rttr.addFlashAttribute("accCreationDate", accCreationDate);
+				}
 				break;
+			/* 비밀번호 찾기(아이디, 이름, 이메일) */
 			case 3:
 				log.info("find pwd 요청");
 				String memberId = params.get("memberId").toString();
-//				String token = RandomString.make(30);
-//				int result = memberService.createTempPassword(memberId, name, email);
+				
+				//1. 임시 비밀번호 발급 및 DB 저장
+				String tempPwd = UUID.randomUUID().toString().substring(0, 12); //12자리의 임시 비밀번호 생성
+				String encodedTempPwd = passwordEncoder.encode(tempPwd);
+				MemberDTO memberDTO = memberService.getMemberDetails(memberId);
+				memberDTO.setEmail(email);
+				memberDTO.setMemberPwd(encodedTempPwd); //DB 저장용 encoded password
+				memberDTO.setTempPwdYn('Y');
+				int generated = memberService.generateTempPwd(memberDTO);
+				
+				//2. 임시 비밀번호 이메일 발송
+				if(generated == 1) {
+					log.info("임시 비밀번호 요청 memberDTO : {}", memberDTO);
+					memberDTO.setMemberPwd(tempPwd); //회원 전달용 plaintext password
+					mailService.sendTemporaryPwd(memberDTO);
+					rttr.addFlashAttribute("forgotPwdMessage", messageSource.getMessage("temporaryPasswordSent", null, locale));
+				} else {
+					rttr.addFlashAttribute("forgotPwdMessage", messageSource.getMessage("errorWhileSendingEmail", null, locale));
+					return "redirect:/member/forgot";
+				}
 				break;
 		}
+		return "redirect:/member/signin";
 	}
 }

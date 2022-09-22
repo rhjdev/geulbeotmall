@@ -34,6 +34,50 @@
 			})
 		</script>
 		
+		<!-- 아이디 찾기 -->
+		<script th:if="${forgotIdMessage}" type="text/javascript">
+			const result = '[[${forgotIdMessage}]]'
+			const date = '[[${accCreationDate}]]'
+			if(result.indexOf('없습니다') > 0) {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			} else {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					text: '조회된 아이디의 가입일은 ' + date + ' 입니다',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+		
+		<!-- 비밀번호 찾기 -->
+		<script th:if="${forgotPwdMessage}" type="text/javascript">
+			const result = '[[${forgotPwdMessage}]]'
+			if(result.indexOf('오류') > 0) {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					text: '잠시 후 다시 시도해 주세요',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			} else {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					text: '로그인 후 비밀번호를 꼭 변경해 주세요',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+		
 		<!--/* 휴대폰 실명인증 안내 */-->
 		<script th:if="${authenticationRequired}" type="text/javascript">
 			const text = '[[${authenticationRequired}]]'
@@ -68,16 +112,38 @@
 			}
 		</script>
 		
-		<!--/* 회원정보수정 */-->
-		<script th:if="${profileUpdateMessage}" type="text/javascript">
-			const result = '[[${profileUpdateMessage}]]'
+		<!--/* 임시 비밀번호 재설정 안내 */-->
+		<script th:if="${resetPasswordRequired}">
+			const text = '[[${resetPasswordRequired}]]'
 			Swal.fire({
-				position: 'top-end',
-				icon: 'error',
-				title: result,
+				icon: 'warning',
+				title: text,
+				text: '회원님께서는 현재 임시 비밀번호를 사용 중입니다',
 				showConfirmButton: false,
 				timer: 3000
 			})
+		</script>
+		
+		<!--/* 회원정보수정 */-->
+		<script th:if="${profileUpdateMessage}" type="text/javascript">
+			const result = '[[${profileUpdateMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					position: 'top-end',
+					icon: 'success',
+					title: result,
+					showConfirmButton: false,
+					timer: 3000
+				})
+			} else {
+				Swal.fire({
+					position: 'top-end',
+					icon: 'error',
+					title: result,
+					showConfirmButton: false,
+					timer: 3000
+				})
+			}
 		</script>
 	
 		<!--/* 회원탈퇴 */-->
@@ -88,7 +154,7 @@
 					icon: 'success',
 					title: result,
 					text: '그동안 글벗문구를 이용해 주셔서 감사합니다',
-					timer: 1500
+					timer: 3000
 				})
 			} else {
 				Swal.fire({

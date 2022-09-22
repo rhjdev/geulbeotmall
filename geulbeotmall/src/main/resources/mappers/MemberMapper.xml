@@ -309,26 +309,31 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
-	<!-- 아이디 찾기 -->
-	<select id="findMemberId" resultType="string">
+	<!-- 아이디 찾기 *아이디 일부만 조회, 현재 활동 중인 회원에 한함* -->
+	<select id="findMemberId" resultMap="memberResultMap">
 		SELECT
-			   MEMBER_ID
+			   SUBSTR(MEMBER_ID, 1, 4) || RPAD('*', LENGTH(MEMBER_ID)-4, '*') MEMBER_ID
+			 , ACC_CREATION_DATE
 		  FROM TBL_MEMBER
-		 WHERE NAME = #{ name }
+		 WHERE ACC_CLOSING_YN = 'N'
+		   AND NAME = #{ name }
 		   AND EMAIL = #{ email }
 	</select>
 	
-	<!-- 비밀번호 찾기 *임시 비밀번호 저장* -->
-	<update id="findMemberPwd">
+	<!-- 비밀번호 찾기 *임시 비밀번호 저장, 현재 활동 중인 회원에 한함* -->
+	<update id="generateTempPwd">
 		UPDATE
 			   TBL_MEMBER
 		   SET ACC_CHANGED_DATE = SYSDATE
-		     , MEMBER_PWD = #{ tempPwd }
-		     , TEMP_PWD_YN = 'Y'
-		 WHERE MEMBER_ID = #{ memberId }
+		     , TEMP_PWD_YN = #{ tempPwdYn }
+		     , MEMBER_PWD = #{ memberPwd }
+		 WHERE ACC_CLOSING_YN = 'N'
+		   AND MEMBER_ID = #{ memberId }
 		   AND NAME = #{ name }
 		   AND EMAIL = #{ email }
 	</update>
+	
+	<!-- 비밀번호 변경 -->
 	
 	<!-- 회원가입 중 아이디 중복 검사 -->
 	<select id="checkId" parameterType="String" resultType="int">
@@ -359,12 +364,14 @@
 		UPDATE
 			   TBL_MEMBER
 		   SET ACC_CHANGED_DATE = SYSDATE
+		     , TEMP_PWD_YN = #{ tempPwdYn }
 		<if test="memberPwd != null">, MEMBER_PWD = #{ memberPwd }</if>
 		<if test="name != null">, NAME = #{ name }</if>
 		<if test="phone != null">, PHONE = #{ phone }</if>
 		<if test="email != null">, EMAIL = #{ email }</if>
 		<if test="address != null">, ADDRESS = #{ address }</if>
 		<if test="agreement != null">, AGREEMENT = #{ agreement }</if>
+		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
 	<!-- 로그인 성공 횟수 누적 -->

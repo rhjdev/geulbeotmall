@@ -242,7 +242,12 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public String findMemberId(String name, String email) {
+	public MemberDTO findMemberId(String name, String email) {
 		return memberMapper.findMemberId(name, email);
+	}
+
+	@Override
+	public int generateTempPwd(MemberDTO memberDTO) {
+		return memberMapper.generateTempPwd(memberDTO);
 	}
 }

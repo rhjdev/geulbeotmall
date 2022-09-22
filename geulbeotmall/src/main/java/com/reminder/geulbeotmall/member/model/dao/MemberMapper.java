@@ -77,6 +77,9 @@ public interface MemberMapper {
 	int changeMemberInfo(MemberDTO memberDTO);
 	
 	int closeMemberAccount(String memberId);
+	
+	/* 아이디/비밀번호 찾기 */
+	MemberDTO findMemberId(String name, String email);
 
-	String findMemberId(String name, String email);
+	int generateTempPwd(MemberDTO memberDTO);
 }

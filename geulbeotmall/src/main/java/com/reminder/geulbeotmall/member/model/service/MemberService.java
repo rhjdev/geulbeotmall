@@ -16,12 +16,14 @@ import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
  */
 public interface MemberService extends UserDetailsService { 
 	
+	/* 회원가입 */
 	int checkId(String memberId);
 	
 	int checkEmail(String email);
 	
 	boolean signUpMember(MemberDTO member) throws Exception;
 	
+	/* 로그인 */
 	void updateAccumLoginCount(String username);
 	
 	void updateLatestLoginDate(String username);
@@ -31,7 +33,8 @@ public interface MemberService extends UserDetailsService {
 	void updateLoginFailedCount(String username);
 
 	int checkLoginFailedCount(String username);
-
+	
+	/* 관리자페이지 */
 	void deactivateUsername(String username);
 
 	/* 마이페이지 */
@@ -70,6 +73,9 @@ public interface MemberService extends UserDetailsService {
 	int changeMemberInfo(MemberDTO memberDTO);
 	
 	int closeMemberAccount(String memberId);
+	
+	/* 아이디/비밀번호 찾기 */
+	MemberDTO findMemberId(String name, String email);
 
-	String findMemberId(String name, String email);
+	int generateTempPwd(MemberDTO memberDTO);
 }

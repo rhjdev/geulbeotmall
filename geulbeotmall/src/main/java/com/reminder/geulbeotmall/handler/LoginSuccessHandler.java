@@ -132,8 +132,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 			
 			String[] detailOptionNo = (String[]) session.getAttribute("detailOptionNo");
 			String[] detailOptionQt = (String[]) session.getAttribute("detailOptionQt");
-			log.info("handler 확인 : {}", detailOptionNo.length);
 			if(detailOptionNo != null && detailOptionQt != null) {
+				log.info("handler 확인 : {}", detailOptionNo.length);
 				List<CartDTO> itemList = new ArrayList<>();
 				for(int i=0; i < detailOptionNo.length; i++) {
 					log.info("detailOptionNo : {}", detailOptionNo[i]);
@@ -166,13 +166,24 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 		/* 3-2. 회원 권한 및 요청 상황에 따른 기본 페이지 이동 */
 		Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 		log.info("ROLE : {}", roles);
-		
-		if(roles.contains("ROLE_ADMIN")) { //관리자는 로그인 시 대시보드로 기본 이동
-			response.sendRedirect("/admin/dashboard");
-		} else if(roles.contains("ROLE_MEMBER") && uri != "") { //사이트 이용 중 요구된 로그인 인증을 마친 회원의 경우 이전 페이지로 이동
-			response.sendRedirect(uri);
+		/* 
+		 * 우선순위A.임시 비밀번호로 로그인에 성공한 회원은 권한에 관계 없이 '회원정보수정 페이지'로 이동
+		 * 우선순위B.사이트 이용 중 요구된 로그인 인증을 마친 회원의 경우 '이전 페이지'로 이동
+		 * 우선순위C.관리자는 로그인 시 '대시보드'로 기본 이동
+		 */
+		char tempPwdYn = loginMember.getTempPwdYn();
+		if(tempPwdYn == 'Y') {
+			log.info("tempPwdYn : {}", tempPwdYn);
+			String resetPasswordRequired = "required";
+			request.getRequestDispatcher("/member/signin?resetPasswordRequired=" + resetPasswordRequired).forward(request, response);
 		} else {
-			response.sendRedirect("/");
+			if(roles.contains("ROLE_ADMIN")) {
+				response.sendRedirect("/admin/dashboard");
+			} else if(roles.contains("ROLE_MEMBER") && uri != "") {
+				response.sendRedirect(uri);
+			} else {
+				response.sendRedirect("/");
+			}
 		}
 	}
 }

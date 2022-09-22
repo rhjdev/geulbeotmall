@@ -348,11 +348,12 @@ function submitChangeForm() { //업데이트할 내용이 없는 input 항목은
 	let form = document.getElementById('changeInfoForm');
 	
 	let agreement = document.querySelector('input[name=agreement]:checked').value; //Y/N 선택값 전달
-	
+	console.log(agreement);
 	let newPwd = document.querySelector('input[name=newPwd]').value;
 	if(newPwd != '') { //새 비밀번호 작성 시에 한하여 유효성 검사
 		/* 1. 영문, 숫자, 특수기호 포함 여부 검사 */
 		const regexp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,16}$/;
+		
 		/* 2. 아이디와 연속 일치 여부 검사 */
 		let memberPwd = document.querySelector('input[name=memberPwd]').value;
 		let id = document.querySelector('input[name=memberId]').value;
@@ -363,12 +364,33 @@ function submitChangeForm() { //업데이트할 내용이 없는 input 항목은
 			if(newPwd.indexOf(tmp) > -1) { count = count + 1 };
 		}
 		if(!regexp.test(newPwd)) {
-			alert('비밀번호는 8~16자의 영문 대소문자/숫자/특수기호 조합하여 입력하세요');
-		} if(count > 0) {
-			alert('아이디와 연속 3자리 이상 일치하는 비밀번호는 사용할 수 없어요');
+			Swal.fire({
+				icon: 'warning',
+				title: '비밀번호는 8~16자의 영문 대소문자/숫자/특수기호 조합하여 입력하세요',
+				confirmButtonColor: '#00008b',
+				confirmButtonText: '확인'
+			}).then((result) => {
+				if(result.isConfirmed) {}
+			})
+		} else if(count > 0) {
+			Swal.fire({
+				icon: 'warning',
+				title: '아이디와 연속 3자리 이상 일치하는 비밀번호는 사용할 수 없어요',
+				confirmButtonColor: '#00008b',
+				confirmButtonText: '확인'
+			}).then((result) => {
+				if(result.isConfirmed) {}
+			})
 		/* 3. 현재 비밀번호와 일치 여부 검사 */
 		} else if(memberPwd == newPwd) {
-			alert('현재 사용 중인 비밀번호로는 변경할 수 없습니다');
+			Swal.fire({
+				icon: 'warning',
+				title: '현재 사용 중인 비밀번호로는 변경할 수 없습니다',
+				confirmButtonColor: '#00008b',
+				confirmButtonText: '확인'
+			}).then((result) => {
+				if(result.isConfirmed) {}
+			})
 		} else {
 			form.submit();
 		}
