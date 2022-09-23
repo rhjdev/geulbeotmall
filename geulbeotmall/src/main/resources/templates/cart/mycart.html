@@ -8,6 +8,13 @@
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
 	    <link th:href="@{/css/mycart.css}" rel="stylesheet">
+	    <style>
+			.table-hover > tbody > tr:hover > *, .dataTable-table > tbody > tr:hover > * {
+				--bs-table-accent-bg: none !important;
+				border-bottom: 0 !important;
+				cursor: default;
+			}
+	    </style>
 	</th:block>
 </head>
 <body layout:fragment="content">
@@ -91,10 +98,10 @@
 		    			</th:block>
 		    			
 		    			<!-- 업체명 -->
-		    			<td>[[${ cartItem.brand.brandName }]]</td>
+		    			<td class="brand info">[[${ cartItem.brand.brandName }]]</td>
 		    			
 		    			<!-- 배송비 -->
-		    			<td class="delivery"></td>
+		    			<td class="delivery info"></td>
 		    			
 		    			<td>
 		    			<div class="buttonBox">
@@ -168,10 +175,10 @@
 		    			</th:block>
 		    			
 		    			<!-- 업체명 -->
-		    			<td>[[${ cartItem.brand.brandName }]]</td>
+		    			<td class="brand info">[[${ cartItem.brand.brandName }]]</td>
 		    			
 		    			<!-- 배송비 -->
-		    			<td class="delivery"></td>
+		    			<td class="delivery info"></td>
 		    			
 		    			<td>
 		    			<div class="buttonBox">
@@ -267,13 +274,26 @@
 	    </div>
 	    <div class="orderItemsBox">
 	    	<button type="button" class="orderSelectionBtn btn" onclick="orderSelection()">선택상품주문</button>
-	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderSelection()">전체상품주문</button>
+	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderAll()">전체상품주문</button>
     	</div>
 	    </th:block>
     </div>
     <!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/order.js}" type="text/javascript"></script>
+    	<script type="text/javascript">
+	    	/* 업체, 배송비 한정 테이블 병합 */
+	    	$(document).ready(function(){
+		    	$('.info').each(function(){
+		    		let rows = $(".info:contains('" + $(this).text() + "')");
+		    		console.log(rows);
+		    		if(rows.length > 1) {
+		    			rows.eq(0).attr('rowspan', rows.length);
+		    			rows.not(':eq(0)').remove();
+		    		}
+		    	});
+	    	});
+    	</script>
     </th:block>
 </body>
 </html>

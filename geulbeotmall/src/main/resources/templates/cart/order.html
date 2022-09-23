@@ -176,10 +176,10 @@
 			    			</th:block>
 			    			
 			    			<!-- 업체명 -->
-			    			<td>[[${ orderItem.brand.brandName }]]</td>
+			    			<td class="brand info">[[${ orderItem.brand.brandName }]]</td>
 			    			
 			    			<!-- 배송비 -->
-		    				<td class="delivery"></td>
+		    				<td class="delivery info"></td>
 						</tr>
 					</tbody>
 				</table>
@@ -205,7 +205,7 @@
 								<tr>
 									<th>사용안내</th>
 									<td class="reserve-td">
-										<small>최소 1,000원 이상 사용가능&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;현재까지 누적된 적립금은</small><b id="totalReserve">&nbsp;0원</b><small>&nbsp;입니다.</small>
+										<small>최소 1,000원 이상 사용가능&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;현재까지 누적된 적립금은</small><b id="totalReserve">&nbsp;[[${ memberPoint }]]원</b><small>&nbsp;입니다.</small>
 									</td>
 								</tr>
 							</tbody>

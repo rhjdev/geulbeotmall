@@ -494,6 +494,17 @@ input[name=reserve] {
 	text-align: right;
 }
 
+.reserve-amount-td button {
+    box-shadow: none !important;
+    margin-bottom: 3px;
+	margin-inline-start: 20px;
+    border-radius: 0;
+}
+
+.button-apply:hover {
+	opacity: 93%;
+}
+
 /* 결제수단 선택 */
 .payment-area {
 	display: flex;

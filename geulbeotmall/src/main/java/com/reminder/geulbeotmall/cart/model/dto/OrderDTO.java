@@ -17,6 +17,7 @@ public class OrderDTO {
 	private int orderQuantity;
 	private int orderAmount;
 	private OrderDetailDTO orderDetail;
+	private DeliveryDTO delivery;
 	private OptionDTO option;
 	private ProductDTO product;
 	private BrandDTO brand;

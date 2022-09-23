@@ -332,24 +332,53 @@ if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 �
 	}
 	let discountAmount = sellingPrice - savingPrice; //총 상품금액 - 총 할인적용금액 = 할인금액
 	
-	/* 합계C. 배송비 */
+	/* 합계C. 배송비(업체별 묶음배송) */
+	let brand = document.querySelectorAll('.brand');
 	let deliveries = document.querySelectorAll('.delivery');
 	let deliveryFee = 0;
-	deliveries.forEach(function(item){
-		let checkPrice = item.parentElement.children[5].attributes.value.textContent; //cellIndex 통해 불러오기
-		//조건1. 기본 3만원 이상 주문 시 무료 배송
-		let cost = checkPrice >= 30000 ? 0 : 2500;
-		//조건2. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
-		if(item.parentElement.children[6].innerHTML == '모나미') {
-			cost = checkPrice >= 20000 ? 0 : 3000;
-		}
-		//console.log(checkPrice);
-		//console.log(cost);
-		item.parentElement.children[7].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
-		item.parentElement.children[7].attributes.value = cost;
-		//console.log(item.parentElement.children);
-		deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
-	});
+	let brandSet = new Set();
+	for(let i=0; i < brand.length; i++) { //업체 총 개수
+		brandSet.add(brand[0].innerHTML);
+		if(brand[0].innerHTML != brand[i].innerHTML) brandSet.add(brand[i].innerHTML);
+	}
+	
+	let iteratorSet = brandSet.values(); //Set 또는 Map에 담긴 values를 불러오기 위해서는 iterator 활용
+	let priceMap = new Map();
+	for(let i=0; i < brandSet.size; i++) {
+		priceMap.set(iteratorSet.next().value, 0);
+	}
+	let iteratorMapA = priceMap.keys();
+	for(let i=0; i < priceMap.size; i++) {
+		let key = iteratorMapA.next().value;
+		let value = 0;
+		deliveries.forEach(function(item){
+			let checkPrice = item.parentElement.children[5].attributes.value.textContent; //cellIndex 통해 불러오기
+			let checkBrand = item.parentElement.children[6].innerHTML;
+			if(key == checkBrand) { //Map의 key 값과 브랜드명이 일치하는 경우 업체별 주문금액 합산
+				value += parseInt(checkPrice);
+				priceMap.set(key, value);
+				//console.log(value);
+			}
+		});
+	}
+	console.log(priceMap); //업체별 총 주문금액
+	let cost = 0;
+	let iteratorMapB = priceMap.keys();
+	for(let i=0; i < priceMap.size; i++) {
+		let key = iteratorMapB.next().value;
+		deliveries.forEach(function(item){
+			//조건1. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
+			if(key == '모나미') { cost = priceMap.get(key) >= 20000 ? 0 : 3000;
+			//조건2. 기본 3만원 이상 주문 시 무료 배송
+			} else { cost = priceMap.get(key) >= 30000 ? 0 : 2500; }
+			let checkBrand = item.parentElement.children[6].innerHTML;
+			if(key == checkBrand) {
+				item.parentElement.children[7].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
+				item.parentElement.children[7].attributes.value = cost;
+				//console.log(item.parentElement.children);
+				deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
+			}
+		});
 	
 	/* 합계 반영 */
 	let totalPrice = orderPrice - discountAmount + deliveryFee;
@@ -357,26 +386,56 @@ if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 �
 	document.querySelector('.discount-amount').innerHTML = discountAmount.toLocaleString('ko-KR');
 	document.querySelector('.delivery-fee').innerHTML = deliveryFee.toLocaleString('ko-KR');
 	document.querySelector('.total-price').innerHTML = totalPrice.toLocaleString('ko-KR');
+	}
 } else { //주소값에 order를 포함한 경우 적용
 	/* 주문서 배송비 */
+	let brand = document.querySelectorAll('.brand');
 	let deliveries = document.querySelectorAll('.delivery');
 	let deliveryFee = 0;
-	deliveries.forEach(function(item){
-		let checkPrice = item.parentElement.children[4].attributes.value.textContent; //cellIndex 통해 불러오기
-		//조건1. 기본 3만원 이상 주문 시 무료 배송
-		let cost = checkPrice >= 30000 ? 0 : 2500;
-		//조건2. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
-		if(item.parentElement.children[5].innerHTML == '모나미') {
-			cost = checkPrice >= 20000 ? 0 : 3000;
-		}
-		//console.log(checkPrice);
-		//console.log(cost);
-		item.parentElement.children[6].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
-		item.parentElement.children[6].attributes.value = cost;
-		//console.log(item.parentElement.children);
-		deliveryFee += parseInt(item.parentElement.children[6].attributes.value); //배송비 총합
-	});
+	let brandSet = new Set();
+	for(let i=0; i < brand.length; i++) { //업체 총 개수
+		brandSet.add(brand[0].innerHTML);
+		if(brand[0].innerHTML != brand[i].innerHTML) brandSet.add(brand[i].innerHTML);
+	}
 	
+	let iteratorSet = brandSet.values(); //Set 또는 Map에 담긴 values를 불러오기 위해서는 iterator 활용
+	let priceMap = new Map();
+	for(let i=0; i < brandSet.size; i++) {
+		priceMap.set(iteratorSet.next().value, 0);
+	}
+	let iteratorMapA = priceMap.keys();
+	for(let i=0; i < priceMap.size; i++) {
+		let key = iteratorMapA.next().value;
+		let value = 0;
+		deliveries.forEach(function(item){
+			let checkPrice = item.parentElement.children[4].attributes.value.textContent; //cellIndex 통해 불러오기
+			let checkBrand = item.parentElement.children[5].innerHTML;
+			if(key == checkBrand) { //Map의 key 값과 브랜드명이 일치하는 경우 업체별 주문금액 합산
+				value += parseInt(checkPrice);
+				priceMap.set(key, value);
+				//console.log(value);
+			}
+		});
+	}
+	console.log(priceMap); //업체별 총 주문금액
+	let cost = 0;
+	let iteratorMapB = priceMap.keys();
+	for(let i=0; i < priceMap.size; i++) {
+		let key = iteratorMapB.next().value;
+		deliveries.forEach(function(item){
+			//조건1. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
+			if(key == '모나미') { cost = priceMap.get(key) >= 20000 ? 0 : 3000;
+			//조건2. 기본 3만원 이상 주문 시 무료 배송
+			} else { cost = priceMap.get(key) >= 30000 ? 0 : 2500; }
+			let checkBrand = item.parentElement.children[5].innerHTML;
+			if(key == checkBrand) {
+				item.parentElement.children[6].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
+				item.parentElement.children[6].attributes.value = cost;
+				//console.log(item.parentElement.children);
+				deliveryFee += parseInt(item.parentElement.children[6].attributes.value); //배송비 총합
+			}
+		});
+	}
 	/* 결제 정보 */
 	/* 합계A. 주문금액 */
 	let totalPrice = document.querySelectorAll('.orderPrice');
@@ -439,6 +498,43 @@ for(const item of document.querySelectorAll('.orderBtn')) {
 }
 
 /* 장바구니 선택 또는 전체 상품 주문 */
+function orderAll() {
+	let checkbox = $('input[name=checkItem]');
+	let optionNo = "";
+	let arr = new Array();
+	checkbox.each(function(i){
+		let tr = checkbox.parent().parent().eq(i);
+		let td = tr.children();
+		optionNo = td.eq(2).attr('value');
+		console.log(optionNo);
+		arr.push(optionNo);
+	});
+	if(arr.length > 0 && !document.getElementById('isLoggedInAs')) {
+		Swal.fire({
+			icon: 'warning',
+			title: '로그인이 필요합니다',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				location.href='/member/signin';
+			}
+		})
+	} else {
+		$.ajax({
+			url : '/cart/order',
+			type : 'get',
+			traditional : true, //배열 넘기기 위한 세팅
+			dataType : 'text',
+			data : { arr : arr },
+			success : function(result){
+				console.log('주문페이지 이동');
+				location.href='/cart/order';
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	}
+}
 function orderSelection() {
 	let checkbox = $('input[name=checkItem]:checked');
 	let optionNo = "";
