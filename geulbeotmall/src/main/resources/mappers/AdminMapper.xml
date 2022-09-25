@@ -679,4 +679,29 @@
 		   SET DELIVERY_DATE = SYSDATE
 		 WHERE ORDER_NO = #{ orderNo }
 	</update>
+	
+	<!-- 메인 디스플레이용 디자인 이미지 첨부 -->
+	<insert id="addDisplayImages">
+		INSERT
+		  INTO TBL_DESIGNIMAGE
+		(
+		  DESIGNIMAGE_NO
+		, REF_PROD_NO
+		, ORIG_IMAGE_NAME
+		, SAVE_IMAGE_NAME
+		, SAVE_PATH
+		, IMAGE_TYPE
+		, DISPLAY_STATUS_YN
+		)
+		VALUES
+		(
+		  SEQ_DESIGNIMAGE_NO.NEXTVAL
+		, #{ refProdNo }
+		, #{ origImageName }
+		, #{ saveImageName }
+		, #{ savePath }
+		, #{ imageType }
+		, 'Y'
+		)
+	</insert>
 </mapper>

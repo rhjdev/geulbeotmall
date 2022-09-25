@@ -6,6 +6,7 @@ import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 public interface AdminService {
 
@@ -54,4 +55,6 @@ public interface AdminService {
 	boolean updateDeliveryStatus(String dlvrStatus, String orderNo);
 
 	OrderDetailDTO getOrderDetailsByOrderNo(String orderNo);
+
+	int addDisplayImages(DesignImageDTO designImage);
 }

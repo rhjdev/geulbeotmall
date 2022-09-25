@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+    	<link th:href="@{/css/customtable.css}" rel="stylesheet">
+    	<link th:href="@{/css/thumbnail.css}" rel="stylesheet">
+    	<link th:href="@{/css/selector.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1 class="dashboard-title">디자인 관리</h1>
+	<hr>
+	<div class="container content-wrapper designImage-wrapper">
+		<!-- slider | banner -->
+		<ul class="nav nav-tabs" id="designImageTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="slider-tab" data-bs-toggle="tab" data-bs-target="#slider" type="button" role="tab" aria-controls="slider" aria-selected="true">슬라이더</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="banner-tab" data-bs-toggle="tab" data-bs-target="#banner" type="button" role="tab" aria-controls="banner" aria-selected="false">배너</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="designImageTabContent">
+			<div class="tab-pane fade show active" id="slider" role="tabpanel" aria-labelledby="slider-tab">
+				<ul class="image-note">
+					<li>PNG/GIF 파일 사용을 권장하며, <b>최대 9개 슬라이드 등록</b>이 가능합니다.</li>
+					<li>매 슬라이드마다 <b>상품명을 지정하여 이미지 클릭 시 해당 링크로 이동하도록 설정</b>할 수 있습니다.</li>
+				</ul>
+				<div class="card mb-4">
+   					<div class="card-body">
+   						<!-- 1~9번 슬라이드 -->
+						<ul th:each="num : ${#numbers.sequence(1, 9)}" th:value="${ num }">
+							<li class="th"><p>슬라이드[[${num}]]. 상품명</p></li>
+							<li class="td">
+								<select th:id="|refProdNo${num}|" th:name="|refProdNo${num}|" multiple>
+									<option th:each="product : ${ allProducts }" th:value="${ product.prodNo }" th:text="${ product.prodName }"></option>
+								</select>
+							</li>
+						</ul>
+   					</div>
+   				</div>
+				<form id="imageForm" name="imageForm" class="image-form" th:action="@{/admin/design}" method="post" enctype="multipart/form-data">
+					<input type="hidden" name="refArr"> <!-- refProdNoArr -->
+					<table>
+						<tbody>
+							<tr>
+								<td class="designImageBox">
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image1" class="imageLabel">
+													<i class="fa-solid fa-1" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image2" class="imageLabel">
+													<i class="fa-solid fa-2" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image3" class="imageLabel">
+													<i class="fa-solid fa-3" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<input type="file" id="image1" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image2" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image3" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								</td>
+							</tr>
+							<tr>
+								<td class="designImageBox">
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image4" class="imageLabel">
+													<i class="fa-solid fa-4" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image5" class="imageLabel">
+													<i class="fa-solid fa-5" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image6" class="imageLabel">
+													<i class="fa-solid fa-6" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<input type="file" id="image4" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image5" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image6" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								</td>
+							</tr>
+							<tr>
+								<td class="designImageBox">
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image7" class="imageLabel">
+													<i class="fa-solid fa-7" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image8" class="imageLabel">
+													<i class="fa-solid fa-8" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox designImage">
+												<label for="image9" class="imageLabel">
+													<i class="fa-solid fa-9" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<input type="file" id="image7" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image8" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+									<input type="file" id="image9" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="buttonBox">
+						<button type="submit" class="findIdBtn btn btn-dark" onclick="submitImageForm();">등록</button>
+					</div>
+				</form>
+			</div>
+			
+			<div class="tab-pane fade show" id="banner" role="tabpanel" aria-labelledby="banner-tab">
+				<form id="imageForm" name="imageForm" class="image-form" th:action="@{/admin/design}" method="post" enctype="multipart/form-data">
+					<table>
+						<tbody>
+							<tr>
+								<td class="designImageBox bannerImageBox">
+									<ul>
+										<li class="imageItem" onclick="previewImage()">
+											<div class="imageBox bannerImage">
+												<label for="image10" class="imageLabel">
+													<i class="fa-solid fa-image" style="font-size: 300%;"></i>
+												</label>
+											</div>
+										</li>
+									</ul>
+									<input type="file" id="image10" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="buttonBox">
+						<button type="submit" class="findIdBtn btn btn-dark" onclick="submitImageForm();">등록</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<th:block layout:fragment="script">
+    	<script th:src="@{/js/slider.js}" type="text/javascript"></script>
+    	<!-- Select2 -->
+    	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+		<script th:src="@{/js/selector.js}" type="text/javascript"></script>
+    </th:block>
+</body>
+</html>

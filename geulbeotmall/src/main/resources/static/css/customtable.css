@@ -237,3 +237,148 @@ input:read-only {
 .btn {
 	box-shadow: none !important;
 }
+
+/* 슬라이더, 배너 */
+.designImage-wrapper {
+	width: 700px;
+}
+
+#designImageTab {
+	border-bottom: 0;
+	width: 100%;
+	height: 44px;
+	margin-top: 40px;
+}
+
+#designImageTab > li {
+	width: 50%;
+	height: 100%;
+}
+
+#designImageTab > .nav-item > .nav-link {
+	border-bottom: 2px solid #000;
+	color: #E5E5E5;
+}
+
+#designImageTab > .nav-item > .nav-link.active {
+	border: 0;
+	border-radius: 0;
+	border-bottom: 2px solid #000;
+	background-color: #000;
+	color: #fff;
+}
+
+#designImageTab > li > button {
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0 auto;
+	border: 0;
+	background-color: transparent;
+	vertical-align: middle;
+}
+
+.designImage-wrapper > .tab-content {
+	margin-top: 18px;
+}
+
+.designImage-wrapper > .tab-content > div > .card > .card-body {
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+
+.designImage-wrapper > .tab-content > div > .card > .card-body > ul:first-child {
+	margin-top: 0;
+}
+
+.designImage-wrapper > .tab-content > div > .card > .card-body > ul:last-child {
+	margin-bottom: 14px;
+}
+
+.designImage-wrapper > .tab-content > div > .image-note {
+	display: block;
+	padding-left: 0;
+	margin-top: 0;
+	margin-bottom: 16px;
+}
+
+.designImage-wrapper > .tab-content > div > .image-note > li {
+	position: relative;
+    padding-left: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.designImage-wrapper > .tab-content > div > .image-note > li:before {
+    position: absolute;
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    bottom: 9px;
+    left: 0;
+	content: "";
+    background-color: #000;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > table {
+	width: 100%;
+    border-top: 1px solid #E5E5E5;
+    margin-top: 5px;
+    margin-bottom: 40px;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > table > tbody > tr {
+	width: 100%;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > table > tbody > tr:last-child {
+	padding-bottom: 20px;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > table > tbody > tr >th {
+	text-align: inherit;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > table > tbody > tr > td:first-child {
+	padding-top: 20px;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form {
+	text-align: center;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > label {
+	width: 90px;
+	font-weight: bold;
+	text-align: left;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > label:last-child {
+	display: block;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > input[type="text"],
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > input[type="email"],
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > input[type="password"] {
+    border: 1px solid #E5E5E5;
+    width: 300px;
+    height: 44px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > .buttonBox {
+	margin-block-start: 10%;
+    margin-block-end: 20%;
+    margin-inline-start: 20%;
+    margin-inline-end: 20%;
+}
+
+.designImage-wrapper > .tab-content > .tab-pane > .image-form > div > button[type="submit"] {
+	width: 100%;
+    height: 44px;
+    border-radius: 0;
+    box-shadow: none !important;
+    cursor: pointer;
+}

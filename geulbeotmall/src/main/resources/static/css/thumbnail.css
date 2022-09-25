@@ -16,7 +16,30 @@
 	height: 150px !important;
 }
 
-.reviewImageBox ul:not(:first-child) {
+.designImageBox ul {
+	display: inline-block;
+    width: auto;
+	height: auto;
+	margin: 0;
+}
+
+.bannerImageBox > ul {
+	display: inline-block;
+	width: 100%;
+	height: auto;
+	margin: 0;
+}
+
+.bannerImageBox > ul > li > .imageBox {
+    width: auto;
+}
+
+.bannerImageBox > ul > li > .imageBox > label {
+    width: 100%;
+}
+
+.reviewImageBox ul:not(:first-child),
+.designImageBox  ul:not(:first-child) {
 	margin-inline-start: 18px;
 }
 
@@ -35,7 +58,13 @@
 	height: 150px;
 }
 
-.thumbLabel, .imageLabel {
+.designImage {
+	width: 210px;
+	height: 210px;
+}
+
+.thumbLabel,
+.imageLabel {
 	display: flex;
 	width: 200px;
 	height: 100%;

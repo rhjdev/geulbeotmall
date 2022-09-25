@@ -10,6 +10,7 @@ import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 @Service("adminService")
 public class AdminServiceImpl implements AdminService {
@@ -161,5 +162,10 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public OrderDetailDTO getOrderDetailsByOrderNo(String orderNo) {
 		return adminMapper.getOrderDetailsByOrderNo(orderNo);
+	}
+
+	@Override
+	public int addDisplayImages(DesignImageDTO designImage) {
+		return adminMapper.addDisplayImages(designImage);
 	}
 }

@@ -1,14 +1,23 @@
 package com.reminder.geulbeotmall.admin.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
@@ -23,6 +34,9 @@ import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.product.model.service.ProductService;
+import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,15 +46,89 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminController {
 	
 	private final AdminService adminService;
+	private final ProductService productService;
 	
 	@Autowired
-	public AdminController(AdminService adminService) {
+	public AdminController(AdminService adminService, ProductService productService) {
 		this.adminService = adminService;
+		this.productService = productService;
 	}
 	
 	@GetMapping("/dashboard")
 	public String getDashboard() {
 		return "admin/dashboard";
+	}
+	
+	@GetMapping("/design")
+	public String getDesignPage(Criteria criteria, Model model) {
+		List<ProductDTO> allProducts = productService.getOnSaleOnly(criteria);
+		model.addAttribute("allProducts", allProducts);
+		return "admin/design";
+	}
+	
+	@PostMapping(value="/design", consumes={MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+	public void addDisplayImages(@RequestParam(value="files", required=false) List<MultipartFile> files, @RequestParam("refArr") String[] refArr, HttpServletRequest request,
+			RedirectAttributes rttr, Locale locale) {
+		log.info("메인 이미지 추가 시작");
+
+		String realPath = request.getSession().getServletContext().getRealPath("/");
+		log.info("src/main/webapp : {}", realPath);
+		
+		String originalUploadPath = realPath + "upload" + File.separator + "main" + File.separator + "original";
+		File originalDirectory = new File(originalUploadPath);
+		
+		if(!originalDirectory.exists()) { //지정 폴더가 존재하지 않을 시 생성
+			originalDirectory.mkdirs(); //생성할 폴더가 하나이면 mkdir, 상위 폴더도 존재하지 않으면 한 번에 생성하란 의미로 mkdirs를 이용
+		}
+		
+		/* 최종적으로 request를 parsing하고 파일을 저장한 뒤 필요한 내용을 담을 리스트와 맵
+		 * 파일에 대한 정보는 리스트에, 다른 파라미터의 정보는 모두 맵에 담을 것임
+		 * */
+		Map<String, String> fileMap = new HashMap<>();
+		List<Map<String, String>> fileList = new ArrayList<>();
+		int count = 0;
+		int index = 0;
+		
+		for(MultipartFile file : files) {
+			UUID uuid = UUID.randomUUID(); //랜덤 문자 생성
+			
+			String origFileName = file.getOriginalFilename(); //원본파일명
+			String extension = FilenameUtils.getExtension(origFileName); //확장자
+			String randomFileName = uuid.toString().replace("-", "") + "." + extension; //랜덤파일명
+			
+			try {
+				//원본 크기 파일을 original 폴더에 저장
+				File target = new File(originalUploadPath, randomFileName);
+				byte[] bytes = file.getBytes();
+				FileCopyUtils.copy(bytes, target);
+				
+				String origFileUrl = "/upload/main/original/" + uuid.toString().replace("-", "") + "." + extension;
+				fileMap.put("origFileName", origFileName);
+				fileMap.put("saveFileName", randomFileName);
+				fileMap.put("savePath", origFileUrl);
+				
+				fileList.add(fileMap);
+				
+				DesignImageDTO tempFileInfo = new DesignImageDTO();
+				tempFileInfo.setRefProdNo(Integer.parseInt(refArr[index]));
+				tempFileInfo.setOrigImageName(fileList.get(index).get("origFileName"));
+				tempFileInfo.setSaveImageName(fileList.get(index).get("saveFileName"));
+				tempFileInfo.setSavePath(fileList.get(index).get("savePath"));
+				/* 배너 */
+				if(refArr[0].equals("banner")) {
+					tempFileInfo.setImageType("BANNER");
+				/* 슬라이더 */
+				} else {
+					tempFileInfo.setImageType("SLIDER");
+				}
+				int result = adminService.addDisplayImages(tempFileInfo);
+				count += result;
+				index++;
+			} catch (IOException e) { e.printStackTrace(); }
+		}
+		if(count == files.size()) {
+			log.info("succeed");
+		}
 	}
 	
 	@GetMapping("/member/list")
@@ -149,6 +237,9 @@ public class AdminController {
 		}
 		return result;
 	}
+	
+	@GetMapping("/post/list")
+	public void getPostList() {}
 	
 	@GetMapping("/order/list")
 	public void getOrderList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
