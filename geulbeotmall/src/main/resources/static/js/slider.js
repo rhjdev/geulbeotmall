@@ -50,35 +50,42 @@ function reselectImage() {
 
 function submitImageForm() {
 	event.preventDefault();
-	/* 슬라이더 */
+	
 	let refArr = new Array();
-	for(let i=1; i < 10; i++) { //9개의 슬라이드 모두 탐색
-		let slide = document.querySelector('#refProdNo' + i + ' option:checked');
-		if(slide != null) {
-			let prodNo = slide.value;
-			console.log(prodNo);
-			refArr.push(prodNo);
+	let target = event.target.className;
+	/* 슬라이더 추가 */
+	if(target.indexOf('addSliderBtn') >= 0) {
+		let form = document.getElementById('addSliderForm');
+		let input = document.querySelectorAll('input[class=slider-input]');
+		
+		for(let i=1; i < 10; i++) { //9개의 슬라이드 모두 탐색
+			let slide = document.querySelector('#refProdNo' + i + ' option:checked');
+			if(slide != null) {
+				let prodNo = slide.value;
+				console.log(prodNo);
+				refArr.push(prodNo);
+			}
 		}
-	}
-	for(let i=0; i < 9; i++) {
-		let attach = imageBox[i].innerHTML;
-		if(!attach.includes('img')) { //첨부된 슬라이드가 없는 경우 제출에서 제외
-			console.log(i);
-			document.querySelector('input[id=image' + (i+1) + ']').setAttribute('disabled', 'disabled');
+		let refSlider = document.getElementById('refSlider');
+		refSlider.value = refArr; //슬라이드별 상품번호 제출용 데이터로 저장
+		
+		for(let i=0; i < 9; i++) {
+			let attach = imageBox[i].innerHTML;
+			if(!attach.includes('img')) { //첨부된 슬라이드가 없는 경우 제출에서 제외
+				console.log(i);
+				document.querySelector('input[id=image' + (i+1) + ']').setAttribute('disabled', 'disabled');
+			}
 		}
-	}
-	
-	/* 배너 */
-	let banner = imageBox[9].innerHTML;
-	if(banner.includes('img')) { //첨부된 img 파일이 존재하는 경우
-		refArr.push('banner');
-	}
-	
-	/* 이미지 폼 제출 */
-	let form = document.getElementById('imageForm');
-	if(refArr.length > 0) {
-		let input = document.querySelector('input[name=refArr]');
-		input.value = refArr;
 		form.submit();
+	/* 배너 추가 */
+	} else {
+		let form = document.getElementById('addBannerForm');
+		let input = document.querySelector('input[class=banner-input]');
+		
+		let banner = imageBox[9].innerHTML;
+		if(banner.includes('img')) { //첨부된 banner img 파일이 존재하는 경우
+			refArr.push('banner');
+			form.submit();
+		}
 	}
 }

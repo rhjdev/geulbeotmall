@@ -68,6 +68,18 @@
 		<result property="brandName" column="BRAND_NAME"/>
 	</resultMap>
 	
+	<!-- 메인 디스플레이용 이미지 조회 -->
+	<resultMap id="designImageResultMap" type="com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO">
+		<id property="designImageNo" column="DESIGNIMAGE_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="origImageName" column="ORIG_IMAGE_NAME"/>
+		<result property="saveImageName" column="SAVE_IMAGE_NAME"/>
+		<result property="savePath" column="SAVE_PATH"/>
+		<result property="imageType" column="IMAGE_TYPE"/>
+		<result property="displayStatusYn" column="DISPLAY_STATUS_YN"/>
+		<association property="product" resultMap="productResultMap"/>
+	</resultMap>
+	
 	<!-- 판매량 기준 인기 상품 TOP 8 -->
 	<select id="getTop8ProductByPopularity" resultMap="productResultMap">
 		SELECT TB.*
@@ -113,5 +125,29 @@
 		 <![CDATA[
 		 WHERE TB.RANK <= 8
 		 ]]>
+	</select>
+	
+	<!-- 메인 디스플레이용 슬라이더 조회 -->
+	<select id="getSliderImages" resultMap="designImageResultMap">
+		SELECT
+			   A.SAVE_PATH
+			 , A.REF_PROD_NO
+			 , B.PROD_NAME
+		  FROM TBL_DESIGNIMAGE A
+		  LEFT JOIN TBL_PRODUCT B ON(A.REF_PROD_NO = B.PROD_NO)
+		 WHERE A.IMAGE_TYPE = 'SLIDER'
+		   AND A.DISPLAY_STATUS_YN = 'Y'
+	</select>
+	
+	<!-- 메인 디스플레이용 배너 조회 -->
+	<select id="getBannerImage" resultMap="designImageResultMap">
+		SELECT
+			   A.SAVE_PATH
+			 , A.REF_PROD_NO
+			 , B.PROD_NAME
+		  FROM TBL_DESIGNIMAGE A
+		  LEFT JOIN TBL_PRODUCT B ON(A.REF_PROD_NO = B.PROD_NO)
+		 WHERE A.IMAGE_TYPE = 'BANNER'
+		   AND A.DISPLAY_STATUS_YN = 'Y'
 	</select>
 </mapper>

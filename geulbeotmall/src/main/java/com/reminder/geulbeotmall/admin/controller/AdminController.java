@@ -14,6 +14,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,11 +48,13 @@ public class AdminController {
 	
 	private final AdminService adminService;
 	private final ProductService productService;
+	private final MessageSource messageSource;
 	
 	@Autowired
-	public AdminController(AdminService adminService, ProductService productService) {
+	public AdminController(AdminService adminService, ProductService productService, MessageSource messageSource) {
 		this.adminService = adminService;
 		this.productService = productService;
+		this.messageSource = messageSource;
 	}
 	
 	@GetMapping("/dashboard")
@@ -67,7 +70,7 @@ public class AdminController {
 	}
 	
 	@PostMapping(value="/design", consumes={MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public void addDisplayImages(@RequestParam(value="files", required=false) List<MultipartFile> files, @RequestParam("refArr") String[] refArr, HttpServletRequest request,
+	public String addDisplayImages(@RequestParam("files") List<MultipartFile> files, @RequestParam(value="refArr", required=false) String[] refArr, HttpServletRequest request,
 			RedirectAttributes rttr, Locale locale) {
 		log.info("메인 이미지 추가 시작");
 
@@ -110,7 +113,6 @@ public class AdminController {
 				fileList.add(fileMap);
 				
 				DesignImageDTO tempFileInfo = new DesignImageDTO();
-				tempFileInfo.setRefProdNo(Integer.parseInt(refArr[index]));
 				tempFileInfo.setOrigImageName(fileList.get(index).get("origFileName"));
 				tempFileInfo.setSaveImageName(fileList.get(index).get("saveFileName"));
 				tempFileInfo.setSavePath(fileList.get(index).get("savePath"));
@@ -120,6 +122,7 @@ public class AdminController {
 				/* 슬라이더 */
 				} else {
 					tempFileInfo.setImageType("SLIDER");
+					tempFileInfo.setRefProdNo(Integer.parseInt(refArr[index]));
 				}
 				int result = adminService.addDisplayImages(tempFileInfo);
 				count += result;
@@ -127,8 +130,11 @@ public class AdminController {
 			} catch (IOException e) { e.printStackTrace(); }
 		}
 		if(count == files.size()) {
-			log.info("succeed");
+			rttr.addFlashAttribute("displayImageMessage", messageSource.getMessage("imageAddedSuccessfully", null, locale));
+		} else {
+			rttr.addFlashAttribute("displayImageMessage", messageSource.getMessage("errorWhileAddingAnImage", null, locale));
 		}
+		return "redirect:/admin/design";
 	}
 	
 	@GetMapping("/member/list")

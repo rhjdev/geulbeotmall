@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.main.model.dao.MainMapper;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 @Service("mainService")
 public class MainServiceImpl implements MainService {
@@ -26,5 +27,15 @@ public class MainServiceImpl implements MainService {
 	@Override
 	public List<ProductDTO> getLatest8ProductByEnrollDate() {
 		return mainMapper.getLatest8ProductByEnrollDate();
+	}
+
+	@Override
+	public List<DesignImageDTO> getSliderImages() {
+		return mainMapper.getSliderImages();
+	}
+
+	@Override
+	public List<DesignImageDTO> getBannerImage() {
+		return mainMapper.getBannerImage();
 	}
 }

@@ -165,6 +165,28 @@
 				})
 			}
 		</script>
+		
+		<!--/* 메인페이지 디자인 관리 */-->
+		<script th:if="${displayImageMessage}" type="text/javascript">
+			const result = '[[${displayImageMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					text: '변경사항이 메인페이지에 반영되었습니다',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					text: '잠시 후 다시 시도해 주세요',
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
 	</section>
 </body>
 </html>

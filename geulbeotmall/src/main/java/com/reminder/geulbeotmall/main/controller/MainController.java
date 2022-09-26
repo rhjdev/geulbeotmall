@@ -19,6 +19,7 @@ import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
+import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,6 +41,11 @@ public class MainController {
 
 	@GetMapping(value={"/", "/main"})
 	public String main(HttpSession session, Model model) {
+		/* 슬라이더 */
+		List<DesignImageDTO> slides = mainService.getSliderImages();
+		/* 배너 */
+		List<DesignImageDTO> banner = mainService.getBannerImage();
+		
 		/* 인기 상품 */
 		List<ProductDTO> top8 = mainService.getTop8ProductByPopularity();
 		List<ProductDTO> bestSelling = new ArrayList<>();
@@ -91,7 +97,9 @@ public class MainController {
 			List<Integer> memberWishItem = memberService.getProdNoFromWishList(loginMember);
 			model.addAttribute("memberWishItem", memberWishItem);
 		}
-		
+	
+		model.addAttribute("slides", slides);
+		model.addAttribute("banner", banner);
 		model.addAttribute("bestSelling", bestSelling);
 		model.addAttribute("bestSellingThumbnailList", bestSellingThumbnailList);
 		model.addAttribute("bestSellingReviewNumberMap", bestSellingReviewNumberMap);

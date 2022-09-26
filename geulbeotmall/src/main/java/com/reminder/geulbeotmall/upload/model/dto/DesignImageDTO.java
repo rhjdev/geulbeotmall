@@ -1,5 +1,7 @@
 package com.reminder.geulbeotmall.upload.model.dto;
 
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
+
 import lombok.Data;
 
 @Data
@@ -12,4 +14,5 @@ public class DesignImageDTO {
 	private String savePath;
 	private String imageType;
 	private char displayStatusYn;
+	private ProductDTO product;
 }

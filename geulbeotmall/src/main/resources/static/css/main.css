@@ -4,24 +4,6 @@
     font-family: 'Noto Sans KR', sans-serif;
 }
 
-/* 캐러셀 */
-.dashboard-title {
-	font-family: 'Gowun Dodum', sans-serif;
-    font-weight: 700;
-    margin-top: 1.5rem !important;
-    text-align: center;
-}
-
-.carousel-inner {
-    width: auto;
-    max-height: 50%;
-}
-
-.carousel-item {
-    height: 32rem;
-    object-fit:cover;
-}
-
 /* 카드 */
 .card {
     border: 0;

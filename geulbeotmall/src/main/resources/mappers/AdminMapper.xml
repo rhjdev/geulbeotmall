@@ -696,7 +696,8 @@
 		VALUES
 		(
 		  SEQ_DESIGNIMAGE_NO.NEXTVAL
-		, #{ refProdNo }
+		<if test="refProdNo == null">, NULL</if>
+		<if test="refProdNo != null">, #{ refProdNo }</if>
 		, #{ origImageName }
 		, #{ saveImageName }
 		, #{ savePath }
