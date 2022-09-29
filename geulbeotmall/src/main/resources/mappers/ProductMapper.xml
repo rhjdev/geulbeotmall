@@ -323,6 +323,13 @@
 		 WHERE FILE_TYPE = 'CONTENT'
 	</update>
 	
+	<!-- 전체상품번호 조회 -->
+	<select id="getAllProdNo" resultType="_int">
+		SELECT
+			   PROD_NO
+		  FROM TBL_PRODUCT
+	</select>
+	
 	<!-- 전체상품 개수 조회 -->
 	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
@@ -423,7 +430,20 @@
 		 </trim>
 	</select>
 	
-	<!-- 전체상품 목록 조회 -->
+	<!-- 상품 목록 검색 *대시보드* -->
+	<sql id="dashboardProductSearch">
+		<trim prefix="AND">
+			<if test="keyword != null and condition eq 'prodName'">D.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'brand'">D.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'category'">D.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'bodyColor'">D.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'inkColor'">D.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'pointSize'">D.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'tag'">D.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+	</sql>
+	
+	<!-- 전체상품 목록 조회 *페이징* -->
 	<select id="getProductList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -490,154 +510,314 @@
 		 		  ) D
 		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
 		]]>
-		<trim prefix="AND">
-			<if test="keyword != null and condition eq 'prodName'">D.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'brand'">D.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'category'">D.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'bodyColor'">D.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'inkColor'">D.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'pointSize'">D.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'tag'">D.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+		<include refid="dashboardProductSearch"></include>
 		<![CDATA[
 		) E
 		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
 		]]>
 	</select>
 	
-	<!-- 판매중 상품 목록 조회 -->
+	<!-- 판매중 상품 목록 조회 *페이징* -->
 	<select id="getOnSaleOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
+		<![CDATA[
 		SELECT
-			   A.PROD_NO
-			 , B.CATEGORY_NAME
-			 , C.BRAND_NAME
-			 , A.PROD_NAME
-			 , A.PROD_DESC
-			 , A.PRODUCT_TAG
-			 , A.DISCOUNT_RATE
-			 , A.PROD_PRICE
-			 , A.PROD_ORIGIN
-			 , A.PROD_DETAIL_CONTENT
-			 , A.PROD_DETAIL_VIEW_COUNT
-			 , A.PROD_ENROLL_DATE
-			 , A.PROD_CHANGE_DATE
-			 , A.PROD_AVAIL_YN
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		 WHERE A.PROD_AVAIL_YN = 'Y'
-		 <trim prefix="AND">
-			<if test="keyword != null and condition eq 'prodName'">A.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'brand'">C.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'category'">B.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'bodyColor'">O.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'inkColor'">O.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'pointSize'">O.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'tag'">A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+			 , E.OPT_BODY_COLOR
+			 , E.OPT_INK_COLOR
+			 , E.OPT_POINT_SIZE
+		  FROM
+		(
+		SELECT D.RANK RK 
+			 , D.PROD_NO
+			 , D.CATEGORY_NAME
+			 , D.BRAND_NAME
+			 , D.PROD_NAME
+			 , D.PROD_DESC
+			 , D.PRODUCT_TAG
+			 , D.DISCOUNT_RATE
+			 , D.PROD_PRICE
+			 , D.PROD_ORIGIN
+			 , D.PROD_DETAIL_CONTENT
+			 , D.PROD_DETAIL_VIEW_COUNT
+			 , D.PROD_ENROLL_DATE
+			 , D.PROD_CHANGE_DATE
+			 , D.PROD_AVAIL_YN
+			 , D.OPT_BODY_COLOR
+			 , D.OPT_INK_COLOR
+			 , D.OPT_POINT_SIZE
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			  , A.PROD_NO
+					  , B.CATEGORY_NAME
+					  , C.BRAND_NAME
+					  , A.PROD_NAME
+					  , A.PROD_DESC
+					  , A.PRODUCT_TAG
+					  , A.DISCOUNT_RATE
+					  , A.PROD_PRICE
+					  , A.PROD_ORIGIN
+					  , A.PROD_DETAIL_CONTENT
+					  , A.PROD_DETAIL_VIEW_COUNT
+					  , A.PROD_ENROLL_DATE
+					  , A.PROD_CHANGE_DATE
+					  , A.PROD_AVAIL_YN
+					  , O.OPT_BODY_COLOR
+					  , O.OPT_INK_COLOR
+					  , O.OPT_POINT_SIZE
+			 	  FROM TBL_PRODUCT A
+			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+			 	 WHERE A.PROD_AVAIL_YN = 'Y'
+		 		  ) D
+		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+		]]>
+		<include refid="dashboardProductSearch"></include>
+		<![CDATA[
+		) E
+		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<!-- 판매중지 상품 목록 조회 -->
 	<select id="getStopSaleOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
+		<![CDATA[
 		SELECT
-			   A.PROD_NO
-			 , B.CATEGORY_NAME
-			 , C.BRAND_NAME
-			 , A.PROD_NAME
-			 , A.PROD_DESC
-			 , A.PRODUCT_TAG
-			 , A.DISCOUNT_RATE
-			 , A.PROD_PRICE
-			 , A.PROD_ORIGIN
-			 , A.PROD_DETAIL_CONTENT
-			 , A.PROD_DETAIL_VIEW_COUNT
-			 , A.PROD_ENROLL_DATE
-			 , A.PROD_CHANGE_DATE
-			 , A.PROD_AVAIL_YN
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		 WHERE A.PROD_AVAIL_YN = 'N'
-		 <trim prefix="AND">
-			<if test="keyword != null and condition eq 'prodName'">A.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'brand'">C.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'category'">B.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'bodyColor'">O.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'inkColor'">O.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'pointSize'">O.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'tag'">A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+			 , E.OPT_BODY_COLOR
+			 , E.OPT_INK_COLOR
+			 , E.OPT_POINT_SIZE
+		  FROM
+		(
+		SELECT D.RANK RK 
+			 , D.PROD_NO
+			 , D.CATEGORY_NAME
+			 , D.BRAND_NAME
+			 , D.PROD_NAME
+			 , D.PROD_DESC
+			 , D.PRODUCT_TAG
+			 , D.DISCOUNT_RATE
+			 , D.PROD_PRICE
+			 , D.PROD_ORIGIN
+			 , D.PROD_DETAIL_CONTENT
+			 , D.PROD_DETAIL_VIEW_COUNT
+			 , D.PROD_ENROLL_DATE
+			 , D.PROD_CHANGE_DATE
+			 , D.PROD_AVAIL_YN
+			 , D.OPT_BODY_COLOR
+			 , D.OPT_INK_COLOR
+			 , D.OPT_POINT_SIZE
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			  , A.PROD_NO
+					  , B.CATEGORY_NAME
+					  , C.BRAND_NAME
+					  , A.PROD_NAME
+					  , A.PROD_DESC
+					  , A.PRODUCT_TAG
+					  , A.DISCOUNT_RATE
+					  , A.PROD_PRICE
+					  , A.PROD_ORIGIN
+					  , A.PROD_DETAIL_CONTENT
+					  , A.PROD_DETAIL_VIEW_COUNT
+					  , A.PROD_ENROLL_DATE
+					  , A.PROD_CHANGE_DATE
+					  , A.PROD_AVAIL_YN
+					  , O.OPT_BODY_COLOR
+					  , O.OPT_INK_COLOR
+					  , O.OPT_POINT_SIZE
+			 	  FROM TBL_PRODUCT A
+			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+			 	 WHERE A.PROD_AVAIL_YN = 'N'
+		 		  ) D
+		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+		]]>
+		<include refid="dashboardProductSearch"></include>
+		<![CDATA[
+		) E
+		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<!-- 할인중 상품 목록 조회 -->
 	<select id="getOnDiscountOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
+		<![CDATA[
 		SELECT
-			   A.PROD_NO
-			 , B.CATEGORY_NAME
-			 , C.BRAND_NAME
-			 , A.PROD_NAME
-			 , A.PROD_DESC
-			 , A.PRODUCT_TAG
-			 , A.DISCOUNT_RATE
-			 , A.PROD_PRICE
-			 , A.PROD_ORIGIN
-			 , A.PROD_DETAIL_CONTENT
-			 , A.PROD_DETAIL_VIEW_COUNT
-			 , A.PROD_ENROLL_DATE
-			 , A.PROD_CHANGE_DATE
-			 , A.PROD_AVAIL_YN
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		 WHERE A.PROD_AVAIL_YN = 'Y'
-		   AND A.DISCOUNT_RATE > 0
-		 <trim prefix="AND">
-			<if test="keyword != null and condition eq 'prodName'">A.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'brand'">C.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'category'">B.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'bodyColor'">O.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'inkColor'">O.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'pointSize'">O.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'tag'">A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+			 , E.OPT_BODY_COLOR
+			 , E.OPT_INK_COLOR
+			 , E.OPT_POINT_SIZE
+		  FROM
+		(
+		SELECT D.RANK RK 
+			 , D.PROD_NO
+			 , D.CATEGORY_NAME
+			 , D.BRAND_NAME
+			 , D.PROD_NAME
+			 , D.PROD_DESC
+			 , D.PRODUCT_TAG
+			 , D.DISCOUNT_RATE
+			 , D.PROD_PRICE
+			 , D.PROD_ORIGIN
+			 , D.PROD_DETAIL_CONTENT
+			 , D.PROD_DETAIL_VIEW_COUNT
+			 , D.PROD_ENROLL_DATE
+			 , D.PROD_CHANGE_DATE
+			 , D.PROD_AVAIL_YN
+			 , D.OPT_BODY_COLOR
+			 , D.OPT_INK_COLOR
+			 , D.OPT_POINT_SIZE
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			  , A.PROD_NO
+					  , B.CATEGORY_NAME
+					  , C.BRAND_NAME
+					  , A.PROD_NAME
+					  , A.PROD_DESC
+					  , A.PRODUCT_TAG
+					  , A.DISCOUNT_RATE
+					  , A.PROD_PRICE
+					  , A.PROD_ORIGIN
+					  , A.PROD_DETAIL_CONTENT
+					  , A.PROD_DETAIL_VIEW_COUNT
+					  , A.PROD_ENROLL_DATE
+					  , A.PROD_CHANGE_DATE
+					  , A.PROD_AVAIL_YN
+					  , O.OPT_BODY_COLOR
+					  , O.OPT_INK_COLOR
+					  , O.OPT_POINT_SIZE
+			 	  FROM TBL_PRODUCT A
+			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+			 	 WHERE A.PROD_AVAIL_YN = 'Y'
+		   		   AND A.DISCOUNT_RATE > 0
+		 		  ) D
+		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+		]]>
+		<include refid="dashboardProductSearch"></include>
+		<![CDATA[
+		) E
+		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<!-- 품절 상품 목록 조회 -->
 	<select id="getSoldOutOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
+		<![CDATA[
 		SELECT
-			   A.PROD_NO
-			 , B.CATEGORY_NAME
-			 , C.BRAND_NAME
-			 , A.PROD_NAME
-			 , A.PROD_DESC
-			 , A.PRODUCT_TAG
-			 , A.DISCOUNT_RATE
-			 , A.PROD_PRICE
-			 , A.PROD_ORIGIN
-			 , A.PROD_DETAIL_CONTENT
-			 , A.PROD_DETAIL_VIEW_COUNT
-			 , A.PROD_ENROLL_DATE
-			 , A.PROD_CHANGE_DATE
-			 , A.PROD_AVAIL_YN
-		  FROM TBL_PRODUCT A
-		  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
-		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		  LEFT JOIN TBL_STOCK S ON(O.REF_STOCK_NO = S.STOCK_NO)
-		 WHERE A.PROD_AVAIL_YN = 'Y'
-		   AND S.STOCK_AMOUNT = 0
-		 <trim prefix="AND">
-			<if test="keyword != null and condition eq 'prodName'">A.PROD_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'brand'">C.BRAND_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'category'">B.CATEGORY_NAME LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'bodyColor'">O.OPT_BODY_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'inkColor'">O.OPT_INK_COLOR LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'pointSize'">O.OPT_POINT_SIZE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'tag'">A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+			   E.PROD_NO
+			 , E.CATEGORY_NAME
+			 , E.BRAND_NAME
+			 , E.PROD_NAME
+			 , E.PROD_DESC
+			 , E.PRODUCT_TAG
+			 , E.DISCOUNT_RATE
+			 , E.PROD_PRICE
+			 , E.PROD_ORIGIN
+			 , E.PROD_DETAIL_CONTENT
+			 , E.PROD_DETAIL_VIEW_COUNT
+			 , E.PROD_ENROLL_DATE
+			 , E.PROD_CHANGE_DATE
+			 , E.PROD_AVAIL_YN
+			 , E.OPT_BODY_COLOR
+			 , E.OPT_INK_COLOR
+			 , E.OPT_POINT_SIZE
+		  FROM
+		(
+		SELECT D.RANK RK 
+			 , D.PROD_NO
+			 , D.CATEGORY_NAME
+			 , D.BRAND_NAME
+			 , D.PROD_NAME
+			 , D.PROD_DESC
+			 , D.PRODUCT_TAG
+			 , D.DISCOUNT_RATE
+			 , D.PROD_PRICE
+			 , D.PROD_ORIGIN
+			 , D.PROD_DETAIL_CONTENT
+			 , D.PROD_DETAIL_VIEW_COUNT
+			 , D.PROD_ENROLL_DATE
+			 , D.PROD_CHANGE_DATE
+			 , D.PROD_AVAIL_YN
+			 , D.OPT_BODY_COLOR
+			 , D.OPT_INK_COLOR
+			 , D.OPT_POINT_SIZE
+		  FROM (SELECT 
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			  , A.PROD_NO
+					  , B.CATEGORY_NAME
+					  , C.BRAND_NAME
+					  , A.PROD_NAME
+					  , A.PROD_DESC
+					  , A.PRODUCT_TAG
+					  , A.DISCOUNT_RATE
+					  , A.PROD_PRICE
+					  , A.PROD_ORIGIN
+					  , A.PROD_DETAIL_CONTENT
+					  , A.PROD_DETAIL_VIEW_COUNT
+					  , A.PROD_ENROLL_DATE
+					  , A.PROD_CHANGE_DATE
+					  , A.PROD_AVAIL_YN
+					  , O.OPT_BODY_COLOR
+					  , O.OPT_INK_COLOR
+					  , O.OPT_POINT_SIZE
+			 	  FROM TBL_PRODUCT A
+			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+			 	  LEFT JOIN TBL_STOCK S ON(O.REF_STOCK_NO = S.STOCK_NO)
+			 	 WHERE A.PROD_AVAIL_YN = 'Y'
+		   		   AND S.STOCK_AMOUNT = 0
+		 		  ) D
+		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+		]]>
+		<include refid="dashboardProductSearch"></include>
+		<![CDATA[
+		) E
+		WHERE E.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<!-- 상품별 메인썸네일 조회 -->

@@ -6,6 +6,7 @@
 	<!-- CSS -->
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/paging.css}" rel="stylesheet">
 	</th:block>
 </head>
 <body layout:fragment="content">
@@ -203,7 +204,7 @@
             </div>
 		</div>
 		<!-- 배송완료 -->
-		<div class="tab-pane fade show" id="delivering" role="tabpanel" aria-labelledby="delivering-tab">
+		<div class="tab-pane fade show" id="completed" role="tabpanel" aria-labelledby="completed-tab">
             <div class="dataTable-container">
             <table class="dataTable-table table-striped">
                 <thead>
@@ -237,8 +238,17 @@
 	                	</td>
 	                	<td th:text="${ orderList.memberId }"></td>
 	                	<td th:text="${ orderList.payment.paymentAmount }"></td>
-	                	<th:block th:if="orderList.payment.paymentMethod == 'card'">
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'card' }">
 		                	<td>신용카드</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'trans' }">
+		                	<td>실시간계좌이체</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'vbank' }">
+		                	<td>가상계좌</td>
+	                	</th:block>
+	                	<th:block th:if="${ orderList.payment.paymentMethod == 'phone' }">
+		                	<td>휴대폰결제</td>
 	                	</th:block>
 	                	<td th:text="${ orderList.payment.paymentDateTime }"></td>
 	                	<td th:text="${ orderList.delivery.deliveryCompany }"></td>

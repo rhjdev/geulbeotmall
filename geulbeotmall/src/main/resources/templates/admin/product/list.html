@@ -6,6 +6,7 @@
 	<!-- CSS -->
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/paging.css}" rel="stylesheet">
 	</th:block>
 </head>
 <body layout:fragment="content">
@@ -32,8 +33,8 @@
 			</div>
     	</div>
     </div>
-    <!-- 전체상품 | 판매중상품 | 판매중지상품 구분하기 위한 탭. 추가로 베스트 | 할인중 | 품절 상품 조회 -->
-    <!-- id, data-bs-target, aria-controls 속성값을 일치시켜 myTabContent로부터 불러올 값 지정 -->
+    <!--/* 전체상품 | 판매중상품 | 판매중지상품 | 할인중 | 품절 상품 조회 */-->
+    <!--/* id, data-bs-target, aria-controls 속성값을 일치시켜 myTabContent로부터 불러올 값 지정 */-->
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
 			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 <b th:text="${ total }" style="color: #ff0000;"></b></button>
@@ -43,9 +44,6 @@
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="stopSale-tab" data-bs-toggle="tab" data-bs-target="#stopSale" type="button" role="tab" aria-controls="stopSale" aria-selected="false">판매중지 <b th:text="${ stopSale }" style="color: #ff0000;"></b></button>
-		</li>
-		<li class="nav-item" role="presentation">
-			<button class="nav-link" id="bestSelling-tab" data-bs-toggle="tab" data-bs-target="#bestSelling" type="button" role="tab" aria-controls="bestSelling" aria-selected="false">베스트 <b th:text="${ bestSelling }" style="color: #6c757d;"></b></button>
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="onDiscount-tab" data-bs-toggle="tab" data-bs-target="#onDiscount" type="button" role="tab" aria-controls="onDiscount" aria-selected="false">할인중 <b th:text="${ onDiscount }" style="color: #6c757d;"></b></button>
@@ -82,47 +80,39 @@
 	                	<td th:text="${ product.prodNo }"></td>
 	                	<td th:text="${ product.category.categoryName }"></td>
 	                	<td th:text="${ product.brand.brandName }"></td>
-	                	
-	                	<!-- 대표썸네일 -->
+	                	<!--/* 대표썸네일 */-->
 	                	<td th:each="thumbnail : ${ thumbnailList }" th:if="${product.prodNo == thumbnail.refProdNo}">
 	                		<img th:src="${ thumbnail.thumbnailPath }" style="width: 100px; height: 100px;">
 	                	</td>
-	                	
-	                	<!-- 상품명 -->
+	                	<!--/* 상품명 */-->
 	                	<td th:text="${ product.prodName }"></td>
-	                	
-	                	<!-- 할인율 -->
+	                	<!--/* 할인율 */-->
 	                	<td th:text="|${ product.discountRate }%|"></td>
 	                	
-	                	<!-- 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 -->
+	                	<!--/* 판매가A. 할인 대상이 아닌 경우 원가 그대로 출력 */-->
 	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
-	                	<!-- 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 -->
+	                	<!--/* 판매가B. 적용된 할인율이 0% 이상인 경우 판매가 산정하여 출력 */-->
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
 	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
-	                	
-	                	<!-- 판매량 -->
-	                	<!-- 상단의 product 목록 기준으로 생성된 index 활용 -->
+	                	<!--/* 판매량 */-->
+	                	<!--/* 상단의 product 목록 기준으로 생성된 index 활용 */-->
 	                	<td th:text="${ salesList[productStat.index] }"></td>
-	                	
-	                	<!-- 조회수 -->
+	                	<!--/* 조회수 */-->
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
-	                	
-	                	<!-- 옵션/재고 -->
-	                	<!-- 태그 인식 위해서 escape 적용되는 th:text 대신 th:utext 사용 -->
-	                	<td>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+	                	<!--/* 옵션/재고 */-->
+	                	<!--/* 태그 인식 위해서 escape 적용되는 th:text 대신 th:utext 사용 */-->
+	                	<td class="optionAndStock">
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
 	                	</td>
-	                	
-	                	<!-- 판매여부 -->
+	                	<!--/* 판매여부 */-->
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
 	                		<span th:case="N">판매중지</span>
 	                	</td>
-	                	
-	                	<!-- 상세 정보 -->
+	                	<!--/* 상세 정보 */-->
 	                	<td><a th:href="@{/admin/product/edit(no=${product.prodNo})}"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(productList)} > 0">
@@ -131,6 +121,9 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: paging"></nav>
+			</th:block>
 		</div>
 		<!-- 판매중 -->
 		<div class="tab-pane fade show" id="onSale" role="tabpanel" aria-labelledby="onSale-tab">
@@ -171,9 +164,9 @@
 	                	</td>
 	                	<td th:text="0"></td>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
-	                	<td>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+	                	<td class="optionAndStock">
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -187,6 +180,9 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="pagingWithOnSaleNumber">
+				<nav th:replace="/fragments/paging.html :: pagingWithOnSaleNumber"></nav>
+			</th:block>
 		</div>
 		<!-- 판매중지 -->
 		<div class="tab-pane fade show" id="stopSale" role="tabpanel" aria-labelledby="stopSale-tab">
@@ -227,9 +223,9 @@
 	                	</td>
 	                	<td th:text="0"></td>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
-	                	<td>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+	                	<td class="optionAndStock">
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -243,6 +239,9 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="pagingWithStopSaleNumber">
+				<nav th:replace="/fragments/paging.html :: pagingWithStopSaleNumber"></nav>
+			</th:block>
 		</div>
 		<!-- 할인중 -->
 		<div class="tab-pane fade show" id="onDiscount" role="tabpanel" aria-labelledby="onDiscount-tab">
@@ -283,9 +282,9 @@
 	                	</td>
 	                	<td th:text="0"></td>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
-	                	<td>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+	                	<td class="optionAndStock">
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -299,6 +298,9 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="pagingWithOnDiscountNumber">
+				<nav th:replace="/fragments/paging.html :: pagingWithOnDiscountNumber"></nav>
+			</th:block>
 		</div>
 		<!-- 품절 -->
 		<div class="tab-pane fade show" id="soldOut" role="tabpanel" aria-labelledby="soldOut-tab">
@@ -339,9 +341,9 @@
 	                	</td>
 	                	<td th:text="0"></td>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
-	                	<td>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>바디컬러_<b>' + ${ option.bodyColor } + '</b> | ' + '잉크컬러_<b>' + ${ option.inkColor } + '</b> | ' + '심두께및스펙_<b>' + ${ option.pointSize } + 'mm</b> | ' + '추가금액_<b>' + ${ option.extraCharge } + '원</b>' + '(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+	                	<td class="optionAndStock">
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -355,11 +357,11 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="pagingWithSoldOutNumber">
+				<nav th:replace="/fragments/paging.html :: pagingWithSoldOutNumber"></nav>
+			</th:block>
 		</div>
 	</div>
-	<th:block layout:fragment="paging">
-		<nav th:replace="/fragments/paging.html :: paging"></nav>
-	</th:block>
     <th:block layout:fragment="productToolbar">
 		<div th:replace="/fragments/toolbar.html :: productToolbar"></div>
 	</th:block>

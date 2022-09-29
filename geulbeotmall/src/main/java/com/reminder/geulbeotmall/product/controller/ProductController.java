@@ -392,56 +392,38 @@ public class ProductController {
 	public void getProductList(@Valid @ModelAttribute("criteria") Criteria criteria, BindingResult bindingResult, HttpServletRequest request, Model model) {
 		log.info("상품 목록 요청");
 		
-		//전체 상품수 조회
-		int total = productService.getTotalNumber(criteria);
-		//판매중 상품수 조회
-		int onSale = productService.getOnSaleNumber(criteria);
-		//판매중지 상품수 조회
-		int stopSale = productService.getStopSaleNumber(criteria);
-		//할인중 상품수 조회
-		int onDiscount = productService.getOnDiscountNumber(criteria);
-		//품절 상품수 조회
-		int soldOut = productService.getSoldOutNumber(criteria);
+		/* 상품수 */
+		int total = productService.getTotalNumber(criteria); //전체
+		int onSale = productService.getOnSaleNumber(criteria); //판매중
+		int stopSale = productService.getStopSaleNumber(criteria); //판매중지
+		int onDiscount = productService.getOnDiscountNumber(criteria); //할인중
+		int soldOut = productService.getSoldOutNumber(criteria); //품절
 		
-		//전체상품 목록 조회
-		List<ProductDTO> productList = productService.getProductList(criteria);
-		//판매중 상품 목록 조회
-		List<ProductDTO> onSaleOnly = productService.getOnSaleOnly(criteria);
-		//판매중지 상품 목록 조회
-		List<ProductDTO> stopSaleOnly = productService.getStopSaleOnly(criteria);
-		//할인중 상품 목록 조회
-		List<ProductDTO> onDiscountOnly = productService.getOnDiscountOnly(criteria);
-		//품절 상품 목록 조회
-		List<ProductDTO> soldOutOnly = productService.getSoldOutOnly(criteria);
+		/* 상품 목록 조회 */
+		List<ProductDTO> productList = productService.getProductList(criteria); //전체
+		List<ProductDTO> onSaleOnly = productService.getOnSaleOnly(criteria); //판매중
+		List<ProductDTO> stopSaleOnly = productService.getStopSaleOnly(criteria); //판매중지
+		List<ProductDTO> onDiscountOnly = productService.getOnDiscountOnly(criteria); //할인중
+		List<ProductDTO> soldOutOnly = productService.getSoldOutOnly(criteria); //품절
 		
-		//상품별 메인썸네일 조회
+		List<Integer> allProdNo = productService.getAllProdNo();
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
-		for(ProductDTO product : productList) {
-			int prodNo = product.getProdNo();
+		List<OptionDTO> optionList = new ArrayList<>();
+		List<Integer> salesList = new ArrayList<>();
+		for(int prodNo: allProdNo) {
+			/* 상품별 메인썸네일 조회 */
 			AttachmentDTO thumbnail = productService.getMainThumbnailByProdNo(prodNo);
 			thumbnailList.add(thumbnail);
-		}
-		
-		//상품별 옵션 조회
-		List<OptionDTO> optionList = new ArrayList<>();
-		for(ProductDTO product : productList) {
-			int prodNo = product.getProdNo();
+			/* 상품별 옵션 조회 */
 			List<OptionDTO> options = productService.getOptionListByProdNo(prodNo);
-			
 			for(OptionDTO option : options) {
 				optionList.add(option);
 			}
-		}
-		
-		//상품별 누적 판매량 조회
-		List<Integer> salesList = new ArrayList<>();
-		for(ProductDTO product : productList) {
-			int prodNo = product.getProdNo();
+			/* 상품별 누적 판매량 조회 */
 			Integer sales = productService.getSalesByProdNo(prodNo); //null 값을 취급할 수 있도록 Integer 타입으로 설정
 			if(sales == null) sales = 0;
 			salesList.add(sales);
 		}
-		
 		log.info("상품 목록 조회 완료");
 		
 		model.addAttribute("total", total);
@@ -455,10 +437,16 @@ public class ProductController {
 		model.addAttribute("stopSaleOnly", stopSaleOnly);
 		model.addAttribute("onDiscountOnly", onDiscountOnly);
 		model.addAttribute("soldOutOnly", soldOutOnly);
+		
 		model.addAttribute("thumbnailList", thumbnailList);
 		model.addAttribute("optionList", optionList);
 		model.addAttribute("salesList", salesList);
+		
 		model.addAttribute("pageMaker", new PageDTO(productService.getTotalNumber(criteria), 10, criteria));
+		model.addAttribute("pageMakerWithOnSaleNumber", new PageDTO(productService.getOnSaleNumber(criteria), 10, criteria));
+		model.addAttribute("pageMakerWithStopSaleNumber", new PageDTO(productService.getStopSaleNumber(criteria), 10, criteria));
+		model.addAttribute("pageMakerWithOnDiscountNumber", new PageDTO(productService.getOnDiscountNumber(criteria), 10, criteria));
+		model.addAttribute("pageMakerWithSoldOutNumber", new PageDTO(productService.getSoldOutNumber(criteria), 10, criteria));
 	}
 	
 	/**

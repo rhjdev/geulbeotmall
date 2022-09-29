@@ -275,4 +275,9 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductDTO> searchProductByKeyword(String keyword) {
 		return productMapper.searchProductByKeyword(keyword);
 	}
+
+	@Override
+	public List<Integer> getAllProdNo() {
+		return productMapper.getAllProdNo();
+	}
 }

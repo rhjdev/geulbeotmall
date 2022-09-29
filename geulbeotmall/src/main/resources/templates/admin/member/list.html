@@ -6,6 +6,7 @@
 	<!-- CSS -->
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/paging.css}" rel="stylesheet">
 	</th:block>
 </head>
 <body layout:fragment="content">
@@ -14,7 +15,7 @@
 	<div class="card mb-4">
     	<div class="card-body">
 			<div class="search-container">
-				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/member/list}" method="get" onsubmit="checkKeyword()">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/member/list}" method="get" onsubmit="checkKeywordForMember()">
 					<select id="condition" name="condition" class="dataTable-selector">
 						<option value="id" th:selected="*{condition} eq 'id'">아이디</option>
 						<option value="name" th:selected="*{condition} eq 'name'">이름</option>
@@ -66,7 +67,7 @@
                 </thead>
                 <tbody>
                 	<tr th:each="member, stat : ${ memberList }" th:if="${not #lists.isEmpty(memberList)}" th:with="cri=${criteria}, total=${total}">
-                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
                 		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
                 		<!-- 역순 조회 <td th:text="${total - ((cri.currentPageNo - 1) * 10) - stat.index}"></td> -->
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
@@ -105,7 +106,7 @@
                 </thead>
                 <tbody>
                 	<tr th:each="member, stat : ${ memberOnly }" th:if="${not #lists.isEmpty(memberOnly)}" th:with="cri=${criteria}, regular=${regular}">
-                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
                 		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
@@ -143,7 +144,7 @@
                 </thead>
                 <tbody>
                 	<tr th:each="member, stat : ${ adminOnly }" th:if="${not #lists.isEmpty(adminOnly)}" th:with="cri=${criteria}, admin=${admin}">
-                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
                 		<td th:text="${stat.count + ((cri.currentPageNo) - 1) * 10}"></td>
                 		<td><a th:href="@{/admin/member/details(id=${member.memberId})}"><span th:text="${ member.memberId }"></span></a></td>
 	                	<td th:text="${ member.name }"></td>
@@ -176,7 +177,7 @@
                 </thead>
                 <tbody>
                 	<tr th:each="member, stat : ${ closedOnly }">
-                		<td><input type="checkbox" class="input-checkbox member" name="checkMember"></td>
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
                 		<td th:text="${ stat.count }"></td>
                 		<td th:text="${ member.member.memberId }"></td>
 	                	<td th:text="${ member.susp.accSuspDesc }"></td>
@@ -193,12 +194,13 @@
 	<th:block layout:fragment="paging">
 		<nav th:replace="/fragments/paging.html :: paging"></nav>
 	</th:block>
-    <th:block layout:fragment="toolbar">
-		<div th:replace="/fragments/toolbar.html :: toolbar"></div>
+    <th:block layout:fragment="memberToolbar">
+		<div th:replace="/fragments/toolbar.html :: memberToolbar"></div>
 	</th:block>
     <!-- JS -->
     <th:block layout:fragment="script">
-    	<script th:src="@{/js/customtable.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/manageMemberList.js}" type="text/javascript"></script>
 	</th:block>
 </body>
 </html>

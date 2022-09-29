@@ -126,4 +126,6 @@ public interface ProductMapper {
 	int getTotalNumberByMinorCategory(String category);
 
 	List<ProductDTO> searchProductByKeyword(String keyword);
+
+	List<Integer> getAllProdNo();
 }
