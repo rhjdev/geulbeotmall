@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 @Mapper
@@ -33,7 +35,7 @@ public interface AdminMapper {
 
 	List<MemberDTO> getAdminOnly(Criteria criteria);
 
-	List<MemberDTO> getClosedOnly();
+	List<MemberSuspDTO> getClosedOnly();
 	
 	int updateAuth();
 
@@ -66,4 +68,6 @@ public interface AdminMapper {
 	int updateDeliveryDate(String orderNo);
 
 	int addDisplayImages(DesignImageDTO designImage);
+
+	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
 }

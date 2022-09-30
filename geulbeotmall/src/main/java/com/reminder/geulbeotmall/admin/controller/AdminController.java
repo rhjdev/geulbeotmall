@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
@@ -37,6 +38,7 @@ import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.product.model.service.ProductService;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +64,7 @@ public class AdminController {
 		return "admin/dashboard";
 	}
 	
+	/* 디자인관리 */
 	@GetMapping("/design")
 	public String getDesignPage(Criteria criteria, Model model) {
 		List<ProductDTO> allProducts = productService.getOnSaleOnly(criteria);
@@ -137,6 +140,7 @@ public class AdminController {
 		return "redirect:/admin/design";
 	}
 	
+	/* 회원관리 */
 	@GetMapping("/member/list")
 	public void getMemberList(@Valid @ModelAttribute("criteria") Criteria criteria, BindingResult bindingResult, HttpServletRequest request, Model model) {
 		log.info("회원 목록 요청");
@@ -152,7 +156,13 @@ public class AdminController {
 		List<MemberDTO> memberList = adminService.getMemberList(criteria);
 		List<MemberDTO> memberOnly = adminService.getMemberOnly(criteria);
 		List<MemberDTO> adminOnly = adminService.getAdminOnly(criteria);
-		List<MemberDTO> closedOnly = adminService.getClosedOnly();
+		List<MemberSuspDTO> closedOnly = adminService.getClosedOnly();
+		for(int i=0; i < closedOnly.size(); i++) {
+			boolean isClosedByUser = closedOnly.get(i).getSusp().getAccSuspDesc() == null ? true : false;
+			if(isClosedByUser) {
+				closedOnly.get(i).getSusp().setAccSuspDesc("자진탈퇴");
+			}
+		}
 		log.info("회원 목록 조회 완료");
 		
 		model.addAttribute("total", total);
@@ -244,9 +254,15 @@ public class AdminController {
 		return result;
 	}
 	
+	/* 게시글관리 */
 	@GetMapping("/post/list")
-	public void getPostList() {}
+	public void getPostList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
+		List<ReviewDTO> totalReviewList = adminService.getTotalReviewPostList(criteria);
+		model.addAttribute("total", totalReviewList.size());
+		model.addAttribute("totalReviewList", totalReviewList);
+	}
 	
+	/* 배송관리 */
 	@GetMapping("/order/list")
 	public void getOrderList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
 		log.info("주문/배송 목록 요청");

@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.admin.model.dao.AdminMapper;
+import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 @Service("adminService")
@@ -84,8 +86,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<MemberDTO> getClosedOnly() {
-		List<MemberDTO> closedOnly = adminMapper.getClosedOnly();
+	public List<MemberSuspDTO> getClosedOnly() {
+		List<MemberSuspDTO> closedOnly = adminMapper.getClosedOnly();
 		return closedOnly;
 	}
 	
@@ -167,5 +169,10 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public int addDisplayImages(DesignImageDTO designImage) {
 		return adminMapper.addDisplayImages(designImage);
+	}
+
+	@Override
+	public List<ReviewDTO> getTotalReviewPostList(Criteria criteria) {
+		return adminMapper.getTotalReviewPostList(criteria);
 	}
 }

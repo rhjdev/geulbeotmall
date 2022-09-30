@@ -162,6 +162,22 @@
 		<result property="pointStatus" column="POINT_STATUS"/>
 	</resultMap>
 	
+	<!-- 리뷰 조회용 -->
+	<resultMap id="reviewResultMap" type="com.reminder.geulbeotmall.review.model.dto.ReviewDTO">
+		<id property="reviewNo" column="REVIEW_NO"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="revwTitle" column="REVW_TITLE"/>
+		<result property="revwContent" column="REVW_CONTENT"/>
+		<result property="revwRegDate" column="REVW_REG_DATE"/>
+		<result property="revwHits" column="REVW_HITS"/>
+		<result property="revwRatings" column="REVW_RATINGS"/>
+		<association property="option" resultMap="optionResultMap"/>
+		<association property="product" resultMap="productResultMap"/>
+		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
+	</resultMap>
+	
 	<!-- 회원관리 -->
 	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
 		<![CDATA[
@@ -363,7 +379,7 @@
 	
 	<select id="getClosedOnly" resultMap="memberSuspResultMap">
 		SELECT
-			   B.MEMBER_ID
+			   A.MEMBER_ID
 			 , B.ACC_SUSP_DESC
 			 , A.ACC_CLOSING_DATE
 		  FROM TBL_MEMBER A
@@ -440,6 +456,21 @@
 		     , ACC_CLOSING_DATE = NULL
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
+	
+	<!-- 게시글관리 -->
+	<select id="getTotalReviewPostList" resultMap="reviewResultMap">
+		SELECT
+			   REVIEW_NO
+			 , OPTION_NO
+			 , ORDER_NO
+			 , MEMBER_ID
+			 , REVW_TITLE
+			 , REVW_CONTENT
+			 , REVW_REG_DATE
+			 , REVW_HITS
+			 , REVW_RATINGS
+		  FROM TBL_REVIEW
+	</select>
 	
 	<!-- 주문/배송관리 -->
 	<select id="getTotalOrderList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">

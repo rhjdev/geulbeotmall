@@ -85,6 +85,16 @@ input[type="checkbox"]:checked {
 	cursor: default;
 }
 
+/* 옵션/재고 출력 글자수 제한 */
+tbody > tr > .optionAndStock > div {
+	display: block;
+	margin: 0 auto;
+	max-width: 600px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 /* 검색바 */
 .search-form {
     position: relative;

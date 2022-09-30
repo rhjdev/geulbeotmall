@@ -2,10 +2,14 @@ package com.reminder.geulbeotmall.admin.model.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
+import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 public interface AdminService {
@@ -30,7 +34,7 @@ public interface AdminService {
 
 	List<MemberDTO> getAdminOnly(Criteria criteria);
 
-	List<MemberDTO> getClosedOnly();
+	List<MemberSuspDTO> getClosedOnly();
 	
 	int searchAuthById(String memberId);
 
@@ -57,4 +61,6 @@ public interface AdminService {
 	OrderDetailDTO getOrderDetailsByOrderNo(String orderNo);
 
 	int addDisplayImages(DesignImageDTO designImage);
+
+	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
 }

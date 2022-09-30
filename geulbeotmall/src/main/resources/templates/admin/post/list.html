@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!--/* CSS */-->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>게시글 관리</h1>
+	<hr>
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 게시글 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+		</li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+		<!--/* 전체 게시글 */-->
+		<div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="total-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th><span>구분</span></th>
+                    	<th><span>제목</span></th>
+                    	<th><span>작성자</span></th>
+                    	<th><span>작성일</span></th>
+                    	<th><span>조회수</span></th>
+                    	<th><span>상세 정보</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="postList : ${ totalReviewList }" th:if="${not #lists.isEmpty(totalReviewList)}" th:with="cri=${criteria}, total=${total}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td th:text="${ postList.revwTitle }"></td>
+	                	<td th:text="${ postList.memberId }"></td>
+	                	<td th:text="${ postList.revwRegDate }"></td>
+	                	<td th:text="${ postList.revwHits }"></td>
+	                	<td><a href="#"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(totalReviewList)} > 0">
+                		<td colspan="7">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
+	</div>
+</body>
+</html>
