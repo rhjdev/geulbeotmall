@@ -15,7 +15,7 @@
 	<div class="card mb-4">
     	<div class="card-body">
 			<div class="search-container">
-				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/product/list}" method="get" onsubmit="checkKeywordForProduct()">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/product/list}" method="get" onsubmit="checkKeywordForProduct(); return false;">
 					<select id="condition" name="condition" class="dataTable-selector">
 						<option value="prodName" th:selected="*{condition} eq 'prodName'">상품명</option>
 						<option value="brand" th:selected="*{condition} eq 'brand'">브랜드</option>

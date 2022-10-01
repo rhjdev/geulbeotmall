@@ -15,7 +15,7 @@
 	<div class="card mb-4">
     	<div class="card-body">
 			<div class="search-container">
-				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/member/list}" method="get" onsubmit="checkKeywordForMember()">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/member/list}" method="get" onsubmit="checkKeywordForMember(); return false;">
 					<select id="condition" name="condition" class="dataTable-selector">
 						<option value="id" th:selected="*{condition} eq 'id'">아이디</option>
 						<option value="name" th:selected="*{condition} eq 'name'">이름</option>
