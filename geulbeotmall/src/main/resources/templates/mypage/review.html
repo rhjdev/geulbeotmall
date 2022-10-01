@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>마이페이지 | 글벗문구</title>
-	<!-- CSS -->
+	<!--/* CSS */-->
    	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
@@ -80,6 +80,7 @@
 					    			<th colspan="2"><span>제목</span></th>
 					    			<th><span>작성일</span></th>
 					    			<th><span>조회수</span></th>
+					    			<th><span>수정</span></th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
@@ -95,108 +96,13 @@
 					    				<p class="review-detail" th:value="${ postList.reviewNo }">
 					    					<a data-toggle="modal" th:href="'#review-content' + ${ postList.reviewNo }">[[${ postList.revwTitle }]]</a>
 					    				</p>
-										<div th:id="'review-content' + ${ postList.reviewNo }" class="modal fade" tabindex="-1" role="dialog">
-											<div class="modal-lg modal-dialog modal-dialog-centered modal-dialog-scrollable">
-												<div class="modal-content">
-									      			<div class="modal-header">
-									      				<div class="product">
-									      					<a th:href="@{/product/details(no=*{ postList.option.refProdNo })}" th:text="|[${ postList.product.prodName }]|"></a>
-									      				</div>
-														<h5>[[${ postList.revwTitle }]]</h5>
-														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-													</div>
-													<div class="modal-body">
-														<th:block th:if="${ postList.attachmentList[0].thumbnailPath != null }">
-														<div class="body">
-															<div id="carouselIndicators" class="carousel slide" data-bs-ride="true">
-																<div class="carousel-indicators">
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 1}">
-																		<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-																	</th:block>
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 2}">
-																		<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-																	</th:block>
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 3}">
-																		<button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-																	</th:block>
-																</div>
-																<div class="carousel-inner">
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 1}">
-																		<div class="carousel-item active">
-																			<img th:src="${ postList.attachmentList[0].thumbnailPath }" class="d-block w-100" alt="attachment 1">
-																		</div>
-																	</th:block>
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 2}">
-																		<div class="carousel-item">
-																			<img th:src="${ postList.attachmentList[1].thumbnailPath }" class="d-block w-100" alt="attachment 2">
-																		</div>
-																	</th:block>
-																	<th:block th:if="${#lists.size(postList.attachmentList) >= 3}">
-																		<div class="carousel-item">
-																			<img th:src="${ postList.attachmentList[2].thumbnailPath }" class="d-block w-100" alt="attachment 3">
-																		</div>
-																	</th:block>
-																</div>
-																<button class="carousel-control-prev" type="button" data-bs-target="#carouselIndicators" data-bs-slide="prev">
-																	<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-																	<span class="visually-hidden">Previous</span>
-																</button>
-																<button class="carousel-control-next" type="button" data-bs-target="#carouselIndicators" data-bs-slide="next">
-																	<span class="carousel-control-next-icon" aria-hidden="true"></span>
-																	<span class="visually-hidden">Next</span>
-																</button>
-															</div>
-														</div>
-														</th:block>
-														<th:block th:if="${ postList.attachmentList[0].thumbnailPath == null }">
-														<div class="body">
-															<div id="imageNotFound"><span class="fs-4">글벗문구</span></div>
-														</div>
-														</th:block>
-														<div class="body">
-															<div class="menu">
-																<span class="views">조회수&nbsp;<b>[[${postList.revwHits}]]</b></span>
-																<ul>
-																	<li>
-																		<span>신고</span>
-																	</li>
-																	<li>
-																		<span>삭제</span>
-																	</li>
-																</ul>
-															</div>
-															<div class="profile"><a><i class="fa-solid fa-user"></i></a></div>
-															<div class="info">
-																<span class="writer">[[${ postList.memberId }]]</span><br>
-																<span class="star" th:value="${ postList.revwRatings }"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span>
-																<span class="date">[[${#dates.format(postList.revwRegDate, 'yyyy.MM.dd')}]]</span>
-																<span class="store">&#8729;&nbsp;글벗문구 구매</span>
-															</div>
-															<div class="option">
-											    				<p>
-											    					<span th:text="|&nbsp;${ postList.option.pointSize }mm|"></span>
-												    				<th:block th:if="${ postList.option.bodyColor != '(해당없음)' }">
-												    					<span th:text="|/ ${#strings.replace(postList.option.bodyColor, '$', ',')}|"></span>
-												    				</th:block>
-												    				<th:block th:if="${ postList.option.inkColor != '(해당없음)' }">
-												    					<span th:text="|/ ${#strings.replace(postList.option.inkColor, '$', ',')}|"></span>
-												    				</th:block>
-												    			</p>
-															</div>
-															<div class="content">
-																<span>[(${ postList.revwContent })]</span>
-															</div>
-														</div>
-													</div>
-													<div class="modal-footer">
-														<button type="button" class="btn btn-dark" data-bs-dismiss="modal">닫기</button>
-													</div> 
-												</div>
-											</div>
-										</div>
+										<th:block layout:fragment="reviewModal">
+											<div th:replace="/fragments/modal.html :: reviewModal"></div>
+										</th:block>
 					    			</td>
 					    			<td th:text="${#dates.format(postList.revwRegDate, 'yy.MM.dd')}"></td>
 					    			<td th:text="${ postList.revwHits }"></td>
+					    			<td><button type="button" class="btn btn-sm btn-light">수정</button></td>
 					    		</tr>
 					    		<tr class="noitem" th:unless="${#lists.size(postList)} > 0">
 			                		<td colspan="9">
@@ -211,9 +117,9 @@
 			</div>
 		</div>
 	</div>
-	<!-- Alert Messages -->
+	<!--/* Alert Messages */-->
     <section th:replace="/fragments/alert.html :: alert"></section>
-	<!-- JS -->
+	<!--/* JS */-->
     <th:block layout:fragment="script">
     	<script type="text/javascript">
 	    	/* Modal */
