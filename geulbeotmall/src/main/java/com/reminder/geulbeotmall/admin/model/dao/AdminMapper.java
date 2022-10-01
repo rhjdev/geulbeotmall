@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
@@ -70,4 +71,16 @@ public interface AdminMapper {
 	int addDisplayImages(DesignImageDTO designImage);
 
 	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
+	
+	List<TrashDTO> getPostsInTrash(Criteria criteria);
+
+	int moveAPostToTrash(TrashDTO trashDTO);
+
+	int restoreAPostFromTrash(int trashNo);
+
+	List<Integer> getTrashItemToDelete();
+
+	int permanentlyDeleteReviewPost(int reviewNo);
+
+	int permanentlyDeleteFromTrash(int reviewNo);
 }

@@ -26,11 +26,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
@@ -46,6 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/admin")
+@SessionAttributes({"loginMember"})
 public class AdminController {
 	
 	private final AdminService adminService;
@@ -61,6 +64,15 @@ public class AdminController {
 	
 	@GetMapping("/dashboard")
 	public String getDashboard() {
+		/* 복구기한 100일이 경과한 휴지통 삭제글 영구 삭제 */
+		List<Integer> reviewNoList = adminService.getTrashItemToDelete();
+		log.info("금일 기준 '영구 삭제 대상 휴지통 삭제글' 개수 : {}", reviewNoList.size());
+		int count = 0;
+		for(int i=0; i < reviewNoList.size(); i++) {
+			int result = adminService.permanentlyDeleteFromTrashAndReviewData(reviewNoList.get(i));
+			if(result == 1) count++;
+		}
+		log.info("영구 삭제글 count : {}", count);
 		return "admin/dashboard";
 	}
 	
@@ -258,8 +270,45 @@ public class AdminController {
 	@GetMapping("/post/list")
 	public void getPostList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
 		List<ReviewDTO> totalReviewList = adminService.getTotalReviewPostList(criteria);
+		List<TrashDTO> reviewsInTrash = adminService.getPostsInTrash(criteria);
 		model.addAttribute("total", totalReviewList.size());
+		model.addAttribute("trash", reviewsInTrash.size());
 		model.addAttribute("totalReviewList", totalReviewList);
+		model.addAttribute("reviewsInTrash", reviewsInTrash);
+		model.addAttribute("pageMaker", new PageDTO(totalReviewList.size(), 10, criteria));
+	}
+	
+	@PostMapping("/post/restorePost")
+	@ResponseBody
+	public String restorePostsFromTrash(HttpServletRequest request) {
+		String[] trashNoArr = request.getParameterValues("arr");
+		int count = 0;
+		for(int i=0; i < trashNoArr.length; i++) {
+			int result = adminService.restoreAPostFromTrash(Integer.parseInt(trashNoArr[i]));
+			if(result == 1) count++;
+		}
+		return count == trashNoArr.length ? "succeed" : "fail";
+	}
+	
+	@PostMapping("/post/moveToTrash")
+	@ResponseBody
+	public String movePostsToTrash(@RequestParam("admin") String admin, HttpServletRequest request) {
+		String[] postNoArr = request.getParameterValues("noArr");
+		String[] postTitleArr = request.getParameterValues("titleArr");
+		String[] postWriterArr = request.getParameterValues("writerArr");
+		log.info("게시글 삭제자 admin : {}", admin);
+		int count = 0;
+		
+		TrashDTO trashDTO = new TrashDTO();
+		trashDTO.setTrashAdmin(admin);
+		for(int i=0; i < postNoArr.length; i++) {
+			trashDTO.setRefRevwNo(Integer.parseInt(postNoArr[i]));
+			trashDTO.setTrashTitle(postTitleArr[i]);
+			trashDTO.setTrashWriter(postWriterArr[i]);
+			int result = adminService.moveAPostToTrash(trashDTO);
+			if(result == 1) count++;
+		}
+		return count == postNoArr.length ? "succeed" : "fail";
 	}
 	
 	/* 배송관리 */

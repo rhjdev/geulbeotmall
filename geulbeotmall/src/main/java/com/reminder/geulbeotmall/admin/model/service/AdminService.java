@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
@@ -63,4 +64,14 @@ public interface AdminService {
 	int addDisplayImages(DesignImageDTO designImage);
 
 	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
+	
+	List<TrashDTO> getPostsInTrash(Criteria criteria);
+
+	int moveAPostToTrash(TrashDTO trashDTO);
+
+	int restoreAPostFromTrash(int trashNo);
+
+	List<Integer> getTrashItemToDelete();
+
+	int permanentlyDeleteFromTrashAndReviewData(int reviewNo);
 }

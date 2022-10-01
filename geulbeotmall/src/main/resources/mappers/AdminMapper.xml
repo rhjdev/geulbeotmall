@@ -178,6 +178,17 @@
 		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
 	</resultMap>
 	
+	<!-- 휴지통 삭제글 조회용 -->
+	<resultMap id="trashResultMap" type="com.reminder.geulbeotmall.admin.model.dto.TrashDTO">
+		<id property="trashNo" column="TRASH_NO"/>
+		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="trashTitle" column="TRASH_TITLE"/>
+		<result property="trashWriter" column="TRASH_WRITER"/>
+		<result property="trashAdmin" column="TRASH_ADMIN"/>
+		<result property="trashDateMoved" column="TRASH_DATE_MOVED"/>
+		<result property="trashDateUntil" column="TRASH_DATE_UNTIL"/>
+	</resultMap>
+	
 	<!-- 회원관리 -->
 	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
 		<![CDATA[
@@ -460,17 +471,113 @@
 	<!-- 게시글관리 -->
 	<select id="getTotalReviewPostList" resultMap="reviewResultMap">
 		SELECT
-			   REVIEW_NO
-			 , OPTION_NO
-			 , ORDER_NO
-			 , MEMBER_ID
-			 , REVW_TITLE
-			 , REVW_CONTENT
-			 , REVW_REG_DATE
-			 , REVW_HITS
-			 , REVW_RATINGS
-		  FROM TBL_REVIEW
+			   A.REVIEW_NO
+			 , A.OPTION_NO
+			 , A.ORDER_NO
+			 , A.MEMBER_ID
+			 , A.REVW_TITLE
+			 , A.REVW_CONTENT
+			 , A.REVW_REG_DATE
+			 , A.REVW_HITS
+			 , A.REVW_RATINGS
+			 , B.THUMBNAIL_PATH
+			 , C.REF_PROD_NO
+			 , C.OPT_BODY_COLOR
+			 , C.OPT_INK_COLOR
+			 , C.OPT_POINT_SIZE
+			 , C.OPT_EXTRA_CHARGE
+			 , D.PROD_NAME
+		  FROM TBL_REVIEW A
+		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
+		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
+		 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_REVW_NO FROM TBL_TRASH T)
+		  <trim prefix="AND">
+			<if test="keyword != null and condition eq 'revwTitle'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'revwContent'">A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		  </trim>
 	</select>
+	
+	<select id="getPostsInTrash" resultMap="trashResultMap">
+		SELECT
+			   T.TRASH_NO
+			 , T.REF_REVW_NO
+			 , T.TRASH_TITLE
+			 , T.TRASH_WRITER
+			 , T.TRASH_ADMIN
+			 , T.TRASH_DATE_MOVED
+			 , T.TRASH_DATE_UNTIL
+		  FROM TBL_TRASH T
+		  LEFT JOIN TBL_REVIEW A ON(T.REF_REVW_NO = A.REVIEW_NO)
+		  LEFT JOIN TBL_OPTION B ON(A.OPTION_NO = B.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT C ON(B.REF_PROD_NO = C.PROD_NO)
+		 WHERE A.REVIEW_NO IN (SELECT T.REF_REVW_NO FROM TBL_TRASH T)
+		  <trim prefix="AND">
+			<if test="keyword != null and condition eq 'revwTitle'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'revwContent'">A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		  </trim>
+	</select>
+	
+	<!-- 삭제글 복구 -->
+	<delete id="restoreAPostFromTrash">
+		DELETE
+		  FROM TBL_TRASH
+		 WHERE TRASH_NO = #{ trashNo }
+	</delete>
+	
+	<!-- 게시글삭제단계A. 휴지통 삭제글로 지정 -->
+	<insert id="moveAPostToTrash">
+		INSERT
+		  INTO TBL_TRASH
+		(
+		  TRASH_NO
+		, REF_REVW_NO
+		, TRASH_TITLE
+		, TRASH_WRITER
+		, TRASH_ADMIN
+		, TRASH_DATE_MOVED
+		, TRASH_DATE_UNTIL
+		)
+		VALUES
+		(
+		  SEQ_TRASH_NO.NEXTVAL
+		, #{ refRevwNo }
+		, #{ trashTitle }
+		, #{ trashWriter }
+		, #{ trashAdmin }
+		, DEFAULT
+		, SYSDATE+100
+		)
+	</insert>
+	
+	<!-- 게시글삭제단계B. 복구기한 100일 후 영구 삭제 -->
+	<select id="getTrashItemToDelete" resultType="_int">
+	<![CDATA[
+		SELECT
+			   REF_REVW_NO
+		  FROM TBL_TRASH
+		 WHERE TRASH_DATE_UNTIL < SYSDATE
+	]]>
+	</select>
+	
+	<delete id="permanentlyDeleteFromTrash">
+	<![CDATA[
+		DELETE
+		  FROM TBL_TRASH
+		 WHERE TRASH_DATE_UNTIL < SYSDATE
+		   AND REF_REVW_NO = #{ reviewNo }
+	]]>
+	</delete>
+	
+	<delete id="permanentlyDeleteReviewPost">
+	<![CDATA[
+		DELETE
+		  FROM TBL_REVIEW
+		 WHERE REVIEW_NO = #{ reviewNo }
+	]]>
+	</delete>
 	
 	<!-- 주문/배송관리 -->
 	<select id="getTotalOrderList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">

@@ -2,12 +2,15 @@ package com.reminder.geulbeotmall.admin.model.service;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reminder.geulbeotmall.admin.model.dao.AdminMapper;
 import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
@@ -174,5 +177,32 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<ReviewDTO> getTotalReviewPostList(Criteria criteria) {
 		return adminMapper.getTotalReviewPostList(criteria);
+	}
+	
+	@Override
+	public List<TrashDTO> getPostsInTrash(Criteria criteria) {
+		return adminMapper.getPostsInTrash(criteria);
+	}
+
+	@Override
+	public int moveAPostToTrash(TrashDTO trashDTO) {
+		return adminMapper.moveAPostToTrash(trashDTO);
+	}
+
+	@Override
+	public int restoreAPostFromTrash(int trashNo) {
+		return adminMapper.restoreAPostFromTrash(trashNo);
+	}
+
+	@Override
+	public List<Integer> getTrashItemToDelete() {
+		return adminMapper.getTrashItemToDelete();
+	}
+
+	@Override
+	public int permanentlyDeleteFromTrashAndReviewData(int reviewNo) {
+		int resultA = adminMapper.permanentlyDeleteFromTrash(reviewNo);
+		int resultB = adminMapper.permanentlyDeleteReviewPost(reviewNo);
+		return resultA == 1 && resultB == 1 ? 1 : 0;
 	}
 }

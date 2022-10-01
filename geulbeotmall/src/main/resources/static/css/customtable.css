@@ -392,3 +392,34 @@ input:read-only {
     box-shadow: none !important;
     cursor: pointer;
 }
+
+.swal2-select {
+	width: auto !important;
+}
+
+.review-content > p {
+	margin-bottom: 0;
+	margin: 0 auto;
+	max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.review-detail {
+	margin-bottom: 0;
+}
+
+.review-detail > a {
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.review-detail > a:hover {
+	color: #00008b;
+}

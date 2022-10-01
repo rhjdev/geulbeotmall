@@ -6,14 +6,36 @@
 	<!--/* CSS */-->
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/paging.css}" rel="stylesheet">
+	    <link th:href="@{/css/post.css}" rel="stylesheet">
 	</th:block>
 </head>
 <body layout:fragment="content">
 	<h1>게시글 관리</h1>
 	<hr>
+	<div class="card mb-4">
+    	<div class="card-body">
+			<div class="search-container">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/post/list}" method="get" onsubmit="checkKeywordForPost(); return false;">
+					<select id="condition" name="condition" class="dataTable-selector">
+						<option value="revwTitle" th:selected="*{condition} eq 'revwTitle'">제목</option>
+						<option value="revwContent" th:selected="*{condition} eq 'revwContent'">내용</option>
+						<option value="memberId" th:selected="*{condition} eq 'memberId'">작성자</option>
+					</select>
+					<input type="search" name="keyword" th:field="*{keyword}" class="form-control search-bar" autocomplete="off">
+					<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+					<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+					<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+				</form>
+			</div>
+    	</div>
+    </div>
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
 			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 게시글 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="trash-tab" data-bs-toggle="tab" data-bs-target="#trash" type="button" role="tab" aria-controls="trash" aria-selected="true">휴지통 삭제글 <b th:text="${ trash }" style="color: #6c757d;"></b></button>
 		</li>
 	</ul>
 	<div class="tab-content" id="myTabContent">
@@ -24,22 +46,28 @@
                 <thead>
                     <tr>
                     	<th><input type="checkbox" class="input-checkbox checkAll"></th>
-                    	<th><span>구분</span></th>
                     	<th><span>제목</span></th>
+                    	<th><span>내용</span></th>
                     	<th><span>작성자</span></th>
                     	<th><span>작성일</span></th>
                     	<th><span>조회수</span></th>
-                    	<th><span>상세 정보</span></th>
                    	</tr>
                 </thead>
                 <tbody>
                 	<tr th:each="postList : ${ totalReviewList }" th:if="${not #lists.isEmpty(totalReviewList)}" th:with="cri=${criteria}, total=${total}">
                 		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
-	                	<td th:text="${ postList.revwTitle }"></td>
+	                	<td th:value="${ postList.reviewNo }">
+	                		<p class="review-detail">
+		    					<a data-toggle="modal" th:href="'#review-content' + ${ postList.reviewNo }">[[${ postList.revwTitle }]]</a>
+		    				</p>
+		    				<th:block layout:fragment="reviewModal">
+								<div th:replace="/fragments/modal.html :: reviewModal"></div>
+							</th:block>
+	                	</td>
+	                	<td class="review-content">[(${ postList.revwContent })]</td>
 	                	<td th:text="${ postList.memberId }"></td>
-	                	<td th:text="${ postList.revwRegDate }"></td>
+	                	<td th:text="${#dates.format(postList.revwRegDate, 'yyyy.MM.dd')}"></td>
 	                	<td th:text="${ postList.revwHits }"></td>
-	                	<td><a href="#"><button type="button" class="btn btn-sm btn-light">수정</button></a></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(totalReviewList)} > 0">
                 		<td colspan="7">조회된 결과가 없습니다.</td>
@@ -48,6 +76,67 @@
             </table>
             </div>
 		</div>
+		<!--/* 휴지통 삭제글 */-->
+		<div class="tab-pane fade show" id="trash" role="tabpanel" aria-labelledby="trash-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th><span>제목</span></th>
+                    	<th><span>작성자</span></th>
+                    	<th><span>삭제자</span></th>
+                    	<th><span>삭제일</span></th>
+                    	<th><span>복구기한</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="postList : ${ reviewsInTrash }" th:if="${not #lists.isEmpty(reviewsInTrash)}" th:with="cri=${criteria}">
+                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td th:value="${ postList.trashNo }">[(${ postList.trashTitle })]</td>
+	                	<td>[(${ postList.trashWriter })]</td>
+	                	<td>[(${ postList.trashAdmin })]</td>
+	                	<td th:text="${#dates.format(postList.trashDateMoved, 'yyyy.MM.dd')}"></td>
+	                	<td th:text="|~${#dates.format(postList.trashDateUntil, 'yyyy.MM.dd')}|"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(reviewsInTrash)} > 0">
+                		<td colspan="7">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+		</div>
 	</div>
+	<th:block layout:fragment="paging">
+		<nav th:replace="/fragments/paging.html :: paging"></nav>
+	</th:block>
+    <th:block layout:fragment="postToolbar">
+		<div th:replace="/fragments/toolbar.html :: postToolbar"></div>
+	</th:block>
+	<!-- JS -->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/managePostList.js}" type="text/javascript"></script>
+    	<script type="text/javascript">
+    		/* 현재 로그인 중인 관리자 정보; session상에 저장해 받아온 id 값으로, 연결된 외부 js에서 ajax 통신 중 사용 */
+    		const admin = '[[${loginMember}]]';
+    		
+	    	/* Modal */
+	    	document.addEventListener('DOMContentLoaded', function(){
+		    	$('.review-detail').on('click', function(){
+		    		let target = '#' + $(this).parent().children(1)[1].id;
+		    		console.log(target);
+		    		$(target).modal('show');
+			    	/* Rating */
+			    	let value = $(this).parent().children(1)[1].children[0].children[0].children[1].children[1].children[2].children[2].attributes[1].textContent;
+			    	for(let i=0; i < value; i++) {
+			    		let star = $(this).parent().children(1)[1].children[0].children[0].children[1].children[1].children[2].children[2].children[i];
+			    		star.style.color = '#00008b';
+			    	}
+		    		return false;
+		    	});
+	    	});
+    	</script>
+	</th:block>
 </body>
 </html>
