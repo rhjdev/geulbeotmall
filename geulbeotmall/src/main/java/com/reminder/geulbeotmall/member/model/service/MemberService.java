@@ -23,6 +23,8 @@ public interface MemberService extends UserDetailsService {
 	
 	boolean signUpMember(MemberDTO member) throws Exception;
 	
+	int activateAccountByEmail(String email);
+	
 	/* 로그인 */
 	void updateAccumLoginCount(String username);
 	

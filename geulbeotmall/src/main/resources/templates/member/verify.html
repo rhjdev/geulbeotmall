@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>글벗문구</title>
+</head>
+<body style="font-family: 'Noto Sans KR', sans-serif;">
+	<div>[[${member.name}]]</div>
+	<div>
+		<p>버튼을 클릭</p>
+		<a th:href="|http://127.0.0.1:8001/member/verify?token=${token}|">인증하기</a>
+	</div>
+</body>
+</html>

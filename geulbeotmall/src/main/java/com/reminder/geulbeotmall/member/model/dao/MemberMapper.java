@@ -26,16 +26,20 @@ public interface MemberMapper {
 	
 	int insertAuthentication(String memberId);	//회원 인증 등록
 	
+	int activateAccountByEmail(String email);   //이메일 인증 및 계정 활성화
+
+	char checkIsInactiveAccount(String memberId);
+	
 	/* 로그인 */
-	void updateAccumLoginCount(String username);	//성공 시 로그인 횟수 누적
+	void updateAccumLoginCount(String username);  //성공 시 로그인 횟수 누적
 	
-	void updateLatestLoginDate(String username);	//성공 시 최근 로그인 일시 업데이트
+	void updateLatestLoginDate(String username);  //성공 시 최근 로그인 일시 업데이트
 	
-	void resetLoginFailedCount(String username);	//성공 시 로그인 실패 횟수 리셋
+	void resetLoginFailedCount(String username);  //성공 시 로그인 실패 횟수 리셋
 	
-	void updateLoginFailedCount(String username);	//실패 시 로그인 실패 횟수 증가
+	void updateLoginFailedCount(String username); //실패 시 로그인 실패 횟수 증가
 	
-	int checkLoginFailedCount(String username);		//로그인 실패 횟수 조회
+	int checkLoginFailedCount(String username);   //로그인 실패 횟수 조회
 	
 	MemberDTO findMemberById(String username);
 

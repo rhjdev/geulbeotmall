@@ -292,6 +292,22 @@
 		)
 	</insert>
 	
+	<!-- 비활성화 계정 확인 -->
+	<select id="checkIsInactiveAccount" resultType="java.lang.Character">
+		SELECT
+			   ACC_INACTIVE_YN
+		  FROM TBL_MEMBER
+		 WHERE MEMBER_ID = #{ memberId }
+	</select>
+	
+	<!-- 이메일 인증 및 계정 활성화 -->
+	<update id="activateAccountByEmail">
+		UPDATE
+			   TBL_MEMBER
+		   SET ACC_INACTIVE_YN = 'N'
+		 WHERE EMAIL = #{ email }
+	</update>
+	
 	<!-- 휴대폰 본인인증 여부 조회 -->
 	<select id="checkIsAuthenticated" resultType="java.lang.Character">
 		SELECT
@@ -516,6 +532,7 @@
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
 		   AND A.ORDER_NO = #{ orderNo }
+		   AND N.POINT_STATUS = '사용'
 	</select>
 	
 	<!-- 주문번호별 주문금액 합계 조회 -->

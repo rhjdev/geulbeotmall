@@ -32,6 +32,7 @@ import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
+import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -140,7 +141,36 @@ public class MemberController {
 		 */
 		rttr.addFlashAttribute("signUpMessage", messageSource.getMessage("signUpMember", null, locale));
 		log.info("성공 로직 실행 완료");
+		mailService.sendVerificationEmail(member);
 		return "redirect:/";
+	}
+	
+	/**
+	 * 회원가입 후 이메일 인증 및 계정 활성화
+	 * @throws NotFoundException 
+	 */
+	@GetMapping("verify")
+	public String signUpEmailVerification(@ModelAttribute("token") String token, RedirectAttributes rttr, Locale locale) throws NotFoundException {
+		String email = mailService.verificationEmail(token);
+		log.info("인증 email : {}", email);
+		
+		if(email == null || token == null) { //이미 인증 마친 계정 또는 만료된 토큰으로의 재요청
+			log.info("올바르지 않은 접근");
+			rttr.addFlashAttribute("verificationMessage", messageSource.getMessage("accessNotAllowed", null, locale));
+			return "redirect:/";
+		}
+		
+		boolean isRegistered = memberService.checkEmail(email) > 0 ? true : false;
+		if(!isRegistered) {
+			log.info("인증 실패");
+			rttr.addFlashAttribute("verificationMessage", messageSource.getMessage("emailVerificationFailed", null, locale));
+			return "redirect:/";
+		} else {
+			log.info("인증 성공");
+			memberService.activateAccountByEmail(email);
+			rttr.addFlashAttribute("verificationMessage", messageSource.getMessage("emailVerifiedSuccessfully", null, locale));
+			return "redirect:/member/signin";
+		}
 	}
 	
 	/**
@@ -182,6 +212,7 @@ public class MemberController {
 		
 		/*
 		 * 임시 비밀번호로 로그인에 성공
+		 * : '회원정보수정' 페이지로 이동
 		 */
 		if(resetPasswordRequired != null ) {
 			rttr.addFlashAttribute("resetPasswordRequired", messageSource.getMessage("resetPasswordRequired", null, locale));

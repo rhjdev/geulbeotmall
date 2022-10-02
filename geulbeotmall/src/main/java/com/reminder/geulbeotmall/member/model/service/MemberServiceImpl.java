@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -90,16 +91,26 @@ public class MemberServiceImpl implements MemberService {
 		return resultA > 0 && resultB > 0 && resultC > 0 ? true : false;
 	}
 
+	@Override
+	public int activateAccountByEmail(String email) {
+		return memberMapper.activateAccountByEmail(email);
+	}
+	
 	/**
 	 * 로그인
 	 * UserImpl 통해 id, pwd, authorities 이외에 추가 정보 호출
 	 */
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		
 		MemberDTO member = memberMapper.findMemberById(username); //회원 조회
 		
 		if(member == null) member = new MemberDTO();			  //null인 경우 빈 객체 반환하여 대체
+
+		/*
+		 * 이메일 인증 전 비활성화 상태인 계정
+		 */
+		boolean isInactive = memberMapper.checkIsInactiveAccount(username) == 'Y' ? true : false;
+		if(isInactive) throw new DisabledException("이메일 인증 전 비활성화 상태인 계정입니다");
 		
 		List<GrantedAuthority> authorities = new ArrayList<>();	  //권한 리스트
 		
