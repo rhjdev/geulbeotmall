@@ -35,8 +35,9 @@
                         <i class="fa-solid fa-eye-slash" style="filter: invert(47%) sepia(2%) saturate(2314%) hue-rotate(167deg) brightness(95%) contrast(80%);"></i>
                     </button>
                 </div>
+                <!-- 최초 소셜로그인인 경우 해당 계정의 이름 value 출력 -->
                 <div class="form-floating required">
-                    <input type="text" class="form-control" id="name" name="name" autocomplete="off" placeholder="이름" title="이름 입력" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')">
+                    <input type="text" class="form-control" id="name" name="name" autocomplete="off" placeholder="이름" title="이름 입력" oninvalid="this.setCustomValidity('이름 입력')" oninput="setCustomValidity('')" th:value="${ snsName != null } ? ${ snsName } : ''">
                     <label for="name">이름<b style="color: #ff0000;"> *</b></label>
                     <span id="checkNameMsg" class="msg"></span>
                 </div>
@@ -48,8 +49,9 @@
                     <input type="text" onKeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" class="form-control" id="phoneC" name="phoneC" autocomplete="off" placeholder="연락처" title="연락처 입력" oninvalid="this.setCustomValidity('연락처 입력')" oninput="setCustomValidity('')" maxlength="4">
                     <label>연락처<b style="color: #ff0000;"> *</b></label>
                 </div>
+                <!-- 최초 소셜로그인인 경우 해당 계정의 이메일 value 출력 -->
                 <div class="form-floating required">
-                    <input type="email" class="form-control" id="email" name="email" onkeyup="autoDomain('email', this.value)" autocomplete="off" placeholder="이메일" title="이메일 입력" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')">
+                    <input type="email" class="form-control" id="email" name="email" onkeyup="autoDomain('email', this.value)" autocomplete="off" placeholder="이메일" title="이메일 입력" oninvalid="this.setCustomValidity('이메일 입력')" oninput="setCustomValidity('')" th:value="${ snsEmail != null } ? ${ snsEmail } : ''">
                     <label for="email">이메일<b style="color: #ff0000;"> *</b></label>
                     <span id="checkEmailMsg" class="msg"></span>
                 </div>
@@ -110,7 +112,6 @@
             </div>
         </form>
     </div>
-    
     <!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/signup.js}" type="text/javascript"></script>
@@ -121,7 +122,6 @@
     	
 	    <!-- 주소 API -->
 	    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    	
     </th:block>
 </body>
 </html>

@@ -43,9 +43,17 @@
                         <a th:href="@{/member/forgot}">아이디/비밀번호 찾기</a>
                     </li>
                     <li class="link signup">
-                        <a th:href="@{/member/signup}">회원가입</a>
+                        <a th:href="@{/member/signup}">글벗문구 회원가입</a>
                     </li>
                 </ul>
+		        <div>
+			        <a th:href="${kakaoUrl}">
+			        	<img src="/image/kakao_login_medium_wide.png">
+			        </a>
+			        <a th:href="@{/oauth2/google}">
+			        	<span>구글</span>
+			        </a>
+		        </div>
             </div>
         </form>
     </div>

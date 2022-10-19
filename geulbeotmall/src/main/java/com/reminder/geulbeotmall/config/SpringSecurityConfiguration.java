@@ -13,7 +13,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.reminder.geulbeotmall.handler.LoginFailureHandler;
 import com.reminder.geulbeotmall.handler.LoginSuccessHandler;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
-import com.reminder.geulbeotmall.oauth.model.service.CustomOAuth2UserService;
 
 @EnableWebSecurity //스프링 시큐리티 설정 활성화
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { //Adapter 객체는 필요한 옵션들만 선택적으로 오버라이딩하여 사용 가능
@@ -22,15 +21,13 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 	private final PasswordEncoder passwordEncoder;
 	private final LoginSuccessHandler loginSuccessHandler;
 	private final LoginFailureHandler loginFailureHandler;
-	private final CustomOAuth2UserService customOAuth2UserService;
 	
 	@Autowired
-	public SpringSecurityConfiguration(MemberService memberService, PasswordEncoder passwordEncoder, LoginSuccessHandler loginSuccessHandler, LoginFailureHandler loginFailureHandler, CustomOAuth2UserService customOAuth2UserService) {
+	public SpringSecurityConfiguration(MemberService memberService, PasswordEncoder passwordEncoder, LoginSuccessHandler loginSuccessHandler, LoginFailureHandler loginFailureHandler) {
 		this.memberService = memberService;
 		this.passwordEncoder = passwordEncoder;
 		this.loginSuccessHandler = loginSuccessHandler;
 		this.loginFailureHandler = loginFailureHandler;
-		this.customOAuth2UserService = customOAuth2UserService;
 	}
 	
 	@Override
@@ -56,6 +53,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 				.antMatchers("/admin/product/**").hasRole("ADMIN")
 				.antMatchers("/admin/**").hasRole("ADMIN")
 				.antMatchers("/member/mypage").hasAnyRole("MEMBER", "ADMIN")
+				//.antMatchers("/h2-console/**").permitAll()
 				.anyRequest().permitAll()
 			/* 로그인 */
 			.and()
@@ -86,7 +84,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter { 
 			/* OAuth2 로그인 */
 			.and()
 				.oauth2Login()
-				.userInfoEndpoint()
-				.userService(customOAuth2UserService);
+				.failureHandler(loginFailureHandler)
+				.successHandler(loginSuccessHandler)
+				.userInfoEndpoint();
 	}
 }

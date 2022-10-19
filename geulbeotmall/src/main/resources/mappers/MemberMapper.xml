@@ -219,6 +219,35 @@
 		 WHERE A.MEMBER_ID = #{ username }
 	</select>
 	
+	<select id="findMemberByEmail" resultMap="memberResultMap">
+		SELECT
+			   A.MEMBER_ID
+			 , A.MEMBER_PWD
+			 , A.NAME
+			 , A.PHONE
+			 , A.EMAIL
+			 , A.ADDRESS
+			 , A.AGREEMENT
+			 , A.ACC_INACTIVE_YN
+			 , A.TEMP_PWD_YN
+			 , A.ACCUM_LOGIN_COUNT
+			 , A.LOGIN_FAILED_COUNT
+			 , A.LATEST_LOGIN_DATE
+			 , A.ACC_CREATION_DATE
+			 , A.ACC_CHANGED_DATE
+			 , A.ACC_CLOSING_DATE
+			 , A.ACC_CLOSING_YN
+			 , B.MEMBER_ID REF_MEMBER_ID <!-- 하단의 다섯 목록은 DB에 저장된 정보 토대로 ROLE_ADMIN/ROLE_MEMBER 구분 위해 JOIN 후 SELECT 필요 -->
+			 , B.AUTHORITY_CODE REF_AUTH_CODE
+			 , C.AUTHORITY_CODE REF_AUTH_CODE2
+			 , C.AUTHORITY_NAME
+			 , C.AUTHORITY_DESC
+		  FROM TBL_MEMBER A
+		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+		 WHERE A.EMAIL = #{ email }
+	</select>
+	
 	<!-- 회원가입 -->
 	<insert id="insertMember">
 		INSERT
@@ -348,8 +377,6 @@
 		   AND NAME = #{ name }
 		   AND EMAIL = #{ email }
 	</update>
-	
-	<!-- 비밀번호 변경 -->
 	
 	<!-- 회원가입 중 아이디 중복 검사 -->
 	<select id="checkId" parameterType="String" resultType="int">

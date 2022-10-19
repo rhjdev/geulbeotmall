@@ -86,4 +86,6 @@ public interface MemberMapper {
 	MemberDTO findMemberId(String name, String email);
 
 	int generateTempPwd(MemberDTO memberDTO);
+
+	MemberDTO findMemberByEmail(String email);
 }

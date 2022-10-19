@@ -24,6 +24,9 @@ import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Transactional
 @Service("memberService")
 public class MemberServiceImpl implements MemberService {
@@ -110,6 +113,7 @@ public class MemberServiceImpl implements MemberService {
 		 * 이메일 인증 전 비활성화 상태인 계정
 		 */
 		boolean isInactive = memberMapper.checkIsInactiveAccount(username) == 'Y' ? true : false;
+		log.info("isInactive : {}", isInactive);
 		if(isInactive) throw new DisabledException("이메일 인증 전 비활성화 상태인 계정입니다");
 		
 		List<GrantedAuthority> authorities = new ArrayList<>();	  //권한 리스트
@@ -127,7 +131,7 @@ public class MemberServiceImpl implements MemberService {
 		
 		UserImpl user = new UserImpl(member.getMemberId(), member.getMemberPwd(), authorities);
 		user.setDetails(member);
-		
+		log.info("user : {}", user);
 		return user;
 	}
 	
@@ -260,5 +264,10 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public int generateTempPwd(MemberDTO memberDTO) {
 		return memberMapper.generateTempPwd(memberDTO);
+	}
+
+	@Override
+	public MemberDTO findMemberByEmail(String email) {
+		return memberMapper.findMemberByEmail(email);
 	}
 }
