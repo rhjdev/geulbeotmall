@@ -20,11 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class OAuth2Service {
+public class KakaoOAuth2Service {
 	
-	@Value("${custom.kakao.apiKey}")
+	@Value("${social.kakao.apiKey}")
 	private String K_CLIENT_ID;
-	@Value("${custom.kakao.redirectUri}")
+	@Value("${social.kakao.redirectUri}")
 	private String K_REDIRECT_URI;
 	
 	/**
@@ -117,7 +117,6 @@ public class OAuth2Service {
 			log.info("kakao id : {}", id);
 			log.info("kakao nickname : {}", nickname);
 			log.info("kakao email : {}", email);
-			member.setMemberId(email);
 			member.setName(nickname);
 			member.setEmail(email);
 			br.close();
