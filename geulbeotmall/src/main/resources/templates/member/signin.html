@@ -46,12 +46,14 @@
                         <a th:href="@{/member/signup}">글벗문구 회원가입</a>
                     </li>
                 </ul>
-		        <div>
-			        <a th:href="${kakaoUrl}">
-			        	<img src="/image/kakao_login_medium_wide.png">
+		        <div style="margin-top: 38px; text-align: center;">
+			        <a th:href="${kakaoUrl}" style="text-decoration: none;">
+			        	<img src="/image/btn_kakao_signin.png" width="185px;">
 			        </a>
-			        <a th:href="@{/oauth2/google}">
-			        	<span>구글</span>
+		        </div>
+		        <div style="margin-top: 10px; text-align: center;">
+			        <a th:href="${googleUrl}">
+			        	<img src="/image/btn_google_signin.png">
 			        </a>
 		        </div>
             </div>

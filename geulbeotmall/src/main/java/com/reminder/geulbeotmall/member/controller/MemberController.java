@@ -30,7 +30,8 @@ import com.reminder.geulbeotmall.mail.model.service.MailService;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
-import com.reminder.geulbeotmall.oauth.model.service.OAuth2Service;
+import com.reminder.geulbeotmall.oauth.model.service.GoogleOAuth2Service;
+import com.reminder.geulbeotmall.oauth.model.service.KakaoOAuth2Service;
 import com.reminder.geulbeotmall.validator.SignUpValidator;
 
 import javassist.NotFoundException;
@@ -43,7 +44,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	
 	private final MemberService memberService;
-	private final OAuth2Service oAuth2Service;
+	private final KakaoOAuth2Service kakaoOAuth2Service;
+	private final GoogleOAuth2Service googleOAuth2Service;
 	private final MailService mailService;
 	private final MessageSource messageSource;
 	private final PasswordEncoder passwordEncoder;
@@ -54,10 +56,11 @@ public class MemberController {
 	 * 2. classpath 하위에 messages 폴더 및 properties 파일 생성
 	 */
 	@Autowired
-	public MemberController(MemberService memberService, OAuth2Service oAuth2Service, MailService mailService, 
-			MessageSource messageSource, PasswordEncoder passwordEncoder, SignUpValidator signUpValidator) {
+	public MemberController(MemberService memberService, KakaoOAuth2Service kakaoOAuth2Service, GoogleOAuth2Service googleOAuth2Service,
+			MailService mailService, MessageSource messageSource, PasswordEncoder passwordEncoder, SignUpValidator signUpValidator) {
 		this.memberService = memberService;
-		this.oAuth2Service = oAuth2Service;
+		this.kakaoOAuth2Service = kakaoOAuth2Service;
+		this.googleOAuth2Service = googleOAuth2Service;
 		this.mailService = mailService;
 		this.messageSource = messageSource;
 		this.passwordEncoder = passwordEncoder;
@@ -183,8 +186,10 @@ public class MemberController {
 	@GetMapping("signin")
 	public String signInForm(@AuthenticationPrincipal UserImpl user, Model model, Locale locale) {
 		/* 소셜로그인 URL */
-		String kakaoUrl = oAuth2Service.getKakaoSignInUrl();
+		String kakaoUrl = kakaoOAuth2Service.getKakaoSignInUrl();
+		String googleUrl = googleOAuth2Service.getGoogleSignInUrl();
 		model.addAttribute("kakaoUrl", kakaoUrl);
+		model.addAttribute("googleUrl", googleUrl);
 		
 		if(user != null) { //이미 로그인된 회원이 임의로 재요청하는 경우 denied 페이지로 연결
 			model.addAttribute("loginAccessDenied", messageSource.getMessage("loginAccessDenied", null, locale));
