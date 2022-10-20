@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@SessionAttributes({"loginMember", "orderItem"})
+@SessionAttributes({"loginMember", "orderItem", "signInWithSocialAccount"})
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 	
 	private MemberMapper memberMapper;
@@ -51,7 +51,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		
 		log.info("onAuthenticationSuccess");
 		
 		/* 1. 회원 정보 DB 업데이트 */
@@ -172,17 +171,39 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 		 * 우선순위C.관리자는 로그인 시 '대시보드'로 기본 이동
 		 */
 		char tempPwdYn = loginMember.getTempPwdYn();
+		String targetUrl = "";
+		String signInWithSocialAccount = (String) session.getAttribute("signInWithSocialAccount");
+		log.info("social account : {}", signInWithSocialAccount);
 		if(tempPwdYn == 'Y') {
+			/* 
+			 * 소셜로그인 관리A.
+			 * 이메일로 발송된 임시 비밀번호 통해 '직접 로그인'하므로 일반로그인/소셜로그인 redirect response 구분 필요 없음
+			 */
 			log.info("tempPwdYn : {}", tempPwdYn);
 			String resetPasswordRequired = "required";
 			request.getRequestDispatcher("/member/signin?resetPasswordRequired=" + resetPasswordRequired).forward(request, response);
 		} else {
 			if(roles.contains("ROLE_ADMIN")) {
 				response.sendRedirect("/admin/dashboard");
+			/* 
+			 * 소셜로그인 관리B.
+			 * 일반로그인 계정은 sendRedirect() 사용 가능하지만, 소셜로그인 계정의 경우 setHeader 통해 redirect response 덮어쓰기 필요
+			 * => 해결한 오류 : java.lang.IllegalStateException: Cannot call sendRedirect() after the response has been committed
+			 */
 			} else if(roles.contains("ROLE_MEMBER") && uri != "") {
-				response.sendRedirect(uri);
+				if(signInWithSocialAccount != null) {
+					targetUrl = uri;
+					response.setHeader("Location", targetUrl);
+				} else {
+					response.sendRedirect(uri);
+				}
 			} else {
-				response.sendRedirect("/");
+				if(signInWithSocialAccount != null) {
+					targetUrl = "/";
+					response.setHeader("Location", targetUrl);
+				} else {
+					response.sendRedirect("/");
+				}
 			}
 		}
 	}
