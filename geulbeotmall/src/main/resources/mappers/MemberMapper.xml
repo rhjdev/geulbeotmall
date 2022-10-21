@@ -168,6 +168,7 @@
 	<resultMap id="pointResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PointDTO">
 		<id property="pointNo" column="POINT_NO"/>
 		<result property="paymentNo" column="PAYMENT_NO"/>
+		<result property="bonusReason" column="BONUS_REASON"/>
 		<result property="pointAmount" column="POINT_AMOUNT"/>
 		<result property="pointDateTime" column="POINT_DATETIME"/>
 		<result property="pointStatus" column="POINT_STATUS"/>
@@ -318,6 +319,29 @@
 		  #{ memberId }
 		, 'N'
 		, NULL
+		)
+	</insert>
+	
+	<!-- 신규 회원가입 혜택 2,000 포인트 등록 -->
+	<insert id="addNewMemberBonusPoints">
+		INSERT
+		  INTO TBL_POINT
+		(
+		  POINT_NO
+		, PAYMENT_NO
+		, BONUS_REASON
+		, POINT_AMOUNT
+		, POINT_DATETIME
+		, POINT_STATUS
+		)
+		VALUES
+		(
+		  SEQ_POINT_NO.NEXTVAL
+		, NULL
+		, #{ bonusReason }
+		, #{ pointAmount }
+		, #{ pointDateTime }
+		, #{ pointStatus }
 		)
 	</insert>
 	
@@ -731,6 +755,7 @@
 	<select id="getReserveDetails" resultMap="pointResultMap">
 		SELECT
 			   A.POINT_NO
+			 , A.BONUS_REASON
 			 , A.POINT_AMOUNT
 			 , A.POINT_DATETIME
 			 , A.POINT_STATUS
@@ -739,11 +764,14 @@
 		  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
 		  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
 		 WHERE C.MEMBER_ID = #{ memberId }
+		    OR A.BONUS_REASON LIKE '%' || #{ memberId } || '%'
 	</select>
 	
 	<!-- 현재 보유 적립금 -->
 	<select id="getMemberPoint" resultType="_int">
 		SELECT
+			   NVL((SELECT SUM(POINT_AMOUNT) BONUS FROM TBL_POINT WHERE BONUS_REASON LIKE '%' || #{ memberId } || '%'), 0)
+			   +
 			   NVL((SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
 				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
 				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)

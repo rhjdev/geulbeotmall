@@ -1,6 +1,8 @@
 package com.reminder.geulbeotmall.member.model.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +93,17 @@ public class MemberServiceImpl implements MemberService {
 			resultC = memberMapper.insertAuthentication(member.getMemberId());
 		}
 		
-		return resultA > 0 && resultB > 0 && resultC > 0 ? true : false;
+		/* 4. 적립금 혜택 등록 */
+		PointDTO point = new PointDTO();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+		String addDate = simpleDateFormat.format(new Date());
+		point.setBonusReason("신규회원가입[" + member.getMemberId() + "]");
+		point.setPointAmount(2000);
+		point.setPointDateTime(addDate);
+		point.setPointStatus("적립");
+		int resultD = memberMapper.addNewMemberBonusPoints(point);
+		
+		return resultA > 0 && resultB > 0 && resultC > 0 && resultD > 0 ? true : false;
 	}
 
 	@Override

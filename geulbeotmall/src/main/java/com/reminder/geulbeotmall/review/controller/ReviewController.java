@@ -2,7 +2,9 @@ package com.reminder.geulbeotmall.review.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +84,10 @@ public class ReviewController {
 		
 		PointDTO pointDTO = new PointDTO();
 		String paymentNo = reviewService.getPaymentNoByOrderNo(reviewDTO.getOrderNo());
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+		String addDate = simpleDateFormat.format(new Date());
 		pointDTO.setPaymentNo(paymentNo);
+		pointDTO.setPointDateTime(addDate);
 		pointDTO.setPointStatus("적립");
 		
 		if(!files.get(0).getOriginalFilename().equals("")) {

@@ -35,8 +35,14 @@
 			    		<tr th:each="pointList : ${ memberPointList }" th:if="${not #lists.isEmpty(pointList)}">
 			    			<td th:text="${ pointList.pointStatus }"></td>
 			    			<td th:text="${ pointList.pointDateTime }"></td>
-			    			<td th:text="${ pointList.pointAmount }"></td>
+			    			<td th:text="${#numbers.formatInteger(pointList.pointAmount, 3, 'COMMA')}"></td>
 			    		</tr>
+			    		<tr class="noitem" th:unless="${#lists.size(memberPointList)} > 0">
+	                		<td colspan="5">
+		                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                		<div>적립금 사용내역이 없습니다.</div>
+	                		</td>
+	                	</tr>
 			    	</tbody>
 			    </table>
 			</div>

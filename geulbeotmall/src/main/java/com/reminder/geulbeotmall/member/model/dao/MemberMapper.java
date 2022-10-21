@@ -30,6 +30,8 @@ public interface MemberMapper {
 
 	char checkIsInactiveAccount(String memberId);
 	
+	int addNewMemberBonusPoints(PointDTO point);
+	
 	/* 로그인 */
 	void updateAccumLoginCount(String username);  //성공 시 로그인 횟수 누적
 	

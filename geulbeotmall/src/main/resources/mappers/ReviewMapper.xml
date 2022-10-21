@@ -105,6 +105,7 @@
 		(
 		  POINT_NO
 		, PAYMENT_NO
+		, BONUS_REASON
 		, POINT_AMOUNT
 		, POINT_DATETIME
 		, POINT_STATUS
@@ -113,8 +114,9 @@
 		(
 		  SEQ_POINT_NO.NEXTVAL
 		, #{ paymentNo }
+		, NULL
 		, #{ pointAmount }
-		, SYSDATE
+		, #{ pointDateTime }
 		, #{ pointStatus }
 		)
 	</insert>

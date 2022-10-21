@@ -27,7 +27,7 @@
 	<resultMap id="thumbnailResultMap" type="com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO">
 		<id property="attachmentNo" column="ATTACHMENT_NO"/>
 		<result property="refProdNo" column="REF_PROD_NO"/>
-		<result property="refReviewNo" column="REF_REVW_NO"/>
+		<result property="refRevwNo" column="REF_REVW_NO"/>
 		<result property="origFileName" column="ORIG_FILE_NAME"/>
 		<result property="saveFileName" column="SAVE_FILE_NAME"/>
 		<result property="savePath" column="SAVE_PATH"/>
@@ -142,6 +142,7 @@
 		(
 		  POINT_NO
 		, PAYMENT_NO
+		, BONUS_REASON
 		, POINT_AMOUNT
 		, POINT_DATETIME
 		, POINT_STATUS
@@ -150,6 +151,7 @@
 		(
 		  SEQ_POINT_NO.NEXTVAL
 		, #{ paymentNo }
+		, NULL
 		, #{ pointAmount }
 		, #{ pointDateTime }
 		, #{ pointStatus }
@@ -205,6 +207,7 @@
 		(
 		  POINT_NO
 		, PAYMENT_NO
+		, BONUS_REASON
 		, POINT_AMOUNT
 		, POINT_DATETIME
 		, POINT_STATUS
@@ -213,6 +216,7 @@
 		(
 		  SEQ_POINT_NO.NEXTVAL
 		, #{ paymentNo }
+		, NULL
 		, #{ pointAmount }
 		, #{ pointDateTime }
 		, #{ pointStatus }
