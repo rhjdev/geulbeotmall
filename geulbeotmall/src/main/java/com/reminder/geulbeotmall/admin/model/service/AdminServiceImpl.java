@@ -205,4 +205,9 @@ public class AdminServiceImpl implements AdminService {
 		int resultB = adminMapper.permanentlyDeleteReviewPost(reviewNo);
 		return resultA == 1 && resultB == 1 ? 1 : 0;
 	}
+
+	@Override
+	public int getTotalOrderNumber(Criteria criteria) {
+		return adminMapper.getTotalOrderNumber(criteria);
+	}
 }

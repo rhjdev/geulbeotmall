@@ -74,4 +74,6 @@ public interface AdminService {
 	List<Integer> getTrashItemToDelete();
 
 	int permanentlyDeleteFromTrashAndReviewData(int reviewNo);
+
+	int getTotalOrderNumber(Criteria criteria);
 }

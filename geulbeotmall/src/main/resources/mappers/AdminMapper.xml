@@ -157,6 +157,7 @@
 	<resultMap id="pointResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PointDTO">
 		<id property="pointNo" column="POINT_NO"/>
 		<result property="paymentNo" column="PAYMENT_NO"/>
+		<result property="bonusReason" column="BONUS_REASON"/>
 		<result property="pointAmount" column="POINT_AMOUNT"/>
 		<result property="pointDateTime" column="POINT_DATETIME"/>
 		<result property="pointStatus" column="POINT_STATUS"/>
@@ -580,6 +581,13 @@
 	</delete>
 	
 	<!-- 주문/배송관리 -->
+	<sql id="dashboardOrderSearch">
+		<trim prefix="WHERE">
+			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'paymentMethod'">C.PAYMENT_METHOD LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+	</sql>
+	
 	<select id="getTotalOrderList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
 		SELECT
 			   A.ORDER_NO
@@ -619,10 +627,7 @@
 		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
 		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
-		<trim prefix="WHERE">
-			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'paymentMethod'">C.PAYMENT_METHOD LIKE '%' || #{ keyword } || '%'</if>
-		</trim>
+		<include refid="dashboardOrderSearch"></include>
 	</select>
 	
 	<select id="getPreparingOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
@@ -665,6 +670,7 @@
 		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.DLVR_STATUS = '상품준비중'
+		<include refid="dashboardOrderSearch"></include>
 	</select>
 	
 	<select id="getDeliveringOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
@@ -707,6 +713,7 @@
 		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.DLVR_STATUS = '배송중'
+		<include refid="dashboardOrderSearch"></include>
 	</select>
 	
 	<select id="getCompletedOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
@@ -749,6 +756,14 @@
 		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.DLVR_STATUS = '배송완료'
+		<include refid="dashboardOrderSearch"></include>
+	</select>
+	
+	<select id="getTotalOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
+		SELECT
+			   COUNT(ORDER_NO)
+		  FROM TBL_ORDER_DETAIL
+		<include refid="dashboardOrderSearch"></include>
 	</select>
 	
 	<!-- 주문번호별 상세정보조회 -->

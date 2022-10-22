@@ -330,7 +330,7 @@ public class AdminController {
 		model.addAttribute("preparingOnly", preparingOnly);
 		model.addAttribute("deliveringOnly", deliveringOnly);
 		model.addAttribute("completedOnly", completedOnly);
-		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(criteria), 10, criteria));
+		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalOrderNumber(criteria), 10, criteria));
 	}
 
 	@PostMapping(value="/order/manageDeliveryStatus", produces="application/json; charset=UTF-8")

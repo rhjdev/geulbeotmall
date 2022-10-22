@@ -83,4 +83,6 @@ public interface AdminMapper {
 	int permanentlyDeleteReviewPost(int reviewNo);
 
 	int permanentlyDeleteFromTrash(int reviewNo);
+
+	int getTotalOrderNumber(Criteria criteria);
 }
