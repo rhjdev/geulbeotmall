@@ -1114,6 +1114,8 @@
 		<if test="sortBy == 'popularity'">D.PROD_DETAIL_VIEW_COUNT DESC</if>
 		<if test="sortBy == 'lowest'">D.PROD_PRICE ASC</if>
 		<if test="sortBy == 'latest'">D.PROD_ENROLL_DATE DESC</if>
+		<if test="sortBy == 'reviewed'">D.PROD_REVIEW_COUNT DESC</if>
+		<if test="sortBy == 'rated'">D.PROD_RATINGS DESC</if>
 	</sql>
 	
 	<!-- 필터별 상품 개수 조회 -->
@@ -1153,10 +1155,21 @@
 									, A.PROD_PRICE
 									, A.PROD_DETAIL_VIEW_COUNT
 									, A.PROD_ENROLL_DATE
+									, RT.REVIEWED AS PROD_REVIEW_COUNT
+									, RT.RATED AS PROD_RATINGS
 								 FROM TBL_PRODUCT A
 								 LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 								 LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
 								 LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
+								 LEFT JOIN (SELECT
+								 				   AA.PROD_NO AS AAPNO
+								 				 , COUNT(RR.REVIEW_NO) AS REVIEWED
+												 , NVL(AVG(RR.REVW_RATINGS), 0) AS RATED
+											 FROM TBL_PRODUCT AA
+											 LEFT JOIN TBL_OPTION OO ON(OO.REF_PROD_NO = AA.PROD_NO)
+											 LEFT JOIN TBL_REVIEW RR ON(RR.OPTION_NO = OO.OPTION_NO)
+											GROUP BY AA.PROD_NO) RT
+										ON(RT.AAPNO = A.PROD_NO)
 								WHERE A.PROD_AVAIL_YN = 'Y'
 	]]>
 								<if test="section != null and section != ''">AND B.CATEGORY_SECTION = #{ section }</if>

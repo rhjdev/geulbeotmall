@@ -203,6 +203,8 @@ if(sortBy != '') {
 			case "popularity": if(radio[i].value == 'popularity') radio[i].setAttribute('checked', 'checked'); break;
 			case "lowest": if(radio[i].value == 'lowest') radio[i].setAttribute('checked', 'checked'); break;
 			case "latest": if(radio[i].value == 'latest') radio[i].setAttribute('checked', 'checked'); break;
+			case "reviewed": if(radio[i].value == 'reviewed') radio[i].setAttribute('checked', 'checked'); break;
+			case "rated": if(radio[i].value == 'rated') radio[i].setAttribute('checked', 'checked'); break;
 		}
 	}
 }
