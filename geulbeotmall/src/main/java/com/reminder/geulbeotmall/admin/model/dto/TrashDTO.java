@@ -11,7 +11,7 @@ public class TrashDTO {
 	private int refRevwNo;
 	private String trashTitle;
 	private String trashWriter;
-	private String trashAdmin;
+	private String trashDeleteBy;
 	private Date trashDateMoved;
 	private Date trashDateUntil;
 }

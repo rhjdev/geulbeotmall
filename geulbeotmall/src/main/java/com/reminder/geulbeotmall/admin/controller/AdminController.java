@@ -300,7 +300,7 @@ public class AdminController {
 		int count = 0;
 		
 		TrashDTO trashDTO = new TrashDTO();
-		trashDTO.setTrashAdmin(admin);
+		trashDTO.setTrashDeleteBy(admin);
 		for(int i=0; i < postNoArr.length; i++) {
 			trashDTO.setRefRevwNo(Integer.parseInt(postNoArr[i]));
 			trashDTO.setTrashTitle(postTitleArr[i]);

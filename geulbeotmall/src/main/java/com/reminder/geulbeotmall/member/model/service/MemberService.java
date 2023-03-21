@@ -60,7 +60,7 @@ public interface MemberService extends UserDetailsService {
 
 	List<OrderDTO> getItemsToPostAReview(String memberId);
 
-	OrderDTO postAReview(String memberId, String orderNo, int optionNo);
+	OrderDTO getOrderInfoToReview(String memberId, String orderNo, int optionNo);
 
 	List<ReviewDTO> getMemberReviewPosts(String memberId);
 

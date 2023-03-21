@@ -185,7 +185,7 @@
 		<result property="refRevwNo" column="REF_REVW_NO"/>
 		<result property="trashTitle" column="TRASH_TITLE"/>
 		<result property="trashWriter" column="TRASH_WRITER"/>
-		<result property="trashAdmin" column="TRASH_ADMIN"/>
+		<result property="trashDeleteBy" column="TRASH_DELETEBY"/>
 		<result property="trashDateMoved" column="TRASH_DATE_MOVED"/>
 		<result property="trashDateUntil" column="TRASH_DATE_UNTIL"/>
 	</resultMap>
@@ -506,7 +506,7 @@
 			 , T.REF_REVW_NO
 			 , T.TRASH_TITLE
 			 , T.TRASH_WRITER
-			 , T.TRASH_ADMIN
+			 , T.TRASH_DELETEBY
 			 , T.TRASH_DATE_MOVED
 			 , T.TRASH_DATE_UNTIL
 		  FROM TBL_TRASH T
@@ -537,7 +537,7 @@
 		, REF_REVW_NO
 		, TRASH_TITLE
 		, TRASH_WRITER
-		, TRASH_ADMIN
+		, TRASH_DELETEBY
 		, TRASH_DATE_MOVED
 		, TRASH_DATE_UNTIL
 		)
@@ -547,7 +547,7 @@
 		, #{ refRevwNo }
 		, #{ trashTitle }
 		, #{ trashWriter }
-		, #{ trashAdmin }
+		, #{ trashDeleteBy }
 		, DEFAULT
 		, SYSDATE+100
 		)

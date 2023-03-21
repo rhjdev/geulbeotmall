@@ -52,4 +52,24 @@ public class ReviewServiceImpl implements ReviewService {
 	public String getAttachmentByReviewNo(int reviewNo, int num) {
 		return reviewMapper.getAttachmentByReviewNo(reviewNo, num);
 	}
+
+	@Override
+	public ReviewDTO getReviewDetails(int reviewNo) {
+		return reviewMapper.getReviewDetails(reviewNo);
+	}
+
+	@Override
+	public int checkReviewNoToEdit(String memberId, String orderNo, int optionNo) {
+		Integer reviewNo = reviewMapper.checkReviewNoToEdit(memberId, orderNo, optionNo);
+		return reviewNo == null ? 0 : reviewNo;
+	}
+
+	@Override
+	public int updateAReview(ReviewDTO reviewDTO) {
+		/* A.기존 첨부파일 일괄 삭제 */
+		char checkFiles = reviewMapper.checkAttachedFiles(reviewDTO.getReviewNo()) > 0 ? 'Y' : 'N'; //파일 유무 확인
+		if(checkFiles == 'Y') reviewMapper.deleteAttachedFiles(reviewDTO.getReviewNo()); //파일 삭제
+		/* B. 상세 내용 수정 */
+		return reviewMapper.updateAReview(reviewDTO);
+	}
 }

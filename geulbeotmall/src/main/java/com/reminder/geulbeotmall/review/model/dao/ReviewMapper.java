@@ -22,4 +22,14 @@ public interface ReviewMapper {
 	int incrementReviewViewCount(int reviewNo);
 
 	String getAttachmentByReviewNo(int reviewNo, int num);
+	
+	ReviewDTO getReviewDetails(int reviewNo);
+
+	Integer checkReviewNoToEdit(String memberId, String orderNo, int optionNo);
+
+	int updateAReview(ReviewDTO reviewDTO);
+
+	int deleteAttachedFiles(int reviewNo);
+
+	int checkAttachedFiles(int reviewNo);
 }

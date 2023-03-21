@@ -228,8 +228,8 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public OrderDTO postAReview(String memberId, String orderNo, int optionNo) {
-		return memberMapper.postAReview(memberId, orderNo, optionNo);
+	public OrderDTO getOrderInfoToReview(String memberId, String orderNo, int optionNo) {
+		return memberMapper.getOrderInfoToReview(memberId, orderNo, optionNo);
 	}
 
 	@Override

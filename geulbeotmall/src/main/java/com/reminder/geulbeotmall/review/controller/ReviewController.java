@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
+import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
@@ -53,22 +55,35 @@ public class ReviewController {
 	
 	private final ReviewService reviewService;
 	private final MemberService memberService;
+	private final AdminService adminService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public ReviewController(ReviewService reviewService, MemberService memberService, MessageSource messageSource) {
+	public ReviewController(ReviewService reviewService, MemberService memberService, AdminService adminService, MessageSource messageSource) {
 		this.reviewService = reviewService;
 		this.memberService = memberService;
+		this.adminService = adminService;
 		this.messageSource = messageSource;
 	}
 
+	/**
+	 * 리뷰 작성 및 수정
+	 */
 	@GetMapping("/write") /* @{/review/write(order=${itemList.orderNo}, option=${itemList.optionNo})} */
 	public void reviewWriteForm(@RequestParam("order") String orderNo, @RequestParam("option") int optionNo, @AuthenticationPrincipal UserImpl user, Model model) {
-		log.info("리뷰 작성 요청 주문번호 및 옵션번호 : {}", orderNo, optionNo);
-		OrderDTO reviewOption = memberService.postAReview(user.getMemberId(), orderNo, optionNo);
+		log.info("리뷰 작성/수정 요청 주문번호 및 옵션번호 : {}", orderNo, optionNo);
+		OrderDTO reviewOption = memberService.getOrderInfoToReview(user.getMemberId(), orderNo, optionNo);
 		String orderDate = reviewOption.getOrderDetail().getOrderDate().substring(0, 10).replaceAll("\\.", "\\-");
 		reviewOption.getOrderDetail().setOrderDate(orderDate);
 		model.addAttribute("reviewOption", reviewOption);
+		
+		/* 수정 요청 구분 */
+		int originalReviewNo = reviewService.checkReviewNoToEdit(user.getMemberId(), orderNo, optionNo);
+		if(originalReviewNo > 0) {
+			log.info("리뷰 수정 요청 확인");
+			ReviewDTO reviewDetail = reviewService.getReviewDetails(originalReviewNo);
+			model.addAttribute("reviewDetail", reviewDetail);
+		}
 	}
 	
 	@PostMapping(value="/write", consumes={MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -80,8 +95,21 @@ public class ReviewController {
 		log.info("review orderNo : {}", reviewDTO.getOrderNo());
 		log.info("review optionNo : {}", reviewDTO.getOptionNo());
 		reviewDTO.setMemberId(user.getMemberId());
-		int posting = reviewService.postAReview(reviewDTO);
 		
+		/* '작성' 또는 '수정' 요청 구분 */
+		int originalReviewNo = reviewService.checkReviewNoToEdit(user.getMemberId(), reviewDTO.getOrderNo(), reviewDTO.getOptionNo());
+		int posting;
+		if(originalReviewNo > 0) {
+			log.info("리뷰 수정");
+			reviewDTO.setReviewNo(originalReviewNo); //기존 리뷰번호 반영
+			posting = reviewService.updateAReview(reviewDTO); //기존 첨부파일 일괄 삭제 + 제목,내용,별점,작성일 수정
+			log.info("posting : {}", posting);
+		} else {
+			log.info("새 리뷰 작성");
+			posting = reviewService.postAReview(reviewDTO);
+		}
+		
+		/* 첨부파일 저장 및 적립금 반영 */
 		PointDTO pointDTO = new PointDTO();
 		String paymentNo = reviewService.getPaymentNoByOrderNo(reviewDTO.getOrderNo());
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
@@ -140,7 +168,12 @@ public class ReviewController {
 					fileList.add(fileMap);
 					
 					//현재 리뷰번호 조회
-					int currReviewNo = reviewService.checkCurrReviewNo();
+					int currReviewNo;
+					if(originalReviewNo > 0) {
+						currReviewNo = originalReviewNo; //수정 중인 번호 반영
+					} else {
+						currReviewNo = reviewService.checkCurrReviewNo(); //새 글 작성 중 부여된 번호 조회
+					}
 					
 					AttachmentDTO tempFileInfo = new AttachmentDTO();
 					for(int i=0; i < fileList.size(); i++) {
@@ -161,21 +194,41 @@ public class ReviewController {
 				} catch (IOException e) { e.printStackTrace(); }
 			}
 			/* 적립금A. 포토리뷰 작성 시 300원 적립 */
-			pointDTO.setPointAmount(300);
-			int point300 = reviewService.savePoints(pointDTO);
-			if(posting == 1 && count == files.size() && point300 == 1) {
-				rttr.addFlashAttribute("successMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
+			/* 단, 기존 상품리뷰를 -> 포토리뷰로 수정하는 경우 차액인 +200원 반영 */
+			if(originalReviewNo > 0) {
+				pointDTO.setPointAmount(200);
+				int point200 = reviewService.savePoints(pointDTO);
+				if(posting == 1 && count == files.size() && point200 == 1) {
+					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("reviewEditedSuccessfully", null, locale));
+				} else {
+					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("errorWhileEditingAReview", null, locale));
+				}
 			} else {
-				rttr.addFlashAttribute("errorMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
+				pointDTO.setPointAmount(300);
+				int point300 = reviewService.savePoints(pointDTO);
+				if(posting == 1 && count == files.size() && point300 == 1) {
+					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
+				} else {
+					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
+				}
 			}
 		} else {
 			/* 적립금B. 상품리뷰 작성 시 100원 적립 */
-			pointDTO.setPointAmount(100);
-			int point100 = reviewService.savePoints(pointDTO);
-			if(posting == 1 && point100 == 1) {
-				rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
+			/* 단, 기존 포토리뷰를 -> 상품리뷰로 수정하는 경우 추가 또는 회수 없음 */
+			if(originalReviewNo > 0) {
+				if(posting == 1) {
+					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("reviewEditedSuccessfully", null, locale));
+				} else {
+					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("errorWhileEditingAReview", null, locale));
+				}
 			} else {
-				rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
+				pointDTO.setPointAmount(100);
+				int point100 = reviewService.savePoints(pointDTO);
+				if(posting == 1 && point100 == 1) {
+					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
+				} else {
+					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
+				}
 			}
 		}
 		return "redirect:/mypage/review";
@@ -191,5 +244,29 @@ public class ReviewController {
 		if(count == 1) {
 			log.info("리뷰 조회수 + 1");
 		}
+	}
+	
+	/**
+	 * 리뷰 삭제(휴지통 이동)
+	 * - 사용자는 작성일로부터 7일 경과 후 삭제 가능
+	 * - 복구기한 100일 동안 '휴지통 삭제글'로 지정 및 관리되다 만료일 도래하면 자동 영구 삭제
+	 */
+	@GetMapping("/delete")
+	public String deleteMyReview(@RequestParam("no") int reviewNo, RedirectAttributes rttr, Locale locale) {
+		log.info("리뷰 삭제 요청: {}", reviewNo);
+		ReviewDTO reviewDTO = reviewService.getReviewDetails(reviewNo);
+		
+		TrashDTO trashDTO = new TrashDTO();
+		trashDTO.setRefRevwNo(reviewNo);
+		trashDTO.setTrashTitle(reviewDTO.getRevwTitle());
+		trashDTO.setTrashWriter(reviewDTO.getMemberId());
+		trashDTO.setTrashDeleteBy(reviewDTO.getMemberId());
+		int result = adminService.moveAPostToTrash(trashDTO);
+		if(result == 1) {
+			rttr.addFlashAttribute("deleteReviewMessage", messageSource.getMessage("reviewDeletedSuccessfully", null, locale));
+		} else {
+			rttr.addFlashAttribute("deleteReviewMessage", messageSource.getMessage("errorWhileDeletingAReview", null, locale));
+		}
+		return "redirect:/mypage/review";
 	}
 }

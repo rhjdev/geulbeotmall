@@ -55,7 +55,8 @@
 							<td>
 								<input type="text" id="orderNo" name="orderNo" th:value="${ reviewOption.orderNo }" hidden="hidden">
 								<input type="text" id="optionNo" name="optionNo" th:value="${ reviewOption.optionNo }" hidden="hidden">
-								<input type="text" id="revwTitle" name="revwTitle" placeholder="제목을 입력하세요">
+								<input th:if="${ reviewDetail == null }" type="text" id="revwTitle" name="revwTitle" placeholder="제목을 입력하세요">
+								<input th:if="${ reviewDetail != null }" th:value="${ reviewDetail.revwTitle }" type="text" id="revwTitle" name="revwTitle" placeholder="제목을 입력하세요">
 							</td>
 						</tr>
 					</thead>
@@ -81,7 +82,8 @@
 							<th>내용</th>
 							<td>
 								<div>
-									<textarea id="revwContent" name="revwContent"></textarea>
+									<textarea th:if="${ reviewDetail == null }" id="revwContent" name="revwContent"></textarea>
+									<textarea th:if="${ reviewDetail != null }" th:text="${ reviewDetail.revwContent }" id="revwContent" name="revwContent"></textarea>
 								</div>
 							</td>
 						</tr>

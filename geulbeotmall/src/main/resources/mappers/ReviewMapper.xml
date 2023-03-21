@@ -1,6 +1,200 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.reminder.geulbeotmall.review.model.dao.ReviewMapper">
+	<!-- 회원 조회용 -->
+	<resultMap id="memberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
+		<id property="memberId" column="MEMBER_ID"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="name" column="NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="address" column="ADDRESS"/>
+		<result property="agreement" column="AGREEMENT"/>
+		<result property="accInactiveYn" column="ACC_INACTIVE_YN"/>
+		<result property="tempPwdYn" column="TEMP_PWD_YN"/>
+		<result property="accumLoginCount" column="ACCUM_LOGIN_COUNT"/>
+		<result property="loginFailedCount" column="LOGIN_FAILED_COUNT"/>
+		<result property="latestLoginDate" column="LATEST_LOGIN_DATE"/>
+		<result property="accCreationDate" column="ACC_CREATION_DATE"/>
+		<result property="accChangedDate" column="ACC_CHANGED_DATE"/>
+		<result property="accClosingDate" column="ACC_CLOSING_DATE"/>
+		<result property="accClosingYn" column="ACC_CLOSING_YN"/>
+		<collection property="roleList" resultMap="roleResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<resultMap id="roleResultMap" type="com.reminder.geulbeotmall.member.model.dto.RoleDTO">
+		<id property="memberId" column="REF_MEMBER_ID"/>
+		<id property="authorityCode" column="REF_AUTHORITY_CODE"/>
+		<association property="authority" resultMap="authorityResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<resultMap id="authorityResultMap" type="com.reminder.geulbeotmall.member.model.dto.AuthorityDTO">
+		<id property="authCode" column="AUTHORITY_CODE"/>
+		<result property="authName" column="AUTHORITY_NAME"/>
+		<result property="authDesc" column="AUTHORITY_DESC"/>
+	</resultMap>
+	
+	<!-- 위시리스트 조회용 -->
+	<resultMap id="wishListResultMap" type="com.reminder.geulbeotmall.member.model.dto.WishListDTO">
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<association property="product" resultMap="productResultMap"/> <!-- 1:1 -->
+		<association property="category" resultMap="categoryResultMap"/> <!-- 1:1 -->
+		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+		<association property="option" resultMap="optionResultMap"/> <!-- 1:1 -->
+		<association property="attachmentList" resultMap="thumbnailResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<!-- 상품 조회용 -->
+	<resultMap id="productResultMap" type="com.reminder.geulbeotmall.product.model.dto.ProductDTO">
+		<id property="prodNo" column="PROD_NO"/>
+		<result property="categoryNo" column="CATEGORY_NO"/>
+		<result property="brandNo" column="BRAND_NO"/>
+		<result property="prodName" column="PROD_NAME"/>
+		<result property="prodDesc" column="PROD_DESC"/>
+		<result property="productTag" column="PRODUCT_TAG"/>
+		<result property="discountRate" column="DISCOUNT_RATE"/>
+		<result property="prodPrice" column="PROD_PRICE"/>
+		<result property="prodOrigin" column="PROD_ORIGIN"/>
+		<result property="prodDetailContent" column="PROD_DETAIL_CONTENT"/>
+		<result property="prodDetailViewCount" column="PROD_DETAIL_VIEW_COUNT"/>
+		<result property="prodEnrollDate" column="PROD_ENROLL_DATE"/>
+		<result property="prodChangeDate" column="PROD_CHANGE_DATE"/>
+		<result property="prodAvailYn" column="PROD_AVAIL_YN"/>
+		<association property="category" resultMap="categoryResultMap"/> <!-- 1:1 -->
+		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+		<association property="attachmentList" resultMap="thumbnailResultMap"/> <!-- 1:1 -->
+		<collection property="option" resultMap="optionResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<!-- 썸네일 조회용 -->
+	<resultMap id="thumbnailResultMap" type="com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="origFileName" column="ORIG_FILE_NAME"/>
+		<result property="saveFileName" column="SAVE_FILE_NAME"/>
+		<result property="savePath" column="SAVE_PATH"/>
+		<result property="thumbnailPath" column="THUMBNAIL_PATH"/>
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="attachStatusYn" column="ATTACH_STATUS_YN"/>
+	</resultMap>
+	
+	<!-- 옵션 조회용 -->
+	<resultMap id="optionResultMap" type="com.reminder.geulbeotmall.product.model.dto.OptionDTO">
+		<id property="optionNo" column="OPTION_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refStockNo" column="REF_STOCK_NO"/>
+		<result property="bodyColor" column="OPT_BODY_COLOR"/>
+		<result property="inkColor" column="OPT_INK_COLOR"/>
+		<result property="pointSize" column="OPT_POINT_SIZE"/>
+		<result property="extraCharge" column="OPT_EXTRA_CHARGE"/>
+		<association property="stock" resultMap="stockResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	
+	<!-- 재고 조회용 -->
+	<resultMap id="stockResultMap" type="com.reminder.geulbeotmall.product.model.dto.StockDTO">
+		<id property="stockNo" column="STOCK_NO"/>
+		<result property="stockAmount" column="STOCK_AMOUNT"/>
+		<result property="stockDate" column="STOCK_DATE"/>
+	</resultMap>
+	
+	<!-- 카테고리 조회용 -->
+	<resultMap id="categoryResultMap" type="com.reminder.geulbeotmall.product.model.dto.CategoryDTO">
+		<id property="categoryNo" column="CATEGORY_NO"/>
+		<result property="categoryName" column="CATEGORY_NAME"/>
+	</resultMap>
+	
+	<!-- 브랜드 조회용 -->
+	<resultMap id="brandResultMap" type="com.reminder.geulbeotmall.product.model.dto.BrandDTO">
+		<id property="brandNo" column="BRAND_NO"/>
+		<result property="brandName" column="BRAND_NAME"/>
+	</resultMap>
+	
+	<!-- 주문배송정보 조회용 -->
+	<resultMap id="orderDetailResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO">
+		<id property="orderNo" column="ORDER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="orderDate" column="ORDER_DATE"/>
+		<result property="rcvrName" column="RCVR_NAME"/>
+		<result property="rcvrPhone" column="RCVR_PHONE"/>
+		<result property="rcvrAddress" column="RCVR_ADDRESS"/>
+		<result property="dlvrReqMessage" column="DLVR_REQ_MESSAGE"/>
+		<result property="dlvrStatus" column="DLVR_STATUS"/>
+		<association property="order" resultMap="orderResultMap"/> <!-- 1:1 -->
+		<association property="payment" resultMap="paymentResultMap"/> <!-- 1:1 -->
+		<association property="delivery" resultMap="deliveryResultMap"/> <!-- 1:1 -->
+		<association property="point" resultMap="pointResultMap"/> <!-- 1:1 -->
+		<association property="product" resultMap="productResultMap"/> <!-- 1:1 -->
+		<association property="brand" resultMap="brandResultMap"/> <!-- 1:1 -->
+		<association property="attachmentList" resultMap="thumbnailResultMap"/> <!-- 1:1 -->
+		<collection property="option" resultMap="optionResultMap"/> <!-- 1:N -->
+	</resultMap>
+	
+	<!-- 주문상품정보 조회용 -->
+	<resultMap id="orderResultMap" type="com.reminder.geulbeotmall.cart.model.dto.OrderDTO">
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="orderQuantity" column="ORDER_QUANTITY"/>
+		<result property="orderAmount" column="ORDER_AMOUNT"/>
+		<association property="orderDetail" resultMap="orderDetailResultMap"/>
+		<association property="delivery" resultMap="deliveryResultMap"/>
+		<association property="product" resultMap="productResultMap"/>
+		<association property="brand" resultMap="brandResultMap"/>
+		<association property="attachmentList" resultMap="thumbnailResultMap"/>
+		<collection property="option" resultMap="optionResultMap"/>
+	</resultMap>
+	
+	<!-- 주문결제정보 조회용 -->
+	<resultMap id="paymentResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PaymentDTO">
+		<id property="paymentNo" column="PAYMENT_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="paymentMethod" column="PAYMENT_METHOD"/>
+		<result property="paymentAmount" column="PAYMENT_AMOUNT"/>
+		<result property="paymentDateTime" column="PAYMENT_DATETIME"/>
+	</resultMap>
+	
+	<!-- 배송정보 조회용 -->
+	<resultMap id="deliveryResultMap" type="com.reminder.geulbeotmall.cart.model.dto.DeliveryDTO">
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="deliveryFee" column="DELIVERY_FEE"/>
+		<result property="deliveryCompany" column="DELIVERY_COMPANY"/>
+		<result property="dispatchDate" column="DISPATCH_DATE"/>
+		<result property="deliveryDate" column="DELIVERY_DATE"/>
+	</resultMap>
+	
+	<!-- 적립금 조회용 -->
+	<resultMap id="pointResultMap" type="com.reminder.geulbeotmall.cart.model.dto.PointDTO">
+		<id property="pointNo" column="POINT_NO"/>
+		<result property="paymentNo" column="PAYMENT_NO"/>
+		<result property="bonusReason" column="BONUS_REASON"/>
+		<result property="pointAmount" column="POINT_AMOUNT"/>
+		<result property="pointDateTime" column="POINT_DATETIME"/>
+		<result property="pointStatus" column="POINT_STATUS"/>
+		<association property="payment" resultMap="paymentResultMap"/>
+	</resultMap>
+	
+	<!-- 리뷰 조회용 -->
+	<resultMap id="reviewResultMap" type="com.reminder.geulbeotmall.review.model.dto.ReviewDTO">
+		<id property="reviewNo" column="REVIEW_NO"/>
+		<result property="optionNo" column="OPTION_NO"/>
+		<result property="orderNo" column="ORDER_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="revwTitle" column="REVW_TITLE"/>
+		<result property="revwContent" column="REVW_CONTENT"/>
+		<result property="revwRegDate" column="REVW_REG_DATE"/>
+		<result property="revwHits" column="REVW_HITS"/>
+		<result property="revwRatings" column="REVW_RATINGS"/>
+		<association property="option" resultMap="optionResultMap"/>
+		<association property="product" resultMap="productResultMap"/>
+		<association property="order" resultMap="orderResultMap"/>
+		<association property="orderDetail" resultMap="orderDetailResultMap"/>
+		<association property="delivery" resultMap="deliveryResultMap"/>
+		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
+	</resultMap>
+	
+	<!-- ========================================================================================== -->
+	
 	<!-- 리뷰 작성 -->
 	<insert id="postAReview">
 		INSERT
@@ -29,6 +223,42 @@
 		, #{ revwRatings }
 		)
 	</insert>
+	
+	<!-- 리뷰 수정 -->
+	<update id="updateAReview">
+		UPDATE
+			   TBL_REVIEW
+		   SET REVW_TITLE = #{ revwTitle }
+		   	 , REVW_CONTENT = #{ revwContent }
+		   	 , REVW_REG_DATE = SYSDATE
+		   	 , REVW_RATINGS = #{ revwRatings }
+		 WHERE REVIEW_NO = #{ reviewNo }
+	</update>
+	
+	<!-- 현재 저장돼 있는 첨부파일 유무 확인 -->
+	<select id="checkAttachedFiles" resultType="_int">
+		SELECT
+			   COUNT(ATTACHMENT_NO)
+		  FROM TBL_ATTACHMENT
+		 WHERE REF_REVW_NO = #{ refRevwNo }
+	</select>
+	
+	<!-- 리뷰 수정 중 기존 첨부파일 삭제 -->
+	<delete id="deleteAttachedFiles">
+		DELETE
+		  FROM TBL_ATTACHMENT
+		 WHERE REF_REVW_NO = #{ refRevwNo }
+	</delete>
+	
+	<!-- 리뷰 수정용 요청인지 확인 | 결과값으로서 null 또한 취급하기 위해 Integer로 설정 -->
+	<select id="checkReviewNoToEdit" resultType="Integer">
+		SELECT
+			   REVIEW_NO
+		  FROM TBL_REVIEW
+		 WHERE OPTION_NO = #{ optionNo }
+		   AND ORDER_NO = #{ orderNo }
+		   AND MEMBER_ID = #{ memberId }
+	</select>
 	
 	<!-- 현재 리뷰번호 조회 -->
 	<select id="checkCurrReviewNo" resultType="int">
@@ -77,6 +307,38 @@
 		   					  ) + 1
 		 WHERE A.REVIEW_NO = #{ reviewNo }
 	</update>
+	
+	<!-- 상세 리뷰 조회 -->
+	<select id="getReviewDetails" resultMap="reviewResultMap">
+		SELECT
+			   A.REVIEW_NO
+			 , A.OPTION_NO
+			 , A.ORDER_NO
+			 , A.MEMBER_ID
+			 , A.REVW_TITLE
+			 , A.REVW_CONTENT
+			 , A.REVW_REG_DATE
+			 , A.REVW_HITS
+			 , A.REVW_RATINGS
+			 , C.ORDER_DATE
+			 , T.THUMBNAIL_PATH
+			 , O.REF_PROD_NO
+			 , O.OPT_BODY_COLOR
+			 , O.OPT_INK_COLOR
+			 , O.OPT_POINT_SIZE
+			 , O.OPT_EXTRA_CHARGE
+			 , P.PROD_NAME
+			 , L.DELIVERY_DATE
+		  FROM TBL_REVIEW A
+		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+		  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+		  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+		  LEFT JOIN TBL_BRAND N ON(P.BRAND_NO = N.BRAND_NO)
+		  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE A.REVIEW_NO = #{ reviewNo }
+	</select>
 	
 	<!-- 리뷰별 첨부파일 조회 -->
 	<select id="getAttachmentByReviewNo" resultType="string">

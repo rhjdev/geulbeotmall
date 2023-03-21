@@ -80,7 +80,7 @@
 					    			<th colspan="2"><span>제목</span></th>
 					    			<th><span>작성일</span></th>
 					    			<th><span>조회수</span></th>
-					    			<th><span>수정</span></th>
+					    			<th><span>수정/삭제</span></th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
@@ -102,7 +102,13 @@
 					    			</td>
 					    			<td th:text="${#dates.format(postList.revwRegDate, 'yy.MM.dd')}"></td>
 					    			<td th:text="${ postList.revwHits }"></td>
-					    			<td><button type="button" class="btn btn-sm btn-light">수정</button></td>
+					    			<td>
+					    				<button type="button" class="btn btn-sm btn-light" th:onclick="|location.href='@{/review/write(order=${postList.orderNo}, option=${postList.optionNo})}'|">수정</button>
+					    				<!--/* 삭제 버튼은 작성일로부터 7일 경과 후 활성화 */-->
+					    				<th:block th:with="days=${T(java.util.concurrent.TimeUnit).DAYS}, millis=${T(java.util.concurrent.TimeUnit).MILLISECONDS}">
+					    					<a th:if="${days.convert(#dates.createNow().getTime(), millis) - days.convert(postList.revwRegDate.getTime(), millis) > 7}" th:href="@{/review/delete(no=${postList.reviewNo})}"><button type="button" class="btn btn-sm btn-light">삭제</button></a>
+					    				</th:block>
+					    			</td>
 					    		</tr>
 					    		<tr class="noitem" th:unless="${#lists.size(postList)} > 0">
 			                		<td colspan="9">

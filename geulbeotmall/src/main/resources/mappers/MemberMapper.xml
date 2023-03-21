@@ -640,8 +640,8 @@
 		   AND (A.ORDER_NO, A.OPTION_NO) NOT IN (SELECT ORDER_NO, OPTION_NO FROM TBL_REVIEW)
 	</select>
 	
-	<!-- 리뷰 작성 -->
-	<select id="postAReview" resultMap="orderResultMap">
+	<!-- 리뷰 작성용 주문정보 조회 -->
+	<select id="getOrderInfoToReview" resultMap="orderResultMap">
 		SELECT
 			   A.ORDER_NO
 			 , A.OPTION_NO
@@ -667,7 +667,7 @@
 		   AND A.OPTION_NO = #{ optionNo }
 	</select>
 	
-	<!-- 작성한 모든 리뷰 조회 -->
+	<!-- 작성한 모든 리뷰 조회('휴지통 삭제글' 제외) -->
 	<select id="getMemberReviewPosts" resultMap="reviewResultMap">
 		SELECT
 			   A.REVIEW_NO
@@ -691,6 +691,7 @@
 		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
 		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
+		   AND A.REVIEW_NO NOT IN (SELECT REF_REVW_NO FROM TBL_TRASH)
 	</select>
 	
 	<!-- 현재 위시리스트 조회 -->
