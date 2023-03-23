@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>고객센터 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customerservice.css}" rel="stylesheet">
+    </th:block>
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+        <h2>고객센터</h2>
+    </div>
+	<div class="container content-wrapper">
+		<!--/* 공지사항 | 1:1문의 */-->
+		<ul class="nav nav-tabs" id="customerServiceTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="notice-tab" data-bs-toggle="tab" data-bs-target="#notice" type="button" role="tab" aria-controls="notice" aria-selected="true">공지사항</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="inquiry-tab" data-bs-toggle="tab" data-bs-target="#inquiry" type="button" role="tab" aria-controls="inquiry" aria-selected="false">1:1 문의</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="customerServiceTabContent">
+			<!--/* 공지사항 */-->
+			<div class="tab-pane fade show active" id="notice" role="tabpanel" aria-labelledby="notice-tab">
+				<table class="noticelist-table board-table">
+					<colgroup>
+						<col width="5%">
+						<col width="70%">
+						<col width="15%">
+						<col width="10%">
+					</colgroup>
+					<thead>
+			    		<tr>
+			    			<th colspan="2">제목</th>
+			    			<th>작성일</th>
+			    			<th>조회수</th>
+			    		</tr>
+					</thead>
+			    	<tbody>
+			    		<tr>
+			    			<td>1</td>
+			    			<td>테스트</td>
+			    			<td>22.22.22</td>
+			    			<td>100</td>
+			    		</tr>
+			    	</tbody>
+			    </table>
+			    <!--/* 관리자 한정 버튼 활성화 */-->
+			    <th:block sec:authorize="hasRole('ADMIN')">
+				    <div class="button-area">
+				    	<button type="button" class="writeBtn btn btn-sm">글쓰기</button>
+				    	<button type="button" class="deleteBtn btn btn-sm">삭제</button>
+				    </div>
+			    </th:block>
+			</div>
+			
+			<!--/* 1:1 문의 */-->
+			<div class="tab-pane fade show" id="inquiry" role="tabpanel" aria-labelledby="inquiry-tab">
+				<table class="inquirylist-table board-table">
+					<colgroup>
+						<col width="5%">
+						<col width="70%">
+						<col width="15%">
+						<col width="10%">
+					</colgroup>
+					<thead>
+			    		<tr>
+			    			<th colspan="2">제목</th>
+			    			<th>작성일</th>
+			    			<th>답변상태</th>
+			    		</tr>
+					</thead>
+			    	<tbody>
+			    		<!--/* 회원 */-->
+			    		<tr th:each="inquiry, stat : ${ memberInquiry }" th:if="${not #lists.isEmpty(memberInquiry)}">
+			    			<td th:text="${ stat.count }"></td>
+			    			<td th:text="${ inquiry.inquiryTitle }" th:onclick="|location.href='@{/cs/inquiry/details(no=${inquiry.inquiryNo})}'|"></td>
+			    			<td th:text="${#dates.format(inquiry.inquiryRegDate, 'yy.MM.dd')}"></td>
+			    			<td th:text="${ inquiry.inquiryAnsweredYn } == 'Y' ? '답변완료' : '미답변'"></td>
+			    		</tr>
+			    		<tr class="noitem" sec:authorize="isAuthenticated()" th:if="${#lists.isEmpty(memberInquiry)}">
+			    			<td colspan="4">
+		                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                		<div>작성된 1:1 문의내역이 없습니다.</div>
+			    			</td>
+			    		</tr>
+			    		<!--/* 비회원 */-->
+	                	<tr class="noitem" sec:authorize="isAnonymous()">
+	                		<td colspan="4">
+		                		<div><i class="fa-solid fa-circle-exclamation" style="font-size: 300%;"></i></div>
+		                		<div>1:1 문의 작성을 위해서는 로그인이 필요합니다.</div>
+	                		</td>
+	                	</tr>
+			    	</tbody>
+			    </table>
+			    <div class="button-area">
+			    	<button type="button" class="writeBtn btn btn-sm" th:onclick="|location.href='@{/cs/inquiry}'|">글쓰기</button>
+			    </div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
