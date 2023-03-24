@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+<head>
+	<meta charset="UTF-8">
+	<title>1:1 문의 | 고객센터 | 글벗문구</title>
+	<!--/* CSS */-->
+	<th:block layout:fragment="css">
+	    <link th:href="@{/css/thumbnail.css}" rel="stylesheet">
+	    <link th:href="@{/css/selector.css}" rel="stylesheet">
+		<link th:href="@{/css/customerservice.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<div class="title-wrapper">
+		<h2>1:1 문의</h2>
+	</div>
+	<div class="container content-wrapper inqDetail-wrapper">
+		<button type="button" class="inquiryMainBtn btn" onclick="history.back()">목록</button>
+		<hr>
+		<div class="inqDetailBox">
+			<div class="inqDetail-title">
+				<strong>
+					<span>[[${ inquiryDetail.inquiryType }]]</span>
+					[[${ inquiryDetail.inquiryTitle }]]
+				</strong>
+			</div>
+			<div class="inqDetail-info">
+				<span>[[${ inquiryDetail.memberId }]]</span>
+				<span th:text="${#dates.format(inquiryDetail.inquiryRegDate, 'yy.MM.dd HH:mm')}"></span>
+				<span>댓글</span>
+			</div>
+			<div class="inqDetail-content">
+				<span>[(${ inquiryDetail.inquiryContent })]</span>
+			</div>
+			<div class="inqDetail-attachmember">
+				<div><a th:href="|/download/${inquiryDetail.attachmentList[0].attachmentNo}|">파일1</a></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

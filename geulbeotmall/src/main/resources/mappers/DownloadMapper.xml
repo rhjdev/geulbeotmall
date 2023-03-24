@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.community.model.dao.DownloadMapper">
+
+	<resultMap id="attachResultMap" type="com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="refProdNo" column="REF_PROD_NO"/>
+		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="refInqNo" column="REF_INQ_NO"/>
+		<result property="origFileName" column="ORIG_FILE_NAME"/>
+		<result property="saveFileName" column="SAVE_FILE_NAME"/>
+		<result property="savePath" column="SAVE_PATH"/>
+		<result property="thumbnailPath" column="THUMBNAIL_PATH"/>
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="attachStatusYn" column="ATTACH_STATUS_YN"/>
+	</resultMap>
+	
+	<select id="getAttachmentFile" resultMap="attachResultMap">
+		SELECT
+			   *
+		  FROM TBL_ATTACHMENT
+		 WHERE ATTACHMENT_NO = #{ attachmentNo }
+	</select>
+	
+	<!-- 현재 첨부파일번호 조회 -->
+	<select id="checkCurrAttachNo" resultType="_int">
+		SELECT
+			   SEQ_ATTACH_NO.CURRVAL
+		  FROM DUAL
+	</select>
+	
+	<!-- download 가능한 첨부파일은 최초 업로드 시 기본값 '0'으로 등록 -->
+	<insert id="setDownloadCount">
+		INSERT
+		  INTO TBL_DOWNLOAD
+		(
+		  ATTACHMENT_NO
+		, DOWNLOAD_HITS
+		)
+		VALUES
+		(
+		  #{ attachmentNo }
+		, DEFAULT
+		)
+	</insert>
+	
+	<!-- 다운로드 횟수 증가 -->
+	<update id="incrementDownloadCount">
+		UPDATE
+			   TBL_DOWNLOAD
+		   SET DOWNLOAD_HITS = DOWNLOAD_HITS + 1
+		 WHERE ATTACHMENT_NO = #{ attachmentNo }
+	</update>
+</mapper>
