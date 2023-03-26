@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
+import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.community.model.service.DownloadService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.cs.model.service.CSService;
@@ -47,12 +49,14 @@ public class CSController {
 	public static final int THUMB_HEIGHT_SIZE = 540;
 	
 	private final CSService csService;
+	private final CommentService commentService;
 	private final DownloadService downloadService;
 	private final MessageSource messageSource;
 
 	@Autowired
-	public CSController(CSService csService, DownloadService downloadService, MessageSource messageSource) {
+	public CSController(CSService csService, CommentService commentService, DownloadService downloadService, MessageSource messageSource) {
 		this.csService = csService;
+		this.commentService = commentService;
 		this.downloadService = downloadService;
 		this.messageSource = messageSource;
 	}
@@ -181,6 +185,16 @@ public class CSController {
 		if(inquiryDetail == null) {
 			log.info("접근권한 없는 inquiry 요청");
 		} else {
+			/* 댓글 조회 */
+			String refBoardForComment = "문의";
+			int refPostNoForComment = inquiryNo;
+			List<CommentDTO> comments = commentService.getCommentsInPost(refBoardForComment, refPostNoForComment); //refBoard, refPostNo
+			List<CommentDTO> nestedComments = commentService.getNestedCommentsInPost(refBoardForComment, refPostNoForComment);
+			model.addAttribute("refBoard", refBoardForComment);
+			model.addAttribute("refPostNo", refPostNoForComment);
+			model.addAttribute("comments", comments); //댓글
+			model.addAttribute("nestedComments", nestedComments); //대댓글
+			/* 문의 상세내용 조회 */
 			model.addAttribute("inquiryDetail", inquiryDetail);
 		}
 	}

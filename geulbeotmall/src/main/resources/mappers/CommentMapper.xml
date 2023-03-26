@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.community.model.dao.CommentMapper">
+	<!-- 댓글 조회용 -->
+	<resultMap id="commentResultMap" type="com.reminder.geulbeotmall.community.model.dto.CommentDTO">
+		<id property="commentNo" column="COMMENT_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="refBoard" column="REF_BOARD"/>
+		<result property="refPostNo" column="REF_POST_NO"/>
+		<result property="commentContent" column="COMMENT_CONTENT"/>
+		<result property="commentRegDate" column="COMMENT_REG_DATE"/>
+		<result property="commentChgDate" column="COMMENT_CHG_DATE"/>
+		<result property="commentDelDate" column="COMMENT_DEL_DATE"/>
+		<result property="commentNestLevel" column="COMMENT_NEST_LEVEL"/>
+		<result property="commentNestedTo" column="COMMENT_NESTED_TO"/>
+		<association property="member" resultMap="memberResultMap"></association>
+	</resultMap>
+	<!-- 회원 조회용 -->
+	<resultMap id="memberResultMap" type="com.reminder.geulbeotmall.member.model.dto.MemberDTO">
+		<id property="memberId" column="MEMBER_ID"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="name" column="NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="address" column="ADDRESS"/>
+		<result property="agreement" column="AGREEMENT"/>
+		<result property="accInactiveYn" column="ACC_INACTIVE_YN"/>
+		<result property="tempPwdYn" column="TEMP_PWD_YN"/>
+		<result property="accumLoginCount" column="ACCUM_LOGIN_COUNT"/>
+		<result property="loginFailedCount" column="LOGIN_FAILED_COUNT"/>
+		<result property="latestLoginDate" column="LATEST_LOGIN_DATE"/>
+		<result property="accCreationDate" column="ACC_CREATION_DATE"/>
+		<result property="accChangedDate" column="ACC_CHANGED_DATE"/>
+		<result property="accClosingDate" column="ACC_CLOSING_DATE"/>
+		<result property="accClosingYn" column="ACC_CLOSING_YN"/>
+		<collection property="roleList" resultMap="roleResultMap"/> <!-- 1:N -->
+	</resultMap>
+	<resultMap id="roleResultMap" type="com.reminder.geulbeotmall.member.model.dto.RoleDTO">
+		<id property="memberId" column="REF_MEMBER_ID"/>
+		<id property="authorityCode" column="REF_AUTHORITY_CODE"/>
+		<association property="authority" resultMap="authorityResultMap"/> <!-- 1:1 -->
+	</resultMap>
+	<resultMap id="authorityResultMap" type="com.reminder.geulbeotmall.member.model.dto.AuthorityDTO">
+		<id property="authCode" column="AUTHORITY_CODE"/>
+		<result property="authName" column="AUTHORITY_NAME"/>
+		<result property="authDesc" column="AUTHORITY_DESC"/>
+	</resultMap>
+	
+	<!-- 댓글 조회 -->
+	<select id="getCommentsInPost" resultMap="commentResultMap">
+		SELECT
+			   A.COMMENT_NO
+			 , A.MEMBER_ID
+			 , A.REF_BOARD
+			 , A.REF_POST_NO
+			 , A.COMMENT_CONTENT
+			 , A.COMMENT_REG_DATE
+			 , A.COMMENT_CHG_DATE
+			 , A.COMMENT_DEL_DATE
+			 , A.COMMENT_NEST_LEVEL
+			 , A.COMMENT_NESTED_TO
+			 , B.NAME
+		  FROM TBL_COMMENT A
+		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+		 WHERE A.REF_BOARD = #{ refBoard }
+		   AND A.REF_POST_NO = #{ refPostNo }
+		   AND A.COMMENT_NEST_LEVEL = 1
+		 ORDER BY A.COMMENT_NO ASC
+	</select>
+	
+	<!-- 대댓글 조회 -->
+	<select id="getNestedCommentsInPost" resultMap="commentResultMap">
+		SELECT
+			   A.COMMENT_NO
+			 , A.MEMBER_ID
+			 , A.REF_BOARD
+			 , A.REF_POST_NO
+			 , A.COMMENT_CONTENT
+			 , A.COMMENT_REG_DATE
+			 , A.COMMENT_CHG_DATE
+			 , A.COMMENT_DEL_DATE
+			 , A.COMMENT_NEST_LEVEL
+			 , A.COMMENT_NESTED_TO
+			 , B.NAME
+		  FROM TBL_COMMENT A
+		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+		 WHERE A.REF_BOARD = #{ refBoard }
+		   AND A.REF_POST_NO = #{ refPostNo }
+		   AND A.COMMENT_NEST_LEVEL = 2
+		 ORDER BY A.COMMENT_NO ASC
+	</select>
+	
+	<!-- 댓글/대댓글 등록 -->
+	<insert id="writeAComment">
+		INSERT
+		  INTO TBL_COMMENT
+		(
+		  COMMENT_NO
+		, MEMBER_ID
+		, REF_BOARD
+		, REF_POST_NO
+		, COMMENT_CONTENT
+		, COMMENT_REG_DATE
+		, COMMENT_CHG_DATE
+		, COMMENT_DEL_DATE
+		, COMMENT_NEST_LEVEL
+		, COMMENT_NESTED_TO
+		)
+		VALUES
+		(
+		  SEQ_COMMENT_NO.NEXTVAL
+		, #{ memberId }
+		, #{ refBoard }
+		, #{ refPostNo }
+		, #{ commentContent }
+		, SYSDATE
+		, NULL
+		, NULL
+		, #{ commentNestLevel }
+		<choose>
+			<when test="commentNestedTo != null">
+				, #{ commentNestedTo }
+			</when>
+			<otherwise>
+			, NULL
+			</otherwise>
+		</choose>
+		)
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="editAComment">
+		UPDATE
+			   TBL_COMMENT
+		   SET COMMENT_CHG_DATE = SYSDATE
+		     , COMMENT_CONTENT = #{ commentContent }
+		 WHERE COMMENT_NO = #{ commentNo }
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<update id="deleteAComment">
+		UPDATE
+			   TBL_COMMENT
+		   SET COMMENT_DEL_DATE = SYSDATE
+		 WHERE COMMENT_NO = #{ commentNo }
+	</update>
+</mapper>
