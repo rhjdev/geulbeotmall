@@ -17,8 +17,10 @@
 			<input name="refBoard" th:value="${ refBoard }" hidden="hidden">
 			<input name="refPostNo" th:value="${ refPostNo }" hidden="hidden">
 			<input name="commentNestLevel" value="1" hidden="hidden">
-			<textarea id="commentContent" name="commentContent"></textarea>
-			<button class="writeCommentBtn btn btn-dark">등록</button>
+			<div class="commentContentBox">
+				<textarea id="commentContent" name="commentContent" placeholder="댓글을 작성하세요."></textarea>
+				<button class="writeCommentBtn btn btn-dark">등록</button>
+			</div>
 		</form>
 	</div>
 </body>

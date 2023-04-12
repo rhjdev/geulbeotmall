@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.community.model.service.DownloadService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.cs.model.service.CSService;
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,11 +68,27 @@ public class CSController {
 	 * 고객센터 메인
 	 */
 	@GetMapping("main")
-	public void getCSPage(HttpSession session, Model model) {
+	public void getCSPage(@Valid @ModelAttribute("criteria") Criteria criteria, String type, HttpSession session, Model model) {
+		log.info("고객센터 criteria : {}", criteria);
+		log.info("문의 유형 type : {}", type);
+		
 		String loginMember = (String) session.getAttribute("loginMember");
 		if(loginMember != null) {
-			List<InquiryDTO> myInquiryList = csService.getMyInquiryList(loginMember);
+			int total = csService.getTotalInquiryNumber(loginMember, criteria, type); //페이지메이커용
+			List<InquiryDTO> myInquiryList = csService.getMyInquiryList(loginMember, criteria, type); //1:1 문의 게시글
+			Map<Integer, Integer> totalCommentNumberMap = new HashMap<>(); //게시글별 댓글 개수
+			if(myInquiryList != null) {
+				for(int i=0; i < myInquiryList.size(); i++) {
+					String refBoard = "문의";
+					int refPostNo = myInquiryList.get(i).getInquiryNo();
+					int number = commentService.getTotalCommentNumber(refBoard, refPostNo);
+					totalCommentNumberMap.put(refPostNo, number);
+				}
+				model.addAttribute("totalCommentNumberMap", totalCommentNumberMap);
+			}
+			model.addAttribute("total", total);
 			model.addAttribute("memberInquiry", myInquiryList);
+			model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
 		}
 	}
 	
@@ -153,7 +172,7 @@ public class CSController {
 								tempFileInfo.setFileType("THUMB_SUB");
 							}
 						}
-						fileUploaded = csService.attachInquiryImages(tempFileInfo);
+						fileUploaded = csService.attachInquiryImages(tempFileInfo); //첨부파일 업로드
 						
 						int currAttachNo = downloadService.checkCurrAttachNo();
 						setDownloadCount += downloadService.setDownloadCount(currAttachNo); //첨부파일 기본 다운로드횟수 세팅
@@ -162,8 +181,10 @@ public class CSController {
 					} catch (IOException e) { e.printStackTrace(); }
 				}
 			}
+			log.info("fileCount : {}", fileCount);
+			log.info("setDownloadCount : {}", setDownloadCount);
 			
-			if(fileUploaded == fileCount && fileCount == setDownloadCount) {
+			if(fileCount == setDownloadCount) {
 				rttr.addFlashAttribute("writeInquiryMessage", messageSource.getMessage("inquiryPostedSuccessfully", null, locale));
 			} else {
 				rttr.addFlashAttribute("writeInquiryMessage", messageSource.getMessage("errorWhileUploadingInquiryFiles", null, locale));
@@ -178,10 +199,13 @@ public class CSController {
 	 * 1:1 문의 상세 페이지
 	 */
 	@GetMapping("inquiry/details")
-	public void getInquiryDetails(@RequestParam("no") int inquiryNo, HttpSession session, Model model) {
+	public void getInquiryDetails(@RequestParam("no") int inquiryNo, @Valid @ModelAttribute("criteria") Criteria criteria,
+			HttpSession session, Model model) {
 		log.info("inquiry details 요청 : {}", inquiryNo);
+		
 		String memberId = (String) session.getAttribute("loginMember");
 		InquiryDTO inquiryDetail =  csService.getInquiryDetails(memberId, inquiryNo); //본인확인에 필요한 memberId
+		
 		if(inquiryDetail == null) {
 			log.info("접근권한 없는 inquiry 요청");
 		} else {
@@ -194,6 +218,8 @@ public class CSController {
 			model.addAttribute("refPostNo", refPostNoForComment);
 			model.addAttribute("comments", comments); //댓글
 			model.addAttribute("nestedComments", nestedComments); //대댓글
+			model.addAttribute("pageMaker", new PageDTO(comments.size(), 10, criteria));
+			
 			/* 문의 상세내용 조회 */
 			model.addAttribute("inquiryDetail", inquiryDetail);
 		}

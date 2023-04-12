@@ -54,6 +54,7 @@
 .board-table {
 	width: 100%;
 	margin-bottom: 16px;
+	cursor: pointer;
 }
 
 .board-table > thead > tr {
@@ -110,6 +111,16 @@
     margin: 14px auto;
     padding-inline-start: 0;
     margin-block-end: 0;
+}
+
+.commentNumberBadge {
+	padding: 1px 8px 3px 8px;
+    border: 1px solid #E5E5E5;
+    background-color: #fff;
+    color: #00008d;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 /* selector */
@@ -183,6 +194,50 @@ input:read-only {
 	list-style: none;
 }
 
+/* 1:1 문의 상세 */
+.inqDetail-wrapper {
+	width: 700px !important;
+	margin-top: 40px;
+	border: 1px solid #f0f0f0;
+	padding: 20px;
+}
+
+.inqDetail-wrapper > hr {
+	background-color: #f0f0f0;
+}
+
+.inquiryMainBtn {
+	border: 1px solid #f0f0f0;
+	border-radius: 0;
+}
+
+.inqDetail-title {
+	font-size: 20px;
+}
+
+.inqDetail-title > span {
+	color: #6c757d;
+}
+
+.inqDetail-info, .inqDetail-attachment {
+	font-size: 14px;
+}
+
+.inqDetail-content {
+	margin-top: 30px;
+	margin-bottom: 100px;
+}
+
+.inqDetail-download > a {
+	color: #000;
+	text-decoration: none;
+}
+
+.inqDetail-download > span {
+	color: #6c757d;
+	font-size: 12px;
+}
+
 /* 버튼 */
 .buttonBox {
 	margin-top: 80px;
@@ -219,6 +274,52 @@ input:read-only {
     color: #6c757d;
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+/* 검색 */
+.board-search-container > form {
+	display: flex;
+	padding: 40px 250px 40px 250px;
+}
+
+.board-search-container > form > select {
+	display: block;
+	width: 350px;
+    height: 46px !important;
+    margin-inline-end: 10px;
+	padding: 0.375rem 2.25rem 0.375rem 1.25rem;
+	color: #212529;
+	background-color: #fff;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 16px 12px;
+	border: 1px solid #E5E5E5;
+	border-radius: 0;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	-webkit-appearance: none;
+	   -moz-appearance: none;
+	        appearance: none;
+}
+
+.board-search-container > form > .searchBox {
+	display: flex;
+	width: 100%;
+	border: 1px solid #E5E5E5;
+	margin: 6px 10px 6px 0px;
+}
+
+.board-search-container > form > .searchBox > input[type=search] {
+	display: inline-block;
+	padding: 0.375rem 0.25rem 0.375rem 1.25rem;
+	border: 0;
+}
+
+.board-search-container > form > .searchBox > button[type=submit] {
+	display: inline-block;
+	width: 40px;
+	background: transparent;
+	border: 0;
 }
 
 /* 전체 폰트 적용 */

@@ -9,15 +9,15 @@
 <div class="paging-wrapper" th:object="${pageMaker}" th:fragment="paging">
 	<nav aria-label="Page navigation">
 		<ul class="pagination">
-			<li class="page-item" th:classappend="*{startPage} ? 'disabled'">
-				<a class="page-link" th:href="*{startPage-1}" aria-label="previous">
-					<span aria-hidden="true">&laquo;</span>
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
 				</a>
 			</li>
 			<th:block th:with="start = ${pageMaker.startPage}, last = ${pageMaker.lastPage}"> <!--/* table pagination */-->
 				<th:block th:if="${ criteria != null and itemCriteria == null }">
 					<li class="page-item" th:with="start = ${pageMaker.startPage}, last = ${pageMaker.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
-						<a class="page-link" th:href="@{/admin/product/list(currentPageNo=${num})}" th:text="${num}"></a>
+						<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
 					</li>
 				</th:block>
 				<th:block th:if="${ criteria == null and itemCriteria != null }"> <!--/* items pagination */-->
@@ -37,9 +37,9 @@
 					</li>
 				</th:block>
 			</th:block>
-			<li class="page-item" th:classappend="*{lastPage} ? 'disabled'">
-				<a class="page-link" th:href="*{lastPage+1}" aria-label="next">
-					<span aria-hidden="true">&raquo;</span>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
 				</a>
 			</li>
 		</ul>
@@ -67,9 +67,9 @@
 <div class="paging-wrapper" th:object="${pageMakerWithOnSaleNumber}" th:fragment="pagingWithOnSaleNumber">
 	<nav aria-label="Page navigation">
 		<ul class="pagination">
-			<li class="page-item" th:classappend="*{startPage} ? 'disabled'">
-				<a class="page-link" th:href="*{startPage-1}" aria-label="previous">
-					<span aria-hidden="true">&laquo;</span>
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
 				</a>
 			</li>
 			<th:block th:with="start = ${pageMakerWithOnSaleNumber.startPage}, last = ${pageMakerWithOnSaleNumber.lastPage}"> <!--/* table pagination */-->
@@ -79,9 +79,9 @@
 					</li>
 				</th:block>
 			</th:block>
-			<li class="page-item" th:classappend="*{lastPage} ? 'disabled'">
-				<a class="page-link" th:href="*{lastPage+1}" aria-label="next">
-					<span aria-hidden="true">&raquo;</span>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
 				</a>
 			</li>
 		</ul>
@@ -100,9 +100,9 @@
 <div class="paging-wrapper" th:object="${pageMakerWithStopSaleNumber}" th:fragment="pagingWithStopSaleNumber">
 	<nav aria-label="Page navigation">
 		<ul class="pagination">
-			<li class="page-item" th:classappend="*{startPage} ? 'disabled'">
-				<a class="page-link" th:href="*{startPage-1}" aria-label="previous">
-					<span aria-hidden="true">&laquo;</span>
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
 				</a>
 			</li>
 			<th:block th:with="start = ${pageMakerWithStopSaleNumber.startPage}, last = ${pageMakerWithStopSaleNumber.lastPage}"> <!--/* table pagination */-->
@@ -112,9 +112,9 @@
 					</li>
 				</th:block>
 			</th:block>
-			<li class="page-item" th:classappend="*{lastPage} ? 'disabled'">
-				<a class="page-link" th:href="*{lastPage+1}" aria-label="next">
-					<span aria-hidden="true">&raquo;</span>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
 				</a>
 			</li>
 		</ul>
@@ -133,9 +133,9 @@
 <div class="paging-wrapper" th:object="${pageMakerWithOnDiscountNumber}" th:fragment="pagingWithOnDiscountNumber">
 	<nav aria-label="Page navigation">
 		<ul class="pagination">
-			<li class="page-item" th:classappend="*{startPage} ? 'disabled'">
-				<a class="page-link" th:href="*{startPage-1}" aria-label="previous">
-					<span aria-hidden="true">&laquo;</span>
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
 				</a>
 			</li>
 			<th:block th:with="start = ${pageMakerWithOnDiscountNumber.startPage}, last = ${pageMakerWithOnDiscountNumber.lastPage}"> <!--/* table pagination */-->
@@ -145,9 +145,9 @@
 					</li>
 				</th:block>
 			</th:block>
-			<li class="page-item" th:classappend="*{lastPage} ? 'disabled'">
-				<a class="page-link" th:href="*{lastPage+1}" aria-label="next">
-					<span aria-hidden="true">&raquo;</span>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
 				</a>
 			</li>
 		</ul>
@@ -166,9 +166,9 @@
 <div class="paging-wrapper" th:object="${pageMakerWithSoldOutNumber}" th:fragment="pagingWithSoldOutNumber">
 	<nav aria-label="Page navigation">
 		<ul class="pagination">
-			<li class="page-item" th:classappend="*{startPage} ? 'disabled'">
-				<a class="page-link" th:href="*{startPage-1}" aria-label="previous">
-					<span aria-hidden="true">&laquo;</span>
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
 				</a>
 			</li>
 			<th:block th:with="start = ${pageMakerWithSoldOutNumber.startPage}, last = ${pageMakerWithSoldOutNumber.lastPage}"> <!--/* table pagination */-->
@@ -178,9 +178,9 @@
 					</li>
 				</th:block>
 			</th:block>
-			<li class="page-item" th:classappend="*{lastPage} ? 'disabled'">
-				<a class="page-link" th:href="*{lastPage+1}" aria-label="next">
-					<span aria-hidden="true">&raquo;</span>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
 				</a>
 			</li>
 		</ul>

@@ -14,17 +14,17 @@
 		<!--/* 게시 중인 댓글 */-->
 		<th:block th:if="${#strings.isEmpty(comment.commentDelDate)}">
 			<div class="comment-profile">
-				<span>[[${ comment.member.name }]]</span>
-				<span>[(${#dates.format(comment.commentRegDate, 'yy.MM.dd HH:mm')})]</span>
-				<span th:if="${not #strings.isEmpty(comment.commentChgDate)}">수정됨</span>
-			</div>
-			<div class="comment-content" th:value="${ comment.commentNo }">
-				<span>[(${ comment.commentContent })]</span>
+				<strong>[[${ comment.member.name }]]([[${ comment.memberId }]])</strong>
+				<span class="commentDate">[(${#dates.format(comment.commentRegDate, 'yy.MM.dd HH:mm')})]</span>
+				<span class="commentEditBadge" th:if="${not #strings.isEmpty(comment.commentChgDate)}">수정됨</span>
 			</div>
 			<div class="comment-button">
 				<button th:if="${ comment.commentNestLevel == 1 }" class="nestCommentBtn">답글</button> <!--/* '댓글'일 때만 '답글' 작성 가능 */-->
 				<button class="editCommentBtn">수정</button>
 				<button class="deleteCommentBtn">삭제</button>
+			</div>
+			<div class="comment-content" th:value="${ comment.commentNo }">
+				<span>[(${ comment.commentContent })]</span>
 			</div>
 			<div class="comment-editor">
 				<!--/* 대댓글 작성 폼 */-->
@@ -33,24 +33,31 @@
 					<input name="refPostNo" th:value="${ refPostNo }" hidden="hidden">
 					<input name="commentNestLevel" value="2" hidden="hidden"> <!--/* 대댓글 */-->
 					<input name="commentNestedTo" th:value="${ comment.commentNo }" hidden="hidden"> <!--/* 상단댓글정보 */-->
-					<textarea id="commentContent" name="commentContent"></textarea>
-					<button class="wirteCommentBtn btn btn-dark">등록</button>
+					<div class="commentContentBox">
+						<textarea id="commentContent" name="commentContent" placeholder="답글을 작성하세요."></textarea>
+						<button class="wirteCommentBtn">등록</button>
+					</div>
 				</form>
 				<!--/* 댓글/대댓글 수정 폼 */-->
 				<form th:id="${'editCommentForm' + comment.commentNo }" name="editCommentForm" class="edit-comment-form" th:action="@{/comment/edit}" method="post" style="display: none;">
 					<input name="refBoard" th:value="${ refBoard }" hidden="hidden">
 					<input name="refPostNo" th:value="${ refPostNo }" hidden="hidden">
 					<input name="commentNo" th:value="${ comment.commentNo }" hidden="hidden">
-					<textarea id="commentContent" name="commentContent"></textarea>
-					<button class="editCommentBtn btn btn-dark">등록</button>
+					<div class="commentContentBox">
+						<textarea id="commentContent" name="commentContent"></textarea>
+						<button class="editCommentBtn">등록</button>
+					</div>
 				</form>
 			</div>
 		</th:block>
 		<!--/* 대댓글 */-->
-		<div class="nestedCommentBox" style="background: blue;">
-			<div th:each="nestedComment : ${ nestedComments }" th:if="${ nestedComment.commentNestedTo == comment.commentNo }">
-				<div th:replace="/fragments/commentBox.html :: commentBox(${nestedComment})"></div>
-			</div>
+		<div class="nestedCommentBox">
+			<th:block th:each="nestedComment : ${ nestedComments }" th:if="${ nestedComment.commentNestedTo == comment.commentNo }">
+				<div class="nestedCommentAndIcon">
+					<i class="fa-solid fa-arrow-turn-up"></i>
+					<div th:replace="/fragments/commentBox.html :: commentBox(${nestedComment})"></div>
+				</div>
+			</th:block>
 		</div>
 	</div>
 </body>

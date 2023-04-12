@@ -3,7 +3,6 @@ package com.reminder.geulbeotmall.community.controller;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
 import com.reminder.geulbeotmall.community.model.service.CommentService;
+import com.reminder.geulbeotmall.cs.model.service.CSService;
+import com.reminder.geulbeotmall.member.model.service.MemberService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,12 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 public class CommentController {
 
 	private final CommentService commentService;
-	private final MessageSource messageSource;
+	private final MemberService memberService;
+	private final CSService csService;
 	
 	@Autowired
-	public CommentController(CommentService commentService, MessageSource messageSource) {
+	public CommentController(CommentService commentService, MemberService memberService, CSService csService) {
 		this.commentService = commentService;
-		this.messageSource = messageSource;
+		this.memberService = memberService;
+		this.csService = csService;
 	}
 	
 	/* 댓글/대댓글 작성 */
@@ -46,6 +49,8 @@ public class CommentController {
 		if(result == 1) {
 			/* 댓글 허용하는 게시판별 새로고침 설정 */
 			if(refBoard.equals("문의")) {
+				char isWrittenByAdmin = memberService.checkAdminOrNot((String) session.getAttribute("loginMember")) == 1 ? 'Y' : 'N'; //관리자 확인
+				if(isWrittenByAdmin == 'Y') csService.updateInquiryAnsweredYn(refPostNo); //답변상태 '완료' 반영
 				redirectUrl = "redirect:/cs/inquiry/details?no=" + refPostNo;
 			}
 		}
@@ -82,5 +87,23 @@ public class CommentController {
 		
 		int result = commentService.deleteAComment(commentNo);
 		if(result == 1) log.info("comment deleted");
+	}
+	
+	/* 댓글 페이징 */
+//	@GetMapping(value = "list", produces = MediaType.APPLICATION_JSON_VALUE)
+//	public void getCommentList(@ModelAttribute("criteria") Criteria criteria, Model model) {
+//		String refBoard = "문의";
+//		int refPostNo = 5;
+//		List<CommentDTO> comments = commentService.getCommentsInPost(refBoard, refPostNo, criteria);
+//		List<CommentDTO> nestedComments = commentService.getNestedCommentsInPost(refBoard, refPostNo);
+//		model.addAttribute("refBoard", refBoard);
+//		model.addAttribute("refPostNo", refPostNo);
+//		model.addAttribute("comments", comments); //댓글
+//		model.addAttribute("nestedComments", nestedComments); //대댓글
+//		model.addAttribute("pageMakerWithComments", new PageDTO(commentService.getTotalNumber(refBoard, refPostNo, criteria), 5, criteria)); //댓글 페이징
+//	}
+	
+	public void checkBoardAndNo(String refBoard, int refPostNo) {
+		
 	}
 }

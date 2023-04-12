@@ -42,4 +42,9 @@ public class CommentServiceImpl implements CommentService {
 	public int deleteAComment(int commentNo) {
 		return commentMapper.deleteAComment(commentNo);
 	}
+
+	@Override
+	public int getTotalCommentNumber(String refBoard, int refPostNo) {
+		return commentMapper.getTotalCommentNumber(refBoard, refPostNo);
+	}
 }

@@ -78,7 +78,7 @@ function checkKeywordForOrder() {
 	}
 }
 
-/* 상품 검색 */
+/* 헤더 상품 검색 */
 function checkKeywordToSearch() {
 	let form = document.querySelector('#searchForm');
 	let keyword = document.querySelector('input[name=keyword]').value;
@@ -91,6 +91,27 @@ function checkKeywordToSearch() {
 		}).then((result) => {
 			if(result.isConfirmed) {
 				history.go(0);
+			}
+		})
+	} else {
+		form.submit();
+	}
+}
+
+/* 고객센터 게시글/댓글 검색 */
+function checkKeywordForInquiry() {
+	let form = document.querySelector('#searchPostCommentForm');
+	let keyword = $('#searchPostCommentForm').find('input[name=keyword]').val();
+	console.log(keyword);
+	if(keyword.length == 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: '검색어를 입력하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				window.location.assign('/cs/main');
 			}
 		})
 	} else {

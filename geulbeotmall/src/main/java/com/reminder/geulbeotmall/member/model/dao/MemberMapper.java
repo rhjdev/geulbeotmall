@@ -90,4 +90,6 @@ public interface MemberMapper {
 	int generateTempPwd(MemberDTO memberDTO);
 
 	MemberDTO findMemberByEmail(String email);
+
+	Integer checkAdminOrNot(String memberId);
 }

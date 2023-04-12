@@ -5,7 +5,7 @@ let commentNo;
 for(const item of document.querySelectorAll('.nestCommentBtn')) {
 	item.addEventListener('click', function(event){
 		buttonClicked = event.target;
-		commentNo = event.target.parentElement.parentElement.children[1].attributes.value.value; //.comment-content value
+		commentNo = event.target.parentElement.parentElement.children[2].attributes.value.value; //.comment-content value
 		//console.log(buttonClicked);
 		//console.log(commentNo);
 		
@@ -21,7 +21,7 @@ for(const item of document.querySelectorAll('.nestCommentBtn')) {
 for(const item of document.querySelectorAll('.editCommentBtn')) {
 	item.addEventListener('click', function(event){
 		buttonClicked = event.target;
-		commentNo = event.target.parentElement.parentElement.children[1].attributes.value.value; //.comment-content value
+		commentNo = event.target.parentElement.parentElement.children[2].attributes.value.value; //.comment-content value
 		//console.log(buttonClicked);
 		//console.log(commentNo);
 		
@@ -32,7 +32,7 @@ for(const item of document.querySelectorAll('.editCommentBtn')) {
 		form = $(this).closest('.commentBox').find('.comment-editor').find('#editCommentForm' + commentNo);
 		form.attr('style', 'display: block');
 		let textarea = form[0][3];
-		let origValue = event.target.parentElement.parentElement.children[1].children[0].innerHTML;
+		let origValue = event.target.parentElement.parentElement.children[2].children[0].innerHTML;
 		textarea.value = origValue;
 		//console.log(origValue);
 		//console.log(textarea);
@@ -44,7 +44,7 @@ for(const item of document.querySelectorAll('.deleteCommentBtn')) {
 	item.addEventListener('click', function(event){
 		buttonClicked = event.target;
 		console.log(buttonClicked);
-		commentNo = event.target.parentElement.parentElement.children[1].attributes.value.value; //.comment-content value
+		commentNo = event.target.parentElement.parentElement.children[2].attributes.value.value; //.comment-content value
 		console.log(commentNo);
 		
 		Swal.fire({

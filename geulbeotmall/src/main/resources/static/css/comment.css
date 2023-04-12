@@ -2,13 +2,88 @@
 
 .comment-wrapper {
 	width: 700px !important;
-	margin-top: 40px;
+	margin-block-end: 40px;
+	padding-top: 20px;
+	padding-bottom: 50px;
 	background-color: #f9f9f9;
 }
 
 .commentBox {
+	position: relative;
 	width: 100%;
-    border-top: 1px solid #495057;
-    margin-top: 10px;
-    min-height: 120px !important;
+    border-top: 1px solid #f0f0f0;
+    min-height: 80px !important;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.nestedCommentBox > .nestedCommentAndIcon {
+	display: flex;
+}
+
+.nestedCommentBox > .nestedCommentAndIcon > i {
+	padding: 40px 30px 0px 30px;
+    transform: rotate(90deg);
+    color: #6c757d;
+}
+
+.comment-profile, .comment-button {
+	display: inline-block;
+}
+
+.comment-button {
+	position: absolute;
+	right: 0;
+}
+
+.comment-button > button {
+	background: transparent;
+    border: none;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.commentDate {
+	font-size: 12px;
+	color: #6c757d;
+}
+
+.commentEditBadge {
+	padding: 1px 6px 2px 4px;
+    border: 1px solid #E5E5E5;
+    background-color: #fff;
+    color: #00008d;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.commentContentBox {
+	width: 100%;
+	height: 150px;
+	border: 1px solid #E5E5E5;
+    border-radius: 0;
+    background: #fff;
+	margin-top: 20px;
+}
+
+.commentContentBox > textarea {
+	width: 100%;
+	height: 100px;
+	resize: none;
+	font-size: 13px;
+	border: none;
+	background: transparent;
+	padding: 16px 16px 10px 20px;
+}
+
+.commentContentBox > button {
+	background: #000;
+    border: none;
+    border-radius: 0;
+    font-size: 12px;
+    color: #fff;
+    padding: 5px 18px 5px 18px;
+    margin-inline-end: 10px;
+    float: right;
 }

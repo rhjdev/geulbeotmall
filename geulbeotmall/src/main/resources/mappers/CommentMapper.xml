@@ -50,7 +50,7 @@
 	<select id="getCommentsInPost" resultMap="commentResultMap">
 		SELECT
 			   A.COMMENT_NO
-			 , A.MEMBER_ID
+			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
 			 , A.REF_BOARD
 			 , A.REF_POST_NO
 			 , A.COMMENT_CONTENT
@@ -61,7 +61,7 @@
 			 , A.COMMENT_NESTED_TO
 			 , B.NAME
 		  FROM TBL_COMMENT A
-		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+  		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
 		 WHERE A.REF_BOARD = #{ refBoard }
 		   AND A.REF_POST_NO = #{ refPostNo }
 		   AND A.COMMENT_NEST_LEVEL = 1
@@ -72,7 +72,7 @@
 	<select id="getNestedCommentsInPost" resultMap="commentResultMap">
 		SELECT
 			   A.COMMENT_NO
-			 , A.MEMBER_ID
+			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
 			 , A.REF_BOARD
 			 , A.REF_POST_NO
 			 , A.COMMENT_CONTENT
@@ -144,4 +144,13 @@
 		   SET COMMENT_DEL_DATE = SYSDATE
 		 WHERE COMMENT_NO = #{ commentNo }
 	</update>
+	
+	<!-- 댓글/대댓글 전체 개수 조회 -->
+	<select id="getTotalCommentNumber" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT COMMENT_NO)
+		  FROM TBL_COMMENT
+		 WHERE REF_BOARD = #{ refBoard }
+		   AND REF_POST_NO = #{ refPostNo }
+	</select>
 </mapper>

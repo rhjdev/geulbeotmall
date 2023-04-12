@@ -5,31 +5,34 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.reminder.geulbeotmall.community.model.dao.DownloadMapper;
 import com.reminder.geulbeotmall.cs.model.dao.CSMapper;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
+import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
 
-@Service("csServiceImpl")
+@Service("csService")
 public class CSServiceImpl implements CSService {
 
 	private CSMapper csMapper;
-	private DownloadMapper downloadMapper;
 	
 	@Autowired
-	public CSServiceImpl(CSMapper csMapper, DownloadMapper downloadMapper) {
+	public CSServiceImpl(CSMapper csMapper) {
 		this.csMapper = csMapper;
-		this.downloadMapper = downloadMapper;
 	}
 
 	@Override
 	public int writeAInquiry(InquiryDTO inquiryDTO) {
 		return csMapper.writeAInquiry(inquiryDTO);
 	}
+	
+	@Override
+	public int getTotalInquiryNumber(String memberId, Criteria criteria, String type) {
+		return csMapper.getTotalInquiryNumber(memberId, criteria, type);
+	}
 
 	@Override
-	public List<InquiryDTO> getMyInquiryList(String memberId) {
-		return csMapper.getMyInquiryList(memberId);
+	public List<InquiryDTO> getMyInquiryList(String memberId, Criteria criteria, String type) {
+		return csMapper.getMyInquiryList(memberId, criteria, type);
 	}
 
 	@Override
@@ -39,13 +42,16 @@ public class CSServiceImpl implements CSService {
 
 	@Override
 	public int attachInquiryImages(AttachmentDTO tempFileInfo) {
-//		int currAttachNo = downloadMapper.checkCurrAttachNo();
-//		downloadMapper.setDownloadCount(currAttachNo); //첨부파일 기본 다운로드횟수 세팅
 		return csMapper.attachInquiryImages(tempFileInfo);
 	}
 
 	@Override
 	public InquiryDTO getInquiryDetails(String memberId, int inquiryNo) {
 		return csMapper.getInquiryDetails(memberId, inquiryNo);
+	}
+
+	@Override
+	public int updateInquiryAnsweredYn(int refPostNo) {
+		return csMapper.updateInquiryAnsweredYn(refPostNo);
 	}
 }

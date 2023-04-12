@@ -282,4 +282,9 @@ public class MemberServiceImpl implements MemberService {
 	public MemberDTO findMemberByEmail(String email) {
 		return memberMapper.findMemberByEmail(email);
 	}
+
+	@Override
+	public Integer checkAdminOrNot(String memberId) {
+		return memberMapper.checkAdminOrNot(memberId);
+	}
 }

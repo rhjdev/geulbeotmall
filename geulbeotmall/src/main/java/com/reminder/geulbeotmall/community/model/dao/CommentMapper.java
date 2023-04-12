@@ -18,4 +18,6 @@ public interface CommentMapper {
 	int editAComment(int commentNo, String commentContent);
 
 	int deleteAComment(int commentNo);
+
+	int getTotalCommentNumber(String refBoard, int refPostNo);
 }

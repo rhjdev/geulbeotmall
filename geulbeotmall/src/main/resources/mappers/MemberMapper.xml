@@ -73,6 +73,7 @@
 		<id property="attachmentNo" column="ATTACHMENT_NO"/>
 		<result property="refProdNo" column="REF_PROD_NO"/>
 		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="refInqNo" column="REF_INQ_NO"/>
 		<result property="origFileName" column="ORIG_FILE_NAME"/>
 		<result property="saveFileName" column="SAVE_FILE_NAME"/>
 		<result property="savePath" column="SAVE_PATH"/>
@@ -632,12 +633,14 @@
 			 , T.THUMBNAIL_PATH
 		  FROM TBL_ORDER A
 		  LEFT JOIN TBL_ORDER_DETAIL B ON(A.ORDER_NO = B.ORDER_NO)
+		  LEFT JOIN TBL_DELIVERY D ON(A.ORDER_NO = D.ORDER_NO)
 		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO)
 		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
 		  LEFT JOIN TBL_BRAND B ON(P.BRAND_NO = B.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
 		 WHERE B.MEMBER_ID = #{ memberId }
 		   AND (A.ORDER_NO, A.OPTION_NO) NOT IN (SELECT ORDER_NO, OPTION_NO FROM TBL_REVIEW)
+		   AND D.DELIVERY_DATE IS NOT NULL
 	</select>
 	
 	<!-- 리뷰 작성용 주문정보 조회 -->
@@ -771,15 +774,15 @@
 	<!-- 현재 보유 적립금 -->
 	<select id="getMemberPoint" resultType="_int">
 		SELECT
-			   NVL((SELECT SUM(POINT_AMOUNT) BONUS FROM TBL_POINT WHERE BONUS_REASON LIKE '%' || #{ memberId } || '%'), 0)
+			   NVL((SELECT SUM(POINT_AMOUNT) BONUS FROM TBL_POINT WHERE BONUS_REASON = '신규회원가입[' || #{ memberId } || ']'), 0)
 			   +
 			   NVL((SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
 				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
 				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립') - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
-																				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
-																				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-																				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용'), 0)
+				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립'), 0) - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
+																					      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+																					      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+																					     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용')
 		  FROM DUAL
 	</select>
 	
@@ -791,4 +794,13 @@
 		     , ACC_CLOSING_YN = 'Y'
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
+	
+	<!-- 관리자 확인 -->
+	<select id="checkAdminOrNot" resultType="Integer">
+		SELECT
+			   COUNT(MEMBER_ID)
+		  FROM TBL_ROLE
+		 WHERE MEMBER_ID = #{ memberId }
+		   AND AUTHORITY_CODE = 2
+	</select>
 </mapper>

@@ -24,6 +24,12 @@
 		<result property="thumbnailPath" column="THUMBNAIL_PATH"/>
 		<result property="fileType" column="FILE_TYPE"/>
 		<result property="attachStatusYn" column="ATTACH_STATUS_YN"/>
+		<association property="download" resultMap="downloadResultMap"/>
+	</resultMap>
+	<!-- 다운로드횟수 조회용 -->
+	<resultMap id="downloadResultMap" type="com.reminder.geulbeotmall.upload.model.dto.DownloadDTO">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="downloadHits" column="DOWNLOAD_HITS"/>
 	</resultMap>
 	
 	<!-- 고객센터 1:1 문의 등록 -->
@@ -89,32 +95,96 @@
 		)
 	</insert>
 	
-	<!-- 고객센터 1:1 문의 목록 조회 -->
-	<select id="getMyInquiryList" resultMap="inquiryResultMap">
+	<!-- 고객센터 1:1 문의 유형/게시글/첨부파일/댓글 검색 -->
+	<sql id="inquiryPostCommentSearch">
+		<trim prefix="AND">
+			<if test="criteria.keyword != null and criteria.condition eq 'title'">A.INQUIRY_TITLE LIKE '%' || #{ criteria.keyword } || '%'</if>
+			<if test="criteria.keyword != null and criteria.condition eq 'content'">A.INQUIRY_CONTENT LIKE '%' || #{ criteria.keyword } || '%'</if>
+			<if test="criteria.keyword != null and criteria.condition eq 'writer'">A.MEMBER_ID LIKE '%' || #{ criteria.keyword } || '%'</if>
+			<if test="criteria.keyword != null and criteria.condition eq 'attachment'">B.ORIG_FILE_NAME LIKE '%' || #{ criteria.keyword } || '%'</if>
+			<if test="criteria.keyword != null and criteria.condition eq 'comment'">C.COMMENT_CONTENT LIKE '%' || #{ criteria.keyword } || '%' AND C.REF_BOARD = '문의'</if>
+			<if test="criteria.keyword != null and criteria.condition eq 'commentedBy'">C.MEMBER_ID LIKE '%' || #{ criteria.keyword } || '%' AND C.REF_BOARD = '문의'</if>
+		</trim>
+	</sql>
+	<sql id="inquiryTypeSearch">
+		<trim prefix="AND">
+			<if test="type != null and type neq 'all'">A.INQUIRY_TYPE LIKE '%' || #{ type } || '%'</if>
+		</trim>
+	</sql>
+	<!-- 고객센터 1:1 문의 목록 조회 *페이징* -->
+	<select id="getMyInquiryList" parameterType="map" resultMap="inquiryResultMap">
 		SELECT
 			   *
-		  FROM TBL_INQUIRY
-		 WHERE MEMBER_ID = #{ memberId }
-		 ORDER BY INQUIRY_NO DESC
+		  FROM(
+				SELECT
+					   D.RANK RK
+					 , D.*
+				  FROM(
+						SELECT
+							   DENSE_RANK() OVER (ORDER BY A.INQUIRY_NO DESC) RANK
+							 , A.INQUIRY_NO
+							 , A.MEMBER_ID
+							 , A.INQUIRY_TITLE
+							 , A.INQUIRY_CONTENT
+							 , A.INQUIRY_TYPE
+							 , A.INQUIRY_REG_DATE
+							 , A.INQUIRY_ANSWERED_YN
+						  FROM TBL_INQUIRY A
+						  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
+						  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
+						 WHERE A.MEMBER_ID = #{ memberId }
+						 <include refid="inquiryPostCommentSearch"></include>
+						 <include refid="inquiryTypeSearch"></include>
+				 		) D
+				 <![CDATA[
+				 WHERE D.RANK <= #{ criteria.currentPageNo } * #{ criteria.recordsPerPage }
+				 ]]>
+			   ) E
+		 <![CDATA[
+		 WHERE E.RK > (#{ criteria.currentPageNo } - 1) * #{ criteria.recordsPerPage }
+		 ]]>
+	</select>
+	
+	<!-- 고객센터 1:1 문의 개수 조회 *페이지메이커* -->
+	<select id="getTotalInquiryNumber" parameterType="map" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT A.INQUIRY_NO)
+		  FROM TBL_INQUIRY A
+		  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
+		  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
+		 WHERE A.MEMBER_ID = #{ memberId }
+		<include refid="inquiryPostCommentSearch"></include>
+		<include refid="inquiryTypeSearch"></include>
 	</select>
 	
 	<!-- 고객센터 1:1 문의 상세 내용 조회 -->
 	<select id="getInquiryDetails" resultMap="inquiryResultMap">
 		SELECT
 			   A.INQUIRY_NO
-			 , A.MEMBER_ID
+			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
 			 , A.INQUIRY_TITLE
 			 , A.INQUIRY_CONTENT
 			 , A.INQUIRY_TYPE
 			 , A.INQUIRY_REG_DATE
 			 , A.INQUIRY_ANSWERED_YN
 			 , B.ATTACHMENT_NO
+			 , B.ORIG_FILE_NAME
 			 , B.SAVE_FILE_NAME
 			 , B.SAVE_PATH
 			 , B.THUMBNAIL_PATH
+			 , C.DOWNLOAD_HITS
 		  FROM TBL_INQUIRY A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
+		  LEFT JOIN TBL_DOWNLOAD C ON(B.ATTACHMENT_NO = C.ATTACHMENT_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
 		   AND A.INQUIRY_NO = #{ inquiryNo }
 	</select>
+	
+	<!-- 고객센터 1:1 문의 답변완료 반영 -->
+	<update id="updateInquiryAnsweredYn">
+		UPDATE
+			   TBL_INQUIRY
+		   SET INQUIRY_ANSWERED_YN = 'Y'
+		 WHERE INQUIRY_NO = #{ inquiryNo }
+	</update>
 </mapper>
