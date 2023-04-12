@@ -29,6 +29,7 @@
 		<id property="attachmentNo" column="ATTACHMENT_NO"/>
 		<result property="refProdNo" column="REF_PROD_NO"/>
 		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="refInqNo" column="REF_INQ_NO"/>
 		<result property="origFileName" column="ORIG_FILE_NAME"/>
 		<result property="saveFileName" column="SAVE_FILE_NAME"/>
 		<result property="savePath" column="SAVE_PATH"/>
@@ -260,6 +261,7 @@
 		  ATTACHMENT_NO
 		, REF_PROD_NO
 		, REF_REVW_NO
+		, REF_INQ_NO
 		, ORIG_FILE_NAME
 		, SAVE_FILE_NAME
 		, SAVE_PATH
@@ -271,6 +273,7 @@
 		(
 		  SEQ_ATTACH_NO.NEXTVAL
 		, #{ refProdNo }
+		, NULL
 		, NULL
 		, #{ origFileName }
 		, #{ saveFileName }
@@ -289,6 +292,7 @@
 		  ATTACHMENT_NO
 		, REF_PROD_NO
 		, REF_REVW_NO
+		, REF_INQ_NO
 		, ORIG_FILE_NAME
 		, SAVE_FILE_NAME
 		, SAVE_PATH
@@ -299,6 +303,7 @@
 		VALUES
 		(
 		  SEQ_ATTACH_NO.NEXTVAL
+		, NULL
 		, NULL
 		, NULL
 		, #{ origFileName }

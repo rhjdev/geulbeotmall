@@ -15,4 +15,5 @@ public class AttachmentDTO {
 	private String thumbnailPath;	//썸네일경로
 	private String fileType; 		//파일유형(THUMB or CONTENT)
 	private char attachStatusYn;	//게재여부
+	private DownloadDTO download;	//다운로드
 }

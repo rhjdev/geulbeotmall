@@ -28,6 +28,7 @@
 		<id property="attachmentNo" column="ATTACHMENT_NO"/>
 		<result property="refProdNo" column="REF_PROD_NO"/>
 		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="refInqNo" column="REF_INQ_NO"/>
 		<result property="origFileName" column="ORIG_FILE_NAME"/>
 		<result property="saveFileName" column="SAVE_FILE_NAME"/>
 		<result property="savePath" column="SAVE_PATH"/>
@@ -139,15 +140,15 @@
 		   AND A.DISPLAY_STATUS_YN = 'Y'
 	</select>
 	
-	<!-- 메인 디스플레이용 배너 조회 -->
+	<!-- 메인 디스플레이용 배너 조회 *PK 기준 가장 최근에 저장된 파일* -->
 	<select id="getBannerImage" resultMap="designImageResultMap">
 		SELECT
-			   A.SAVE_PATH
-			 , A.REF_PROD_NO
-			 , B.PROD_NAME
-		  FROM TBL_DESIGNIMAGE A
-		  LEFT JOIN TBL_PRODUCT B ON(A.REF_PROD_NO = B.PROD_NO)
-		 WHERE A.IMAGE_TYPE = 'BANNER'
-		   AND A.DISPLAY_STATUS_YN = 'Y'
+			   SAVE_PATH
+		  FROM TBL_DESIGNIMAGE
+		 WHERE IMAGE_TYPE = 'BANNER'
+		   AND DESIGNIMAGE_NO = (SELECT
+		   								MAX(DESIGNIMAGE_NO)
+		   						   FROM TBL_DESIGNIMAGE
+		   						  WHERE IMAGE_TYPE = 'BANNER')
 	</select>
 </mapper>
