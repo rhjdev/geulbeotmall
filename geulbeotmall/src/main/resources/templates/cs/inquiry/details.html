@@ -16,25 +16,29 @@
 		<h2>1:1 문의</h2>
 	</div>
 	<div class="container content-wrapper inqDetail-wrapper">
-		<button type="button" class="inquiryMainBtn btn" onclick="history.back()">목록</button>
+		<button type="button" class="inquiryMainBtn btn" th:onclick="|location.href='@{/cs/main}'|">목록</button>
 		<hr>
 		<div class="inqDetailBox">
 			<div class="inqDetail-title">
-				<strong>
-					<span>[[${ inquiryDetail.inquiryType }]]</span>
-					[[${ inquiryDetail.inquiryTitle }]]
-				</strong>
+				<span>[[${ inquiryDetail.inquiryType }]]</span>
+				<strong>[[${ inquiryDetail.inquiryTitle }]]</strong>
 			</div>
-			<div class="inqDetail-info">
-				<span>[[${ inquiryDetail.memberId }]]</span>
+			<div class="inqDetail-info"> <!--/* 관리자는 작성자 아이디 클릭 시 해당 회원 상세 정보 페이지로 이동 */-->
+				<a sec:authorize="hasRole('ADMIN')" class="showMemberInfo" th:href="@{/admin/member/details(id=${inquiryDetail.memberId})}">[[${#strings.replace(inquiryDetail.memberId, #strings.substring(inquiryDetail.memberId, 4), '***')}]]</a>
+				<span sec:authorize="!hasRole('ADMIN')">[[${#strings.replace(inquiryDetail.memberId, #strings.substring(inquiryDetail.memberId, 4), '***')}]]</span>
 				<span th:text="${#dates.format(inquiryDetail.inquiryRegDate, 'yy.MM.dd HH:mm')}"></span>
-				<span>댓글</span>
+				<span>댓글 <b style="color: #ff0000;">[[${#lists.size(comments) + #lists.size(nestedComments)}]]</b></span>
 			</div>
 			<div class="inqDetail-content">
 				<span>[(${ inquiryDetail.inquiryContent })]</span>
 			</div>
-			<div class="inqDetail-attachment">
-				<div><a th:href="|/download/${inquiryDetail.attachmentList[0].attachmentNo}|">파일1</a></div>
+			<div class="inqDetail-attachment" th:if="${#lists.size(inquiryDetail.attachmentList) > 0}">
+				첨부된 파일 <b style="color: #ff0000;">[[${#lists.size(inquiryDetail.attachmentList)}]]</b> 개
+				<div class="inqDetail-download" th:each="attachmentList : ${ inquiryDetail.attachmentList }">
+					<i class="fa-regular fa-circle-down"></i>
+					<a th:href="|/download/${attachmentList.attachmentNo}|">[[${ attachmentList.origFileName }]] <b>다운로드</b></a>
+					<span>(누적 [[${ attachmentList.download.downloadHits }]])</span>
+				</div>
 			</div>
 		</div>
 	</div>

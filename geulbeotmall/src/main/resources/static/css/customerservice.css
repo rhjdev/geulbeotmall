@@ -223,6 +223,15 @@ input:read-only {
 	font-size: 14px;
 }
 
+.inqDetail-info > a {
+	color: #000;
+	text-decoration: none;
+}
+
+.inqDetail-info > a:hover {
+	text-decoration: underline;
+}
+
 .inqDetail-content {
 	margin-top: 30px;
 	margin-bottom: 100px;

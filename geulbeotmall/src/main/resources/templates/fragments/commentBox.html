@@ -13,8 +13,9 @@
 		</th:block>
 		<!--/* 게시 중인 댓글 */-->
 		<th:block th:if="${#strings.isEmpty(comment.commentDelDate)}">
-			<div class="comment-profile">
-				<strong>[[${ comment.member.name }]]([[${ comment.memberId }]])</strong>
+			<div class="comment-profile"> <!--/* 관리자는 작성자 아이디 클릭 시 해당 회원 상세 정보 페이지로 이동 */-->
+				<a sec:authorize="hasRole('ADMIN')" class="showMemberInfo" th:href="@{/admin/member/details(id=${comment.memberId})}">[[${ comment.member.name }]]([[${#strings.replace(comment.memberId, #strings.substring(comment.memberId, 4), '***')}]])</a>
+				<strong sec:authorize="!hasRole('ADMIN')">[[${ comment.member.name }]]([[${#strings.replace(comment.memberId, #strings.substring(comment.memberId, 4), '***')}]])</strong>
 				<span class="commentDate">[(${#dates.format(comment.commentRegDate, 'yy.MM.dd HH:mm')})]</span>
 				<span class="commentEditBadge" th:if="${not #strings.isEmpty(comment.commentChgDate)}">수정됨</span>
 			</div>

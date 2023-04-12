@@ -31,6 +31,16 @@
 	display: inline-block;
 }
 
+.comment-profile > a {
+	color: #000;
+	text-decoration: none;
+	font-weight: 700;
+}
+
+.comment-profile > a:hover {
+	text-decoration: underline;
+}
+
 .comment-button {
 	position: absolute;
 	right: 0;

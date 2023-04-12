@@ -47,10 +47,11 @@
 	</resultMap>
 	
 	<!-- 댓글 조회 -->
+	<!-- 애스터리스크(별표, *) 대체 : SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') -->
 	<select id="getCommentsInPost" resultMap="commentResultMap">
 		SELECT
 			   A.COMMENT_NO
-			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
+			 , A.MEMBER_ID
 			 , A.REF_BOARD
 			 , A.REF_POST_NO
 			 , A.COMMENT_CONTENT
@@ -72,7 +73,7 @@
 	<select id="getNestedCommentsInPost" resultMap="commentResultMap">
 		SELECT
 			   A.COMMENT_NO
-			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
+			 , A.MEMBER_ID
 			 , A.REF_BOARD
 			 , A.REF_POST_NO
 			 , A.COMMENT_CONTENT

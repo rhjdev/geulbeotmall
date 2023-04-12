@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,6 +35,7 @@ import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.community.model.service.DownloadService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.cs.model.service.CSService;
+import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.upload.model.dto.AttachmentDTO;
@@ -54,13 +56,15 @@ public class CSController {
 	private final CSService csService;
 	private final CommentService commentService;
 	private final DownloadService downloadService;
+	private final MemberService memberService;
 	private final MessageSource messageSource;
 
 	@Autowired
-	public CSController(CSService csService, CommentService commentService, DownloadService downloadService, MessageSource messageSource) {
+	public CSController(CSService csService, CommentService commentService, DownloadService downloadService, MemberService memberService, MessageSource messageSource) {
 		this.csService = csService;
 		this.commentService = commentService;
 		this.downloadService = downloadService;
+		this.memberService = memberService;
 		this.messageSource = messageSource;
 	}
 	
@@ -72,11 +76,21 @@ public class CSController {
 		log.info("고객센터 criteria : {}", criteria);
 		log.info("문의 유형 type : {}", type);
 		
-		String loginMember = (String) session.getAttribute("loginMember");
-		if(loginMember != null) {
-			int total = csService.getTotalInquiryNumber(loginMember, criteria, type); //페이지메이커용
-			List<InquiryDTO> myInquiryList = csService.getMyInquiryList(loginMember, criteria, type); //1:1 문의 게시글
-			Map<Integer, Integer> totalCommentNumberMap = new HashMap<>(); //게시글별 댓글 개수
+		String memberId = (String) session.getAttribute("loginMember");
+		
+		int total = 0; //페이지메이커용 전체 게시글 수
+		List<InquiryDTO> myInquiryList = new LinkedList<>(); //1:1 문의 게시글 목록
+		Map<Integer, Integer> totalCommentNumberMap = new HashMap<>(); //게시글별 댓글 개수
+		
+		if(memberId != null) {
+			/* A. 일반회원은 자신이 작성한 글에 한하여 조회 가능 */
+			/* B. 관리자는 모든 글 조회 가능 */
+			boolean isAdmin = memberService.checkAdminOrNot(memberId) == 1 ? true : false; //관리자 확인
+			if(isAdmin) memberId = "";
+			
+			log.info("loginMember : {}", isAdmin);
+			total = csService.getTotalInquiryNumber(memberId, criteria, type);
+			myInquiryList = csService.getMyInquiryList(memberId, criteria, type);
 			if(myInquiryList != null) {
 				for(int i=0; i < myInquiryList.size(); i++) {
 					String refBoard = "문의";
@@ -86,10 +100,10 @@ public class CSController {
 				}
 				model.addAttribute("totalCommentNumberMap", totalCommentNumberMap);
 			}
-			model.addAttribute("total", total);
-			model.addAttribute("memberInquiry", myInquiryList);
-			model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
 		}
+		model.addAttribute("total", total);
+		model.addAttribute("memberInquiry", myInquiryList);
+		model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
 	}
 	
 	/**
@@ -199,11 +213,15 @@ public class CSController {
 	 * 1:1 문의 상세 페이지
 	 */
 	@GetMapping("inquiry/details")
-	public void getInquiryDetails(@RequestParam("no") int inquiryNo, @Valid @ModelAttribute("criteria") Criteria criteria,
-			HttpSession session, Model model) {
+	public void getInquiryDetails(@RequestParam("no") int inquiryNo, HttpSession session, Model model) {
 		log.info("inquiry details 요청 : {}", inquiryNo);
 		
 		String memberId = (String) session.getAttribute("loginMember");
+		/* A. 일반회원은 자신이 작성한 글에 한하여 조회 가능 */
+		/* B. 관리자는 모든 글 조회 가능 */
+		boolean isAdmin = memberService.checkAdminOrNot(memberId) == 1 ? true : false; //관리자 확인
+		if(isAdmin) memberId = "";
+		
 		InquiryDTO inquiryDetail =  csService.getInquiryDetails(memberId, inquiryNo); //본인확인에 필요한 memberId
 		
 		if(inquiryDetail == null) {
@@ -218,7 +236,6 @@ public class CSController {
 			model.addAttribute("refPostNo", refPostNoForComment);
 			model.addAttribute("comments", comments); //댓글
 			model.addAttribute("nestedComments", nestedComments); //대댓글
-			model.addAttribute("pageMaker", new PageDTO(comments.size(), 10, criteria));
 			
 			/* 문의 상세내용 조회 */
 			model.addAttribute("inquiryDetail", inquiryDetail);

@@ -132,9 +132,10 @@
 						  FROM TBL_INQUIRY A
 						  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
 						  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
-						 WHERE A.MEMBER_ID = #{ memberId }
+						 WHERE 1 = 1
 						 <include refid="inquiryPostCommentSearch"></include>
 						 <include refid="inquiryTypeSearch"></include>
+						 <if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
 				 		) D
 				 <![CDATA[
 				 WHERE D.RANK <= #{ criteria.currentPageNo } * #{ criteria.recordsPerPage }
@@ -152,16 +153,17 @@
 		  FROM TBL_INQUIRY A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
 		  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
-		 WHERE A.MEMBER_ID = #{ memberId }
+		 WHERE 1 = 1
 		<include refid="inquiryPostCommentSearch"></include>
 		<include refid="inquiryTypeSearch"></include>
+		<if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
 	</select>
 	
 	<!-- 고객센터 1:1 문의 상세 내용 조회 -->
 	<select id="getInquiryDetails" resultMap="inquiryResultMap">
 		SELECT
 			   A.INQUIRY_NO
-			 , SUBSTR(A.MEMBER_ID, 1, 4) || RPAD('*', LENGTH(A.MEMBER_ID)-4, '*') MEMBER_ID
+			 , A.MEMBER_ID
 			 , A.INQUIRY_TITLE
 			 , A.INQUIRY_CONTENT
 			 , A.INQUIRY_TYPE
@@ -176,8 +178,8 @@
 		  FROM TBL_INQUIRY A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
 		  LEFT JOIN TBL_DOWNLOAD C ON(B.ATTACHMENT_NO = C.ATTACHMENT_NO)
-		 WHERE A.MEMBER_ID = #{ memberId }
-		   AND A.INQUIRY_NO = #{ inquiryNo }
+		 WHERE A.INQUIRY_NO = #{ inquiryNo }
+		 <if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
 	</select>
 	
 	<!-- 고객센터 1:1 문의 답변완료 반영 -->
