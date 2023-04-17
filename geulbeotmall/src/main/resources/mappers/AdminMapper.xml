@@ -191,53 +191,71 @@
 		<result property="trashDateUntil" column="TRASH_DATE_UNTIL"/>
 	</resultMap>
 	
-	<!-- 회원관리 -->
-	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
-		<![CDATA[
-		SELECT
-			   B.MEMBER_ID
-			 , B.NAME
-			 , B.PHONE
-			 , B.EMAIL
-			 , B.ADDRESS
-			 , B.LATEST_LOGIN_DATE
-			 , B.ACC_CREATION_DATE
-		  FROM
-		(
-		SELECT A.RANK RK 
-			 , A.MEMBER_ID
-			 , A.NAME
-			 , A.PHONE
-			 , A.EMAIL
-			 , A.ADDRESS
-			 , A.LATEST_LOGIN_DATE
-			 , A.ACC_CREATION_DATE
-		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY ACC_CREATION_DATE) RANK
-		  			 , MEMBER_ID
-			 		 , NAME
-			 		 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
-			 		 , EMAIL
-			 		 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
-			 		 , LATEST_LOGIN_DATE
-			 		 , ACC_CREATION_DATE 
-			 	 FROM TBL_MEMBER
-		 		WHERE ACC_CLOSING_YN = 'N') A
-		 WHERE A.RANK <= #{ currentPageNo } * #{ recordsPerPage }
-		]]>
-		<trim prefix="AND">
-		   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
-		   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
-		   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
-		   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+	<sql id="dateRangeForMemberData">
+		<trim prefix="WHERE">
+			<if test="range != null and range eq 'oneWeek'">ACC_CREATION_DATE BETWEEN TO_DATE(SYSDATE-7) AND TO_DATE(SYSDATE+1)</if>
+			<if test="range != null and range eq 'oneMonth'">ACC_CREATION_DATE BETWEEN TO_DATE(ADD_MONTHS(SYSDATE, -1)) AND TO_DATE(SYSDATE+1)</if>
+			<if test="range != null and range eq 'threeMonths'">ACC_CREATION_DATE BETWEEN TO_DATE(ADD_MONTHS(SYSDATE, -3)) AND TO_DATE(SYSDATE+1)</if>
+			<if test="range != null and range eq 'sixMonths'">ACC_CREATION_DATE BETWEEN TO_DATE(ADD_MONTHS(SYSDATE, -6)) AND TO_DATE(SYSDATE+1)</if>
+			<if test="range eq 'other' and start != '' and end != ''">ACC_CREATION_DATE BETWEEN TO_DATE(#{ start }, 'yyyymmdd') AND TO_DATE(#{ end }, 'yyyymmdd')+1</if>
 		</trim>
+	</sql>
+	<sql id="dateRangeForSalesData">
+		<trim prefix="WHERE">
+			<if test="range != null and range eq 'oneWeek'">PAYMENT_DATETIME BETWEEN TO_CHAR(TO_DATE(SYSDATE-7), 'yyyy.mm.dd') AND TO_CHAR(TO_DATE(SYSDATE+1), 'yyyy.mm.dd')</if>
+			<if test="range != null and range eq 'oneMonth'">PAYMENT_DATETIME BETWEEN TO_CHAR(TO_DATE(ADD_MONTHS(SYSDATE, -1)), 'yyyy.mm') AND TO_CHAR(TO_DATE(SYSDATE+1), 'yyyy.mm')</if>
+			<if test="range != null and range eq 'threeMonths'">PAYMENT_DATETIME BETWEEN TO_CHAR(TO_DATE(ADD_MONTHS(SYSDATE, -3)), 'yyyy.mm') AND TO_CHAR(TO_DATE(SYSDATE+1), 'yyyy.mm')</if>
+			<if test="range != null and range eq 'sixMonths'">PAYMENT_DATETIME BETWEEN TO_CHAR(TO_DATE(ADD_MONTHS(SYSDATE, -6)), 'yyyy.mm') AND TO_CHAR(TO_DATE(SYSDATE+1), 'yyyy.mm')</if>
+			<if test="range eq 'other' and start != '' and end != ''">PAYMENT_DATETIME BETWEEN TO_CHAR(TO_DATE(#{ start }, 'yyyymmdd'), 'yyyy.mm') AND TO_CHAR(TO_DATE(#{ end }, 'yyyymmdd')+1, 'yyyy.mm')</if>
+		</trim>
+	</sql>
+	<!-- 통계 조회(회원수) *최근 1주/1개월/3개월/6개월/기타 기간별* -->
+	<select id="getMemberDataByDate" resultType="HashMap">
+		SELECT
+			   COUNT(*) VALUE
+		<if test="range eq 'oneWeek' or range eq 'other'">, TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm.dd') LABEL</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">, TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm') LABEL</if>
+		  FROM TBL_MEMBER
+		<include refid="dateRangeForMemberData"/>
+		<if test="range eq 'oneWeek' or range eq 'other'">GROUP BY TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm.dd')</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">GROUP BY TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm')</if>
+		<if test="range eq 'oneWeek' or range eq 'other'">ORDER BY TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm.dd')</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">ORDER BY TO_CHAR(ACC_CREATION_DATE, 'yyyy.mm')</if>
+	</select>
+	<!-- 통계 조회(매출액) *최근 1주/1개월/3개월/6개월/기타 기간별* -->
+	<select id="getSalesDataByDate" resultType="HashMap">
+		SELECT
+			   SUM(PAYMENT_AMOUNT) VALUE
+		<if test="range eq 'oneWeek' or range eq 'other'">, TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm.dd') LABEL</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">, TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm') LABEL</if>
+		  FROM TBL_PAYMENT
+		<include refid="dateRangeForSalesData"/>
+		<if test="range eq 'oneWeek' or range eq 'other'">GROUP BY TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm.dd')</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">GROUP BY TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm')</if>
+		<if test="range eq 'oneWeek' or range eq 'other'">ORDER BY TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm.dd')</if>
+		<if test="range neq 'other' and range neq 'oneWeek'">ORDER BY TO_CHAR(TO_DATE(PAYMENT_DATETIME, 'yyyy.mm.dd PM HH:MI:SS'), 'yyyy.mm')</if>
+	</select>
+	<!-- 통계 조회(누적 판매량 Top 8) -->
+	<select id="getTopSalesProduct" resultType="HashMap">
+		SELECT *
+		  FROM (
+				SELECT
+					   A.PROD_NO NO
+					 , A.PROD_NAME NAME
+					 , SUM(C.ORDER_QUANTITY) SALES
+				  FROM TBL_PRODUCT A
+				  LEFT JOIN TBL_OPTION B ON(A.PROD_NO = B.REF_PROD_NO)
+				  LEFT JOIN TBL_ORDER C ON(B.OPTION_NO = C.OPTION_NO)
+				  LEFT JOIN TBL_OPTION D ON(C.OPTION_NO = D.OPTION_NO)
+				 GROUP BY A.PROD_NO, A.PROD_NAME
+				 ORDER BY SUM(C.ORDER_QUANTITY) DESC
+		  	   )
 		<![CDATA[
-		) B
-		WHERE B.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		 WHERE ROWNUM <= 8
 		]]>
 	</select>
 	
+	<!-- 회원관리 -->
 	<select id="getMemberDetails" resultMap="memberResultMap">
 		SELECT
 			   A.MEMBER_ID
@@ -282,122 +300,173 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</select>
 	
+	<sql id="memberSearch">
+		 <trim prefix="AND">
+		 	   <if test="keyword != null and condition eq 'id'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		 	   <if test="keyword != null and condition eq 'name'">A.NAME LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'phone'">A.PHONE LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'email'">A.EMAIL LIKE '%' || #{ keyword } || '%'</if>
+			   <if test="keyword != null and condition eq 'address'">A.ADDRESS LIKE '%' || #{ keyword } || '%'</if>
+		 </trim>
+	</sql>
+	
 	<select id="getTotalNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
-		  FROM TBL_MEMBER
-		 WHERE ACC_CLOSING_YN = 'N'
-		 <trim prefix="AND">
-		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
-		 </trim>
+			   COUNT(DISTINCT A.MEMBER_ID)
+		  FROM TBL_MEMBER A
+		 WHERE A.ACC_CLOSING_YN = 'N'
+		<include refid="memberSearch"></include>
 	</select>
-	
-	<select id="getRegularNumber" resultType="_int">
+	<select id="getRegularNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(*)
-		  FROM TBL_MEMBER
-		 WHERE ACC_CLOSING_YN = 'N'
-		   AND MEMBER_ID NOT IN (SELECT
-		   						  		A.MEMBER_ID
-		   					 	   FROM TBL_MEMBER A
-		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
-		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
-		  						  WHERE B.AUTHORITY_CODE = 2)
-		 <trim prefix="AND">
-		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
-		 </trim>
+			   COUNT(DISTINCT A.MEMBER_ID)
+		  FROM TBL_MEMBER A
+		 WHERE A.ACC_CLOSING_YN = 'N'
+		   AND A.MEMBER_ID NOT IN (SELECT
+		   						  		  B.MEMBER_ID
+		   					 	     FROM TBL_MEMBER B
+		   					 	     LEFT JOIN TBL_ROLE C ON(B.MEMBER_ID = C.MEMBER_ID)
+		  					 	     LEFT JOIN TBL_AUTHORITY D ON(C.AUTHORITY_CODE = D.AUTHORITY_CODE)
+		  						    WHERE C.AUTHORITY_CODE = 2)
+		<include refid="memberSearch"></include>
 	</select>
-	
-	<select id="getAdminNumber" resultType="_int">
+	<select id="getAdminNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(A.MEMBER_ID)
+			   COUNT(DISTINCT A.MEMBER_ID)
 		  FROM TBL_MEMBER A
 		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
 		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
 		 WHERE A.ACC_CLOSING_YN = 'N'
 		   AND B.AUTHORITY_CODE = 2
-		 <trim prefix="AND">
-		 	   <if test="keyword != null and condition eq 'id'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		 	   <if test="keyword != null and condition eq 'name'">A.NAME LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'phone'">A.PHONE LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'email'">A.EMAIL LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'address'">A.ADDRESS LIKE '%' || #{ keyword } || '%'</if>
-		 </trim>
+		<include refid="memberSearch"></include>
 	</select>
-	
-	<select id="getClosedNumber" resultType="_int">
+	<select id="getClosedNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   COUNT(MEMBER_ID)
-		  FROM TBL_MEMBER
-		 WHERE ACC_CLOSING_YN = 'Y'
-	</select>
-	
-	<select id="getMemberOnly" resultMap="memberResultMap">
-		SELECT
-			   MEMBER_ID
-			 , NAME
-			 , REGEXP_REPLACE(PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
-			 , EMAIL
-			 , REGEXP_REPLACE(ADDRESS, '-|\$', ' ') ADDRESS
-			 , LATEST_LOGIN_DATE
-			 , ACC_CREATION_DATE
-		  FROM TBL_MEMBER
-		 WHERE ACC_CLOSING_YN = 'N'
-		   AND MEMBER_ID NOT IN (SELECT
-		   						  		A.MEMBER_ID
-		   					 	   FROM TBL_MEMBER A
-		   					 	   LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
-		  					 	   LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
-		  						  WHERE B.AUTHORITY_CODE = 2)
-		 <trim prefix="AND">
-		 	   <if test="keyword != null and condition eq 'id'">MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		 	   <if test="keyword != null and condition eq 'name'">NAME LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'phone'">PHONE LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'email'">EMAIL LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'address'">ADDRESS LIKE '%' || #{ keyword } || '%'</if>
-		 </trim>
-		 ORDER BY ACC_CREATION_DATE
-	</select>
-	
-	<select id="getAdminOnly" resultMap="memberResultMap">
-		SELECT
-			   A.MEMBER_ID
-			 , A.NAME
-			 , REGEXP_REPLACE(A.PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
-			 , A.EMAIL
-			 , REGEXP_REPLACE(A.ADDRESS, '-|\$', ' ') ADDRESS
-			 , A.LATEST_LOGIN_DATE
-			 , A.ACC_CREATION_DATE
+			   COUNT(DISTINCT A.MEMBER_ID)
 		  FROM TBL_MEMBER A
-		  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
-		  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
-		 WHERE A.ACC_CLOSING_YN = 'N'
-		   AND B.AUTHORITY_CODE = 2
-		 <trim prefix="AND">
-		 	   <if test="keyword != null and condition eq 'id'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		 	   <if test="keyword != null and condition eq 'name'">A.NAME LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'phone'">A.PHONE LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'email'">A.EMAIL LIKE '%' || #{ keyword } || '%'</if>
-			   <if test="keyword != null and condition eq 'address'">A.ADDRESS LIKE '%' || #{ keyword } || '%'</if>
-		 </trim>
-	</select>
-	
-	<select id="getClosedOnly" resultMap="memberSuspResultMap">
-		SELECT
-			   A.MEMBER_ID
-			 , B.ACC_SUSP_DESC
-			 , A.ACC_CLOSING_DATE
-		  FROM TBL_MEMBER A
-		  LEFT JOIN TBL_SUSP B ON(A.MEMBER_ID = B.MEMBER_ID)
 		 WHERE A.ACC_CLOSING_YN = 'Y'
+		<include refid="memberSearch"></include>
+	</select>
+	
+	<select id="getMemberList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
+		SELECT
+			   C.RK
+			 , C.*
+		  FROM (
+				SELECT B.RANK RK 
+					 , B.*
+				  FROM (
+				  		SELECT 
+				  			   DENSE_RANK() OVER (ORDER BY A.ACC_CREATION_DATE, A.MEMBER_ID) RANK
+				  			 , A.MEMBER_ID
+					 		 , A.NAME
+					 		 , REGEXP_REPLACE(A.PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+					 		 , A.EMAIL
+					 		 , REGEXP_REPLACE(A.ADDRESS, '-|\$', ' ') ADDRESS
+					 		 , A.LATEST_LOGIN_DATE
+					 		 , A.ACC_CREATION_DATE 
+					 	 FROM TBL_MEMBER A
+				 		WHERE A.ACC_CLOSING_YN = 'N'
+						<include refid="memberSearch"></include>
+				 		) B
+				<![CDATA[
+				 WHERE B.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				) C
+		WHERE C.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getMemberOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
+		SELECT
+			  C.*
+		  FROM (
+				SELECT
+					   B.RANK RK
+					 , B.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY A.ACC_CREATION_DATE, A.MEMBER_ID) RANK
+							 , A.MEMBER_ID
+							 , A.NAME
+							 , REGEXP_REPLACE(A.PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+							 , A.EMAIL
+							 , REGEXP_REPLACE(A.ADDRESS, '-|\$', ' ') ADDRESS
+							 , A.LATEST_LOGIN_DATE
+							 , A.ACC_CREATION_DATE
+						  FROM TBL_MEMBER A
+						 WHERE A.ACC_CLOSING_YN = 'N'
+						   AND A.MEMBER_ID NOT IN (SELECT
+						   						  		  B.MEMBER_ID
+						   					 	     FROM TBL_MEMBER B
+						   					 	     LEFT JOIN TBL_ROLE C ON(B.MEMBER_ID = C.MEMBER_ID)
+						  					 	     LEFT JOIN TBL_AUTHORITY D ON(C.AUTHORITY_CODE = D.AUTHORITY_CODE)
+						  						    WHERE C.AUTHORITY_CODE = 2)
+						<include refid="memberSearch"></include>
+				  		) B
+				<![CDATA[
+				 WHERE B.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+			<![CDATA[
+			) C
+		WHERE C.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getAdminOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberResultMap">
+		SELECT
+			  C.*
+		  FROM (
+				SELECT
+					   B.RANK RK
+					 , B.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY A.ACC_CREATION_DATE, A.MEMBER_ID) RANK
+							 , A.MEMBER_ID
+							 , A.NAME
+							 , REGEXP_REPLACE(A.PHONE, '(.{3})(.+)(.{4})', '\1-\2-\3') PHONE
+							 , A.EMAIL
+							 , REGEXP_REPLACE(A.ADDRESS, '-|\$', ' ') ADDRESS
+							 , A.LATEST_LOGIN_DATE
+							 , A.ACC_CREATION_DATE
+						  FROM TBL_MEMBER A
+						  LEFT JOIN TBL_ROLE B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  				  LEFT JOIN TBL_AUTHORITY C ON(B.AUTHORITY_CODE = C.AUTHORITY_CODE)
+						 WHERE A.ACC_CLOSING_YN = 'N'
+						   AND B.AUTHORITY_CODE = 2
+						<include refid="memberSearch"></include>
+				  		) B
+				<![CDATA[
+				 WHERE B.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+			   ) C
+		<![CDATA[
+		WHERE C.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getClosedOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="memberSuspResultMap">
+		SELECT
+			   D.*
+		  FROM(
+				SELECT
+					   C.RANK RK
+					 , C.*
+				  FROM(
+					SELECT
+						   DENSE_RANK() OVER(ORDER BY ACC_CLOSING_DATE DESC) RANK
+						 , A.MEMBER_ID
+						 , B.ACC_SUSP_DESC
+						 , A.ACC_CLOSING_DATE
+					  FROM TBL_MEMBER A
+					  LEFT JOIN TBL_SUSP B ON(A.MEMBER_ID = B.MEMBER_ID)
+					 WHERE A.ACC_CLOSING_YN = 'Y'
+					<include refid="memberSearch"></include>
+					  ) C
+			    <![CDATA[
+				 WHERE C.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  		) D
+		<![CDATA[
+		 WHERE D.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<select id="searchAuthById" resultType="_int">

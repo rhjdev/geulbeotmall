@@ -1,8 +1,7 @@
 package com.reminder.geulbeotmall.admin.model.service;
 
 import java.util.List;
-
-import javax.validation.Valid;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
@@ -71,8 +71,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public int getClosedNumber() {
-		int closed = adminMapper.getClosedNumber();
+	public int getClosedNumber(Criteria criteria) {
+		int closed = adminMapper.getClosedNumber(criteria);
 		return closed;
 	}
 	
@@ -89,8 +89,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<MemberSuspDTO> getClosedOnly() {
-		List<MemberSuspDTO> closedOnly = adminMapper.getClosedOnly();
+	public List<MemberSuspDTO> getClosedOnly(Criteria criteria) {
+		List<MemberSuspDTO> closedOnly = adminMapper.getClosedOnly(criteria);
 		return closedOnly;
 	}
 	
@@ -209,5 +209,20 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public int getTotalOrderNumber(Criteria criteria) {
 		return adminMapper.getTotalOrderNumber(criteria);
+	}
+
+	@Override
+	public List<Map<String, Integer>> getMemberDataByDate(String range, String start, String end) {
+		return adminMapper.getMemberDataByDate(range, start, end);
+	}
+
+	@Override
+	public List<Map<String, Integer>> getSalesDataByDate(String range, String start, String end) {
+		return adminMapper.getSalesDataByDate(range, start, end);
+	}
+
+	@Override
+	public List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end) {
+		return adminMapper.getTopSalesProduct(range, start, end);
 	}
 }

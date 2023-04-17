@@ -23,12 +23,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
@@ -63,7 +66,7 @@ public class AdminController {
 	}
 	
 	@GetMapping("/dashboard")
-	public String getDashboard() {
+	public String getDashboard(Model model) {
 		/* 복구기한 100일이 경과한 휴지통 삭제글 영구 삭제 */
 		List<Integer> reviewNoList = adminService.getTrashItemToDelete();
 		log.info("금일 기준 '영구 삭제 대상 휴지통 삭제글' 개수 : {}", reviewNoList.size());
@@ -73,7 +76,42 @@ public class AdminController {
 			if(result == 1) count++;
 		}
 		log.info("영구 삭제글 count : {}", count);
+		
+		/* 통계 자료 조회(기본 조회 기간 '최근 일주일') */
+		String range = "oneWeek";
+		String start = "";
+		String end = "";
+		
+		List<Map<String, Integer>> memberData = adminService.getMemberDataByDate(range, start, end); //회원수
+		List<Map<String, Integer>> salesData = adminService.getSalesDataByDate(range, start, end); //매출액
+		List<Map<ProductDTO, Integer>> top8Product = adminService.getTopSalesProduct(range, start, end); //누적 판매량 Top 8
+		model.addAttribute("memberData", memberData);
+		model.addAttribute("salesData", salesData);
+		model.addAttribute("top8Product", top8Product);
 		return "admin/dashboard";
+	}
+	
+	/* 통계 데이터 */
+	@PostMapping(value="/dashboard/statistics", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public ModelAndView getDashboardWithSelectedRange(@RequestBody Map<String, String> params) {
+		/* jsonView 적용 */
+		ModelAndView mv = new ModelAndView();
+		MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+		mv.setView(jsonView);
+		
+		log.info("dashboard statistics params: {}", params);
+		
+		String range = params.get("range").toString();
+		String start = params.get("start").toString();
+		String end = params.get("end").toString();
+		List<Map<String, Integer>> memberData = adminService.getMemberDataByDate(range, start, end); //회원수
+		List<Map<String, Integer>> salesData = adminService.getSalesDataByDate(range, start, end); //매출액
+		List<Map<ProductDTO, Integer>> top8Product = adminService.getTopSalesProduct(range, start, end); //누적 판매량 Top 8
+		mv.addObject("memberData", memberData);
+		mv.addObject("salesData", salesData);
+		mv.addObject("top8Product", top8Product);
+		return mv;
 	}
 	
 	/* 디자인관리 */
@@ -160,7 +198,7 @@ public class AdminController {
 		int total = adminService.getTotalNumber(criteria);
 		int regular = adminService.getRegularNumber(criteria);
 		int admin = adminService.getAdminNumber(criteria);
-		int closed = adminService.getClosedNumber();
+		int closed = adminService.getClosedNumber(criteria);
 		log.info("전체 회원수 : {}", total);
 		log.info("일반 회원수 : {}", regular);
 		log.info("관리자 수 : {}", admin);
@@ -168,7 +206,7 @@ public class AdminController {
 		List<MemberDTO> memberList = adminService.getMemberList(criteria);
 		List<MemberDTO> memberOnly = adminService.getMemberOnly(criteria);
 		List<MemberDTO> adminOnly = adminService.getAdminOnly(criteria);
-		List<MemberSuspDTO> closedOnly = adminService.getClosedOnly();
+		List<MemberSuspDTO> closedOnly = adminService.getClosedOnly(criteria);
 		for(int i=0; i < closedOnly.size(); i++) {
 			boolean isClosedByUser = closedOnly.get(i).getSusp().getAccSuspDesc() == null ? true : false;
 			if(isClosedByUser) {
@@ -185,7 +223,10 @@ public class AdminController {
 		model.addAttribute("memberOnly", memberOnly);
 		model.addAttribute("adminOnly", adminOnly);
 		model.addAttribute("closedOnly", closedOnly);
-		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalNumber(criteria), 10, criteria));
+		model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
+		model.addAttribute("pageMakerWithRegularMemberNumber", new PageDTO(regular, 10, criteria));
+		model.addAttribute("pageMakerWithAdminNumber", new PageDTO(admin, 10, criteria));
+		model.addAttribute("pageMaketWithClosedMemberNumber", new PageDTO(closed, 10, criteria));
 	}
 	
 	@GetMapping("/member/details")

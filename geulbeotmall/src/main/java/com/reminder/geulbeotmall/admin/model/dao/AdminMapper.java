@@ -1,6 +1,7 @@
 package com.reminder.geulbeotmall.admin.model.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,6 +11,7 @@ import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
+import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
@@ -30,13 +32,13 @@ public interface AdminMapper {
 
 	int getAdminNumber(Criteria criteria);
 
-	int getClosedNumber();
+	int getClosedNumber(Criteria criteria);
 	
 	List<MemberDTO> getMemberOnly(Criteria criteria);
 
 	List<MemberDTO> getAdminOnly(Criteria criteria);
 
-	List<MemberSuspDTO> getClosedOnly();
+	List<MemberSuspDTO> getClosedOnly(Criteria criteria);
 	
 	int updateAuth();
 
@@ -85,4 +87,10 @@ public interface AdminMapper {
 	int permanentlyDeleteFromTrash(int reviewNo);
 
 	int getTotalOrderNumber(Criteria criteria);
+
+	List<Map<String, Integer>> getMemberDataByDate(String range, String start, String end);
+
+	List<Map<String, Integer>> getSalesDataByDate(String range, String start, String end);
+
+	List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end);
 }

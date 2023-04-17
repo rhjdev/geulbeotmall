@@ -3,8 +3,239 @@
 <head>
 	<meta charset="UTF-8">
 	<title>관리자페이지 | 글벗문구</title>
+	<!-- CSS -->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <!-- Datepicker -->
+	    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+	</th:block>
 </head>
 <body layout:fragment="content">
 	<h1>관리자페이지</h1>
+	<div class="chart-wrapper">
+		<fieldset>
+			<legend>홈페이지 통계<small id="today"></small></legend>
+		</fieldset>
+		<ul class="statistics-notice">
+			<li>현재 시간 기준 '최근 1주' 통계 자료를 기본으로 보여드리고 있습니다.</li>
+			<li>원하는 기간을 설정하여 조회할 수 있습니다.</li>
+		</ul>
+		<div class="statisticsSearch">
+			<select id="range" name="range">
+				<option value="oneWeek">최근 1주</option>
+				<option value="oneMonth">최근 1개월</option>
+				<option value="threeMonths">최근 3개월</option>
+				<option value="sixMonths">최근 6개월</option>
+				<option value="other">직접 선택</option>
+			</select>
+			<div class="dateRangePicker" style="display: none;">
+				<input type="text" id="startDate" name="startDate" autocomplete="off" placeholder="시작일자">
+				 ~ 
+				<input type="text" id="endDate" name="endDate" autocomplete="off" placeholder="종료일자">
+			</div>
+		</div>
+		<div class="chartBox">
+			<div><canvas id="memberChart"></canvas></div>
+		</div>
+		<div class="chartBox">
+			<div><canvas id="top8Product"></canvas></div>
+			<div><canvas id="salesChart"></canvas></div>
+		</div>
+	</div>
+	<!--/* JS */-->
+	<th:block layout:fragment="script">
+		<!--/* Datepicker */-->
+		<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+		<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+		<!--/* Chart.js */-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+		<script th:inline="javascript">
+			$(document).ready(function(){
+				/* 
+				   차트 흐름
+				   1. 현재 시간 기준 '최근 1주' 통계 자료가 기본 조회됨(페이지 : '/admin/dashboard', @GetMapping)
+				   2. 사용자 선택에 따라 '최근 1주/1개월/3개월/6개월/기타 기간별' 데이터를 새롭게 조회해 덮어씌움(memberDataList, salesDataList)
+				 */
+				let memberChart = document.getElementById('memberChart');
+				let memberDataList = [[${memberData}]];
+				getMemberChart(memberDataList);
+				
+				let salesChart = document.getElementById('salesChart');
+				let salesDataList = [[${salesData}]];
+				getSalesChart(salesDataList);
+				
+				let topChart = document.getElementById('top8Product');
+				let topList = [[${top8Product}]];
+				getTopProductChart(topList);
+				
+				/* 현재 시간 */
+				let today = new Date();
+				let text = today.getFullYear() + '.' + (today.getMonth()+1) + '.' + today.getDate() + ' '
+						+ today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+				document.getElementById('today').innerHTML = text;
+				
+				
+				/* 기간 선택 */
+				let start = '';
+				let end = '';
+				$('#range').on('change', function(){
+					let range = $('#range option:selected').val();
+					
+					if($('#range option:selected').val() == 'other') { //직접 선택
+						$(this).closest('div').find('.dateRangePicker').attr('style', 'display: contents');
+						$('#startDate, #endDate').on('property change input', function(){
+							start = $('input[name=startDate]').val();
+							end = $('input[name=endDate]').val();
+							if(end != '') {
+								setParams(range, start, end); //endDate까지 모두 선택 후 params 전송
+							}
+						});
+					} else {
+						$(this).closest('div').find('.dateRangePicker').attr('style', 'display: none');
+						setParams(range, start, end);
+					}
+				});
+				
+				$.datepicker.setDefaults({ //기간 조회용 datepicker
+					dateFormat: 'yymmdd',
+					prevText: '이전 달',
+					nextText: '다음 달',
+					monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+				    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+				    dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+				    dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+				    dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+				    showMonthAfterYear: true,
+				    yearSuffix: '년'
+				});
+				$(function(){
+					$('#startDate').datepicker({ //startDate는 endDate 이후 날짜 선택 불가
+						onClose: function() {
+							let min = $('#startDate').datepicker('getDate');
+							min.setDate(min.getDate()+1);
+							$('#endDate').datepicker('option', 'minDate', min);
+						}
+					});
+					$('#endDate').datepicker({ //endDate는 startDate 이전 날짜 선택 불가
+						onClose: function() {
+							let max = $('#endDate').datepicker('getDate');
+							max.setDate(max.getDate()-1);
+							$('#startDate').datepicker('option', 'maxDate', max);
+						}
+					});
+				});
+				
+				function setParams(range, start, end) {
+					let params = { range : range, start : start, end : end };
+					
+					$.ajax({
+						url : '/admin/dashboard/statistics',
+						type : 'post',
+						traditional : true,
+						contentType : 'application/json',
+						dataType : 'text',
+						data: JSON.stringify(params),
+						success : function(result){ //선택된 기간별 데이터 조회 후 덮어쓰기
+							memberDataList = JSON.parse(result).memberData;
+							getMemberChart(memberDataList);
+							
+							salesDataList = JSON.parse(result).salesData;
+							getSalesChart(salesDataList);
+						},
+						error : function(status, error){ console.log(status, error); }
+					});
+				}
+				function getMemberChart(memberDataList) { //member chart
+					let memberLabel = new Array();
+					let memberValue = new Array();
+					Array.from(memberDataList).map((item, index) => {
+						memberLabel.push(item.LABEL);
+						memberValue.push(item.VALUE);
+					});
+					
+					//memberLabel.forEach(item => console.log(item));
+					new Chart(memberChart, {
+						type: 'line',
+						data: {
+							labels: memberLabel,
+							datasets: [{
+								label: '회원수',
+								data: memberValue,
+								borderColor: 'rgb(0, 0, 141)',
+							}]
+						},
+						options: {
+							scales: { y: { beginAtZero: true } }
+						}
+					});
+				}
+				function getSalesChart(salesDataList) { //sales chart
+					let salesLabel = new Array();
+					let salesValue = new Array();
+					Array.from(salesDataList).map((item, index) => {
+						salesLabel.push(item.LABEL);
+						salesValue.push(item.VALUE);
+					});
+					
+					new Chart(salesChart, {
+						type: 'bar',
+						data: {
+							labels: salesLabel,
+							datasets: [{
+								label: '매출액',
+								data: salesValue,
+								borderColor: 'rgb(0, 0, 141)',
+							}]
+						},
+						options: {
+							scales: { y: { beginAtZero: false } }
+						}
+					});
+				}
+				function getTopProductChart(topList) { //top 8 product chart
+					let topNo = new Array();
+					let topName = new Array();
+					let topSales = new Array();
+					Array.from(topList).map((item, index) => {
+						topNo.push(item.NO);
+						topName.push(item.NAME);
+						topSales.push(item.SALES);
+					});
+					
+					let myDoughnut = new Chart(topChart, {
+						type: 'doughnut',
+						data: {
+							labels: topName,
+							datasets: [{
+								label: '누적 판매량',
+								data: topSales,
+								no: topNo,
+							}]
+						},
+						backgroundColor: [
+						      'rgb(0, 0, 141)',
+						      'rgb(0, 0, 204)',
+						      'rgb(26, 26, 255)',
+						      'rgb(102, 102, 255)',
+						      'rgb(128, 128, 255)',
+						      'rgb(153, 153, 255)',
+						      'rgb(204, 204, 255)',
+						      'rgb(230, 230, 255)'
+						],
+						options: {
+							onClick: function(e){
+								var activePoints = myDoughnut.getElementsAtEvent(e);
+						        var selectedIndex = activePoints[0]._index;
+						        //console.log(this.data.labels[selectedIndex]);
+						        //console.log(this.data.datasets[0].no[selectedIndex]);
+						        location.href='/admin/product/edit?no=' + this.data.datasets[0].no[selectedIndex]; //클릭 시 해당 상품 수정 페이지로 이동
+							}
+						},
+						hoverOffset: 4
+					});
+				}
+			});
+		</script>
+	</th:block>
 </body>
 </html>
