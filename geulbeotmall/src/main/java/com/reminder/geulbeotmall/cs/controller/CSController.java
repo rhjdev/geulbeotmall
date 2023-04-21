@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -30,11 +31,14 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
+import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
 import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.community.model.service.DownloadService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.cs.model.service.CSService;
+import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.service.MemberService;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
@@ -57,14 +61,16 @@ public class CSController {
 	private final CommentService commentService;
 	private final DownloadService downloadService;
 	private final MemberService memberService;
+	private final AdminService adminService;
 	private final MessageSource messageSource;
 
 	@Autowired
-	public CSController(CSService csService, CommentService commentService, DownloadService downloadService, MemberService memberService, MessageSource messageSource) {
+	public CSController(CSService csService, CommentService commentService, DownloadService downloadService, MemberService memberService, AdminService adminService, MessageSource messageSource) {
 		this.csService = csService;
 		this.commentService = commentService;
 		this.downloadService = downloadService;
 		this.memberService = memberService;
+		this.adminService = adminService;
 		this.messageSource = messageSource;
 	}
 	
@@ -107,16 +113,37 @@ public class CSController {
 	}
 	
 	/**
-	 * 1:1 문의 작성
+	 * 1:1 문의 작성 및 수정
+	 * : 새 글 작성 시 "/cs/main", 수정 시 "/cs/inquiry?no={}"
 	 */
 	@GetMapping("inquiry")
-	public void getInquiryWriteForm() {}
+	public void getInquiryWriteForm(@RequestParam(value="no", required=false, defaultValue="0") String no,
+			@AuthenticationPrincipal UserImpl user, HttpServletRequest request, Model model) {
+		log.info("inquiry 작성/수정 요청");
+		/* 수정 요청 구분 */
+		if(!no.equals("0")) {
+			int inquiryNo = Integer.parseInt(no);
+			InquiryDTO originalInquiry = csService.getInquiryDetails(user.getMemberId(), inquiryNo);
+			model.addAttribute("originalInquiry", originalInquiry);
+			log.info("inquiry 수정 요청 확인 : {}", originalInquiry);
+		}
+	}
 	
 	@PostMapping(value="inquiry", consumes={MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public String writeAInquiry(@ModelAttribute InquiryDTO inquiryDTO,
 			@RequestParam(value="files", required=false) List<MultipartFile> files, HttpServletRequest request, RedirectAttributes rttr, Locale locale) {
-		log.info("inquiry 작성 요청 : {}", inquiryDTO);
-		int result = csService.writeAInquiry(inquiryDTO);
+		log.info("inquiry 작성/수정 요청 : {}", inquiryDTO);
+		/* '작성' 또는 '수정' 요청 구분 */
+		int result = 0;
+		if(inquiryDTO.getInquiryNo() > 0) {
+			log.info("문의 수정 : {}", inquiryDTO.getInquiryNo());
+			result = csService.updateAInquiry(inquiryDTO); //기존 첨부파일 일괄 삭제 + 제목,내용,유형 수정 및 수정일 저장
+		} else {
+			log.info("새 문의 작성");
+			result = csService.writeAInquiry(inquiryDTO);
+		}
+		
+		/* 첨부파일 저장 */
 		if(result == 1) {
 			int fileCount = 0;
 			int fileUploaded = 0;
@@ -170,7 +197,12 @@ public class CSController {
 						fileList.add(fileMap);
 						
 						//현재 문의번호 조회
-						int currInquiryNo = csService.checkCurrInquiryNo(); //새 글 작성 중 부여된 번호 조회
+						int currInquiryNo;
+						if(inquiryDTO.getInquiryNo() > 0) {
+							currInquiryNo = inquiryDTO.getInquiryNo(); //수정 중인 번호 반영
+						} else {
+							currInquiryNo = csService.checkCurrInquiryNo(); //새 글 작성 중 부여된 번호 조회
+						}
 						
 						AttachmentDTO tempFileInfo = new AttachmentDTO();
 						for(int i=0; i < fileList.size(); i++) {
@@ -215,6 +247,9 @@ public class CSController {
 	@GetMapping("inquiry/details")
 	public void getInquiryDetails(@RequestParam("no") int inquiryNo, HttpSession session, Model model) {
 		log.info("inquiry details 요청 : {}", inquiryNo);
+		/* 문의 조회수 증가*/
+		int count = csService.incrementInquiryViewCount(inquiryNo);
+		if(count == 1) log.info("문의 조회수 + 1");
 		
 		String memberId = (String) session.getAttribute("loginMember");
 		/* A. 일반회원은 자신이 작성한 글에 한하여 조회 가능 */
@@ -240,5 +275,31 @@ public class CSController {
 			/* 문의 상세내용 조회 */
 			model.addAttribute("inquiryDetail", inquiryDetail);
 		}
+	}
+	
+	/**
+	 * 문의 삭제(휴지통 이동)
+	 * - 작성자는 관리자의 답변이 있기 전에 한하여 삭제 가능
+	 * - 복구기한 100일 동안 '휴지통 삭제글'로 지정 및 관리되다 만료일 도래하면 자동 영구 삭제
+	 */
+	@GetMapping("inquiry/delete")
+	public String deleteMyInquiry(@RequestParam("no") int inquiryNo, HttpSession session, RedirectAttributes rttr, Locale locale) {
+		log.info("문의 삭제 요청 : {}", inquiryNo);
+		String loginMember = (String) session.getAttribute("loginMember");
+		InquiryDTO inquiryDTO = csService.getInquiryDetails(loginMember, inquiryNo);
+		
+		TrashDTO trashDTO = new TrashDTO();
+		trashDTO.setRefBoard("inquiry");
+		trashDTO.setRefPostNo(inquiryNo);
+		trashDTO.setTrashTitle(inquiryDTO.getInquiryTitle());
+		trashDTO.setTrashWriter(loginMember);
+		trashDTO.setTrashDeleteBy(loginMember); //문의 삭제는 작성자 본인만 가능
+		int result = adminService.moveAPostToTrash(trashDTO);
+		if(result == 1) {
+			rttr.addFlashAttribute("deleteInquiryMessage", messageSource.getMessage("inquiryDeletedSuccessfully", null, locale));
+		} else {
+			rttr.addFlashAttribute("deleteInquiryMessage", messageSource.getMessage("errorWhileDeletingAInquiry", null, locale));
+		}
+		return "redirect:/cs/main";
 	}
 }

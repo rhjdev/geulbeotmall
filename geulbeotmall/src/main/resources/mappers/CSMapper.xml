@@ -9,6 +9,8 @@
 		<result property="inquiryContent" column="INQUIRY_CONTENT"/>
 		<result property="inquiryType" column="INQUIRY_TYPE"/>
 		<result property="inquiryRegDate" column="INQUIRY_REG_DATE"/>
+		<result property="inquiryChgDate" column="INQUIRY_CHG_DATE"/>
+		<result property="inquiryHits" column="INQUIRY_HITS"/>
 		<result property="inquiryAnsweredYn" column="INQUIRY_ANSWERED_YN"/>
 		<association property="attachmentList" resultMap="thumbnailResultMap"/>
 	</resultMap>
@@ -43,6 +45,7 @@
 		, INQUIRY_CONTENT
 		, INQUIRY_TYPE
 		, INQUIRY_REG_DATE
+		, INQUIRY_CHG_DATE
 		, INQUIRY_ANSWERED_YN
 		)
 		VALUES
@@ -53,6 +56,7 @@
 		, #{ inquiryContent }
 		, #{ inquiryType }
 		, SYSDATE
+		, NULL
 		, DEFAULT
 		)
 	</insert>
@@ -132,7 +136,7 @@
 						  FROM TBL_INQUIRY A
 						  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
 						  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
-						 WHERE 1 = 1
+						 WHERE A.INQUIRY_NO NOT IN (SELECT H.REF_POST_NO FROM TBL_TRASH H WHERE H.REF_BOARD = 'inquiry')
 						 <include refid="inquiryPostCommentSearch"></include>
 						 <include refid="inquiryTypeSearch"></include>
 						 <if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
@@ -153,7 +157,7 @@
 		  FROM TBL_INQUIRY A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.INQUIRY_NO = B.REF_INQ_NO)
 		  LEFT JOIN TBL_COMMENT C ON(A.INQUIRY_NO = C.REF_POST_NO)
-		 WHERE 1 = 1
+		 WHERE A.INQUIRY_NO NOT IN (SELECT H.REF_POST_NO FROM TBL_TRASH H WHERE H.REF_BOARD = 'inquiry')
 		<include refid="inquiryPostCommentSearch"></include>
 		<include refid="inquiryTypeSearch"></include>
 		<if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
@@ -182,6 +186,18 @@
 		 <if test="memberId != ''">AND A.MEMBER_ID = #{ memberId }</if>
 	</select>
 	
+	<!-- 고객센터 1:1 문의 조회수 증가 -->
+	<update id="incrementInquiryViewCount">
+		UPDATE
+			   TBL_INQUIRY A
+		   SET A.INQUIRY_HITS = (SELECT
+		   								B.INQUIRY_HITS
+		   						   FROM TBL_INQUIRY B
+		   						  WHERE B.INQUIRY_NO = #{ inquiryNo }
+		   						) + 1
+		 WHERE A.INQUIRY_NO = #{ inquiryNo }
+	</update>
+	
 	<!-- 고객센터 1:1 문의 답변완료 반영 -->
 	<update id="updateInquiryAnsweredYn">
 		UPDATE
@@ -189,4 +205,34 @@
 		   SET INQUIRY_ANSWERED_YN = 'Y'
 		 WHERE INQUIRY_NO = #{ inquiryNo }
 	</update>
+	
+	<!-- 고객센터 1:1 문의 수정 -->
+	<update id="updateAInquiry">
+		UPDATE
+			   TBL_INQUIRY
+		   SET INQUIRY_TITLE = #{ inquiryTitle }
+		     , INQUIRY_CONTENT = #{ inquiryContent }
+		     , INQUIRY_TYPE = #{ inquiryType }
+		     , INQUIRY_CHG_DATE = SYSDATE
+		 WHERE INQUIRY_NO = #{ inquiryNo }
+	</update>
+	<!-- 현재 저장돼 있는 첨부파일 유무 확인 -->
+	<select id="checkAttachedFiles" resultType="_int">
+		SELECT
+			   COUNT(ATTACHMENT_NO)
+		  FROM TBL_ATTACHMENT
+		 WHERE REF_INQ_NO = #{ refInqNo }
+	</select>
+	
+	<!-- 리뷰 수정 중 기존 첨부파일 삭제 -->
+	<delete id="deleteDownloadHits">
+		DELETE
+		  FROM TBL_DOWNLOAD A
+		 WHERE A.ATTACHMENT_NO = (SELECT B.ATTACHMENT_NO FROM TBL_ATTACHMENT B WHERE B.REF_INQ_NO = #{ refIntNo })
+	</delete>
+	<delete id="deleteAttachedFiles">
+		DELETE
+		  FROM TBL_ATTACHMENT
+		 WHERE REF_INQ_NO = #{ refInqNo }
+	</delete>
 </mapper>

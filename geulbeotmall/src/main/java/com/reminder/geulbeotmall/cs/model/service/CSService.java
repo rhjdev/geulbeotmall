@@ -21,4 +21,8 @@ public interface CSService {
 	InquiryDTO getInquiryDetails(String memberId, int inquiryNo);
 
 	int updateInquiryAnsweredYn(int refPostNo);
+
+	int incrementInquiryViewCount(int inquiryNo);
+
+	int updateAInquiry(InquiryDTO inquiryDTO);
 }

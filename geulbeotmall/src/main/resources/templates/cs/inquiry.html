@@ -29,7 +29,7 @@
 							<td>
 								<select id="inquiryType" name="inquiryType" class="type-selector selector" onchange="selectInquiryType()">
 									<option>문의 유형을 선택하세요</option>
-									<option th:each="type : ${T(com.reminder.geulbeotmall.cs.model.dto.InquiryType).values()}" th:value="${ type.getLabel() }" th:text="${ type.getLabel() }"></option>
+									<option th:each="type : ${T(com.reminder.geulbeotmall.cs.model.dto.InquiryType).values()}" th:value="${ type.getLabel() }" th:text="${ type.getLabel() }" th:selected="${ originalInquiry != null && originalInquiry.inquiryType == type.getLabel() }"></option>
 								</select>
 							</td>
 						</tr>
@@ -38,13 +38,15 @@
 						<tr>
 							<th>제목<b style="color: #ff0000;"> *</b></th>
 							<td>
-								<input type="text" id="inquiryTitle" name="inquiryTitle" disabled>
+								<input th:if="${ originalInquiry == null }" type="text" id="inquiryTitle" name="inquiryTitle" disabled>
+								<input th:if="${ originalInquiry != null }" th:value="${ originalInquiry.inquiryTitle }" type="text" id="inquiryTitle" name="inquiryTitle">
 							</td>
 						</tr>
 						<tr>
 							<th>내용<b style="color: #ff0000;"> *</b></th>
 							<td>
-								<textarea id="inquiryContent" name="inquiryContent" disabled></textarea>
+								<textarea th:if="${ originalInquiry == null }" id="inquiryContent" name="inquiryContent" disabled></textarea>
+								<textarea th:if="${ originalInquiry != null }" th:text="${ originalInquiry.inquiryContent }" id="inquiryContent" name="inquiryContent"></textarea>
 							</td>
 						</tr>
 						<tr>
@@ -52,7 +54,7 @@
 							<td class="thumbnailBox inquiryImageBox">
 								<ul>
 									<li class="imageItem" onclick="previewImage()">
-										<div class="imageBox reviewImage">
+										<div class="imageBox inquiryImage">
 											<label for="image1" class="imageLabel">
 												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
 											</label>
@@ -61,7 +63,7 @@
 								</ul>
 								<ul>
 									<li class="imageItem" onclick="previewImage()">
-										<div class="imageBox reviewImage">
+										<div class="imageBox inquiryImage">
 											<label for="image2" class="imageLabel">
 												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
 											</label>
@@ -70,16 +72,16 @@
 								</ul>
 								<ul>
 									<li class="imageItem" onclick="previewImage()">
-										<div class="imageBox reviewImage">
+										<div class="imageBox inquiryImage">
 											<label for="image3" class="imageLabel">
 												<i class="fa-solid fa-image" style="font-size: 300%;"></i>
 											</label>
 										</div>
 									</li>
 								</ul>
-								<input type="file" name="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
-								<input type="file" name="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
-								<input type="file" name="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								<input type="file" id="image1" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								<input type="file" id="image2" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
+								<input type="file" id="image3" name="files" class="files" accept="image/gif,image/jpeg,image/png" style="display: none;">
 							</td>
 						</tr>
 					</tbody>
@@ -88,6 +90,7 @@
 							<th>작성자 ID<b style="color: #ff0000;"> *</b></th>
 							<td>
 								<input type="text" name="memberId" th:value="${#authentication.principal.memberId}" readonly> <!--/* UsernamePasswordAuthenticationToken */-->
+								<input th:if="${ originalInquiry != null }" type="hidden" name="inquiryNo" th:value="${ originalInquiry.inquiryNo }">
 							</td>
 						</tr>
 						<tr>

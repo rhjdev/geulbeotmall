@@ -206,7 +206,7 @@ input:read-only {
 	background-color: #f0f0f0;
 }
 
-.inquiryMainBtn {
+.inquiryMainBtn, .editInquiryBtn, .deleteInquiryBtn  {
 	border: 1px solid #f0f0f0;
 	border-radius: 0;
 }

@@ -202,6 +202,26 @@
 			}
 		</script>
 		
+		<!--/* 문의 삭제 결과 */-->
+		<script th:if="${deleteInquiryMessage}" type="text/javascript">
+			const result = '[[${deleteInquiryMessage}]]'
+			if(result.indexOf('완료') > 0) {
+				Swal.fire({
+					icon: 'success',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: result,
+					confirmButtonColor: '#00008b',
+					confirmButtonText: '확인'
+				})
+			}
+		</script>
+		
 		<!--/* 임시 비밀번호 재설정 안내 */-->
 		<script th:if="${resetPasswordRequired}">
 			const text = '[[${resetPasswordRequired}]]'

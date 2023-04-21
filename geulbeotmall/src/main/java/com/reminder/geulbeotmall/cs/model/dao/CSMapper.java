@@ -26,4 +26,14 @@ public interface CSMapper {
 	InquiryDTO getInquiryDetails(String memberId, int inquiryNo);
 
 	int updateInquiryAnsweredYn(int refPostNo);
+
+	int incrementInquiryViewCount(int inquiryNo);
+
+	int updateAInquiry(InquiryDTO inquiryDTO);
+
+	int checkAttachedFiles(int inquiryNo);
+
+	void deleteAttachedFiles(int inquiryNo);
+
+	void deleteDownloadHits(int inquiryNo);
 }

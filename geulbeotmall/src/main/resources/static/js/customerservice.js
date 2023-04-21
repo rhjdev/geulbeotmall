@@ -38,6 +38,31 @@ function submitInquiryForm(form, event) {
 	}
 }
 
+function confirmToDelete() {
+	let inquiryNo = '[[${ inquiryDetail.inquiryNo }]]';
+	console.log(inquiryNo);
+	Swal.fire({
+		icon: 'warning',
+		title: '문의를 삭제할까요?',
+		showCancelButton: true,
+		confirmButtonColor: '#00008b',
+		confirmButtonText: '삭제',
+		cancelButtonColor: '#6c757d',
+		cancelButtonText: '취소',
+		reverseButtons: true
+	}).then((result) => {
+		if(result.isConfirmed) {
+			$.ajax({
+				url : '/cs/inquiry/delete',
+				type : 'get',
+				data : { no : inquiryNo },
+				success : function(){ console.log('succeed') },
+				error : function(status, error){ console.log(status, error); }
+			});
+		}
+	});
+}
+
 /* 썸네일 미리보기 및 클릭 시 재선택 */
 let fileItems = document.querySelectorAll('[type=file]');
 let imageItem = document.querySelectorAll('.imageItem');
