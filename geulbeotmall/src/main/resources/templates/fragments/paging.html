@@ -17,7 +17,13 @@
 			<th:block th:with="start = ${pageMaker.startPage}, last = ${pageMaker.lastPage}"> <!--/* table pagination */-->
 				<th:block th:if="${ criteria != null and itemCriteria == null }">
 					<li class="page-item" th:with="start = ${pageMaker.startPage}, last = ${pageMaker.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
-						<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
 					</li>
 				</th:block>
 				<th:block th:if="${ criteria == null and itemCriteria != null }"> <!--/* items pagination */-->
@@ -63,6 +69,8 @@
 		</form>
 	</th:block>
 </div>
+
+<!--/* ADMIN DASHBOARD - MANAGE PRODUCT */-->
 <!--/* onSaleOnly */-->
 <div class="paging-wrapper" th:object="${pageMakerWithOnSaleNumber}" th:fragment="pagingWithOnSaleNumber">
 	<nav aria-label="Page navigation">
@@ -175,6 +183,363 @@
 				<th:block th:if="${ criteria != null and itemCriteria == null }">
 					<li class="page-item" th:with="start = ${pageMakerWithSoldOutNumber.startPage}, last = ${pageMakerWithSoldOutNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
 						<a class="page-link" th:href="@{/admin/product/list(currentPageNo=${num})}" th:text="${num}"></a>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+
+<!--/* ADMIN DASHBOARD - MANAGE MEMBER */-->
+<!--/* memberOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithRegularMemberNumber}" th:fragment="pagingWithRegularMemberNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithRegularMemberNumber.startPage}, last = ${pageMakerWithRegularMemberNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithRegularMemberNumber.startPage}, last = ${pageMakerWithRegularMemberNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* adminOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithAdminNumber}" th:fragment="pagingWithAdminNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithAdminNumber.startPage}, last = ${pageMakerWithAdminNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithAdminNumber.startPage}, last = ${pageMakerWithAdminNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* closedOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithClosedMemberNumber}" th:fragment="pagingWithClosedMemberNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithClosedMemberNumber.startPage}, last = ${pageMakerWithClosedMemberNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithClosedMemberNumber.startPage}, last = ${pageMakerWithClosedMemberNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+
+<!--/* ADMIN DASHBOARD - MANAGE POST */-->
+<!--/* inquiryPostsOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithTotalInquiryNumber}" th:fragment="pagingWithTotalInquiryNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithTotalInquiryNumber.startPage}, last = ${pageMakerWithTotalInquiryNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithTotalInquiryNumber.startPage}, last = ${pageMakerWithTotalInquiryNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* reviewPostsOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithTotalReviewNumber}" th:fragment="pagingWithTotalReviewNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithTotalReviewNumber.startPage}, last = ${pageMakerWithTotalReviewNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithTotalReviewNumber.startPage}, last = ${pageMakerWithTotalReviewNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* trashPostsOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithTotalTrashNumber}" th:fragment="pagingWithTotalTrashNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithTotalTrashNumber.startPage}, last = ${pageMakerWithTotalTrashNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithTotalTrashNumber.startPage}, last = ${pageMakerWithTotalTrashNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+
+<!--/* ADMIN DASHBOARD - MANAGE ORDER AND DELIVERY */-->
+<!--/* preparingOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithPreparingOrderNumber}" th:fragment="pagingWithPreparingOrderNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithPreparingOrderNumber.startPage}, last = ${pageMakerWithPreparingOrderNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithPreparingOrderNumber.startPage}, last = ${pageMakerWithPreparingOrderNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* deliveringOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithDeliveringOrderNumber}" th:fragment="pagingWithDeliveringOrderNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithDeliveringOrderNumber.startPage}, last = ${pageMakerWithDeliveringOrderNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithDeliveringOrderNumber.startPage}, last = ${pageMakerWithDeliveringOrderNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
+					</li>
+				</th:block>
+			</th:block>
+			<li class="page-item" th:classappend="*{!hasNextPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{lastPage+1})}" aria-label="next">
+					<span aria-hidden="true">다음</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	<!--/* table pagination */-->
+	<th:block th:if="${ criteria != null and itemCriteria == null }">
+		<form id="pageForm" name="pageForm" th:object="${criteria}" method="get">
+			<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+			<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+			<input type="hidden" name="condition" th:field="*{condition}">
+			<input type="hidden" name="keyword" th:field="*{keyword}">
+		</form>
+	</th:block>
+</div>
+<!--/* completedOnly */-->
+<div class="paging-wrapper" th:object="${pageMakerWithCompletedOrderNumber}" th:fragment="pagingWithCompletedOrderNumber">
+	<nav aria-label="Page navigation">
+		<ul class="pagination">
+			<li class="page-item" th:classappend="*{!hasPreviousPage} ? 'disabled'">
+				<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=*{startPage-1})}" aria-label="previous">
+					<span aria-hidden="true">이전</span>
+				</a>
+			</li>
+			<th:block th:with="start = ${pageMakerWithCompletedOrderNumber.startPage}, last = ${pageMakerWithCompletedOrderNumber.lastPage}"> <!--/* table pagination */-->
+				<th:block th:if="${ criteria != null }">
+					<li class="page-item" th:with="start = ${pageMakerWithCompletedOrderNumber.startPage}, last = ${pageMakerWithCompletedOrderNumber.lastPage}" th:each="num : ${#numbers.sequence(start, last)}" th:classappend="${criteria.currentPageNo} == ${num} ? active">
+						<!--/* 검색 결과 반영 */-->
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} != null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(condition=${#httpServletRequest.getParameter('condition')}, keyword=${#httpServletRequest.getParameter('keyword')}, currentPageNo=${num}, recordsPerPage=${#httpServletRequest.getParameter('recordsPerPage')})}" th:text="${num}"></a>
+						</th:block>
+						<th:block th:if="${#httpServletRequest.getParameter('condition')} == null">
+							<a class="page-link" th:href="@{${#httpServletRequest.requestURI}(currentPageNo=${num})}" th:text="${num}"></a>
+						</th:block>
 					</li>
 				</th:block>
 			</th:block>

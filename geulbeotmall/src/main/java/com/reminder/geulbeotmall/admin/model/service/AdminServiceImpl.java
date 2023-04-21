@@ -11,6 +11,8 @@ import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
+import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
@@ -173,15 +175,35 @@ public class AdminServiceImpl implements AdminService {
 	public int addDisplayImages(DesignImageDTO designImage) {
 		return adminMapper.addDisplayImages(designImage);
 	}
+	
+	@Override
+	public int getTotalInquiryNumber(Criteria criteria) {
+		return adminMapper.getTotalInquiryNumber(criteria);
+	}
+	
+	@Override
+	public int getTotalReviewNumber(Criteria criteria) {
+		return adminMapper.getTotalReviewNumber(criteria);
+	}
+	
+	@Override
+	public int getTotalTrashNumber(Criteria criteria, String checkTrashRefBoard) {
+		return adminMapper.getTotalTrashNumber(criteria, checkTrashRefBoard);
+	}
 
+	@Override
+	public List<InquiryDTO> getTotalInquiryPostList(Criteria criteria) {
+		return adminMapper.getTotalInquiryPostList(criteria);
+	}
+	
 	@Override
 	public List<ReviewDTO> getTotalReviewPostList(Criteria criteria) {
 		return adminMapper.getTotalReviewPostList(criteria);
 	}
 	
 	@Override
-	public List<TrashDTO> getPostsInTrash(Criteria criteria) {
-		return adminMapper.getPostsInTrash(criteria);
+	public List<Map<TrashDTO, String>> getTotalTrashList(Criteria criteria, String checkTrashRefBoard) {
+		return adminMapper.getTotalTrashList(criteria, checkTrashRefBoard);
 	}
 
 	@Override
@@ -191,6 +213,12 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public int restoreAPostFromTrash(int trashNo) {
+		/* 댓글의 경우 삭제일자 초기화 또한 적용 */
+		TrashDTO trashDTO = adminMapper.getRefBoardNameFromTrash(trashNo);
+		if(trashDTO.getRefBoard().equals("comment")) {
+			int commentNo = trashDTO.getRefPostNo();
+			adminMapper.updateCommentDelDateDefault(commentNo);
+		}
 		return adminMapper.restoreAPostFromTrash(trashNo);
 	}
 
@@ -210,6 +238,36 @@ public class AdminServiceImpl implements AdminService {
 	public int getTotalOrderNumber(Criteria criteria) {
 		return adminMapper.getTotalOrderNumber(criteria);
 	}
+	
+	@Override
+	public int getPreparingOrderNumber(Criteria criteria) {
+		return adminMapper.getPreparingOrderNumber(criteria);
+	}
+	
+	@Override
+	public int getDeliveringOrderNumber(Criteria criteria) {
+		return adminMapper.getDeliveringOrderNumber(criteria);
+	}
+	
+	@Override
+	public int getCompletedOrderNumber(Criteria criteria) {
+		return adminMapper.getCompletedOrderNumber(criteria);
+	}
+	
+	@Override
+	public int getTotalCommentNumber(Criteria criteria) {
+		return adminMapper.getTotalCommentNumber(criteria);
+	}
+	
+	@Override
+	public List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end) {
+		return adminMapper.getTopSalesProduct(range, start, end);
+	}
+	
+	@Override
+	public List<Map<CommentDTO, String>> getTotalCommentList(Criteria criteria) {
+		return adminMapper.getTotalCommentList(criteria);
+	}
 
 	@Override
 	public List<Map<String, Integer>> getMemberDataByDate(String range, String start, String end) {
@@ -219,10 +277,5 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<Map<String, Integer>> getSalesDataByDate(String range, String start, String end) {
 		return adminMapper.getSalesDataByDate(range, start, end);
-	}
-
-	@Override
-	public List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end) {
-		return adminMapper.getTopSalesProduct(range, start, end);
 	}
 }

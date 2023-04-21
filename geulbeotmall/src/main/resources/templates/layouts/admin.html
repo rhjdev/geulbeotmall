@@ -48,23 +48,27 @@
 	            <div class="sb-sidenav-menu">
 	                <div class="nav">
 	                    <div class="sb-sidenav-menu-heading">Dashboard</div>
-	                    <a class="nav-link" th:href="@{/admin/dashboard}">
+	                    <a class="nav-link" th:href="@{/admin/dashboard}" onclick="javascript:localStorage.clear();">
 	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-gauge-high"></i></div>
 	                        대시보드
 	                    </a>
-	                    <a class="nav-link" th:href="@{/admin/design}">
+	                    <a class="nav-link" th:href="@{/admin/design}" onclick="javascript:localStorage.clear();">
 	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-object-group"></i></div>
 	                        디자인 관리
 	                    </a>
 	                    <div class="sb-sidenav-menu-heading">Member</div>
-	                    <a class="nav-link" th:href="@{/admin/member/list}">
+	                    <a class="nav-link" th:href="@{/admin/member/list}" onclick="javascript:localStorage.setItem('activeTab', 'total-tab')">
 	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user-group"></i></div>
 	                        회원 목록
 	                    </a>
-	                    <div class="sb-sidenav-menu-heading">Post</div>
-	                    <a class="nav-link" th:href="@{/admin/post/list}">
+	                    <div class="sb-sidenav-menu-heading">Post/Comment</div>
+	                    <a class="nav-link" th:href="@{/admin/post/list}" onclick="javascript:localStorage.setItem('activeTab', 'inquiry-tab')">
 	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
 	                        게시글 관리
+	                    </a>
+	                    <a class="nav-link" th:href="@{/admin/comment/list}" onclick="javascript:localStorage.setItem('activeTab', 'total-tab')">
+	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+	                        댓글 관리
 	                    </a>
 	                    <div class="sb-sidenav-menu-heading">Product</div>
 	                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
@@ -74,12 +78,12 @@
 	                    </a>
 	                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
 	                        <nav class="sb-sidenav-menu-nested nav">
-	                            <a class="nav-link" th:href="@{/admin/product/add}">상품 등록</a>
-	                            <a class="nav-link" th:href="@{/admin/product/list}">상품 목록</a>
+	                            <a class="nav-link" th:href="@{/admin/product/add}" onclick="javascript:localStorage.clear();">상품 등록</a>
+	                            <a class="nav-link" th:href="@{/admin/product/list}" onclick="javascript:localStorage.setItem('activeTab', 'total-tab')">상품 목록</a>
 	                        </nav>
 	                    </div>
 	                    <div class="sb-sidenav-menu-heading">Order</div>
-	                    <a class="nav-link" th:href="@{/admin/order/list}">
+	                    <a class="nav-link" th:href="@{/admin/order/list}" onclick="javascript:localStorage.setItem('activeTab', 'total-tab')">
 	                        <div class="sb-nav-link-icon"><i class="fa-solid fa-user-group"></i></div>
 	                        주문/배송 현황
 	                    </a>
@@ -103,7 +107,7 @@
 	        <footer class="py-4 bg-light mt-auto">
 	            <div class="container-fluid px-4">
 	                <div class="d-flex align-items-center justify-content-between small">
-	                    <div class="text-muted">Copyright &copy; Geulbeotmall 2022</div>
+	                    <div class="text-muted">Copyright &copy; Geulbeotmall</div>
 	                    <div class="link">
 	                        <a th:href="@{/member/signout}">로그아웃</a>
 	                        &middot;

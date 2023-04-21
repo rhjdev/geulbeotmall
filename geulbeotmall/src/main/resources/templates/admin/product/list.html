@@ -37,7 +37,7 @@
     <!--/* id, data-bs-target, aria-controls 속성값을 일치시켜 myTabContent로부터 불러올 값 지정 */-->
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+			<button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 <b th:text="${ total }" style="color: #ff0000;"></b></button>
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="onSale-tab" data-bs-toggle="tab" data-bs-target="#onSale" type="button" role="tab" aria-controls="onSale" aria-selected="false">판매중 <b th:text="${ onSale }" style="color: #ff0000;"></b></button>
@@ -54,7 +54,7 @@
 	</ul>
 	<div class="tab-content" id="myTabContent">
 		<!-- 전체 상품 -->
-		<div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="total-tab">
+		<div class="tab-pane fade show" id="total" role="tabpanel" aria-labelledby="total-tab">
             <div class="dataTable-container">
             <table class="dataTable-table table-striped">
                 <thead>

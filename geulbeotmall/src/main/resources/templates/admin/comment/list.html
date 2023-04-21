@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin}">
+<head>
+	<meta charset="UTF-8">
+	<title>관리자페이지 | 글벗문구</title>
+	<!--/* CSS */-->
+    <th:block layout:fragment="css">
+	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
+	    <link th:href="@{/css/paging.css}" rel="stylesheet">
+	</th:block>
+</head>
+<body layout:fragment="content">
+	<h1>댓글 관리</h1>
+	<hr>
+	<div class="card mb-4">
+    	<div class="card-body">
+			<div class="search-container">
+				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/comment/list}" method="get" onsubmit="checkKeywordForComment(); return false;">
+					<select id="condition" name="condition" class="dataTable-selector">
+						<option value="commentContent" th:selected="*{condition} eq 'commentContent'">내용</option>
+						<option value="idOrName" th:selected="*{condition} eq 'idOrName'">작성자</option>
+					</select>
+					<input type="search" name="keyword" th:field="*{keyword}" class="form-control search-bar" autocomplete="off">
+					<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
+					<input type="hidden" name="recordsPerPage" th:field="*{recordsPerPage}">
+					<button type="submit" class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+				</form>
+			</div>
+    	</div>
+    </div>
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 댓글 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="trash-tab" data-bs-toggle="tab" data-bs-target="#trash" type="button" role="tab" aria-controls="trash" aria-selected="true">휴지통 삭제댓글 <b th:text="${ trash }" style="color: #6c757d;"></b></button>
+		</li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+		<!--/* 전체 댓글 */-->
+		<div class="tab-pane fade show" id="total" role="tabpanel" aria-labelledby="total-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th><span>게시판</span></th>
+                    	<th><span>게시글</span></th>
+                    	<th><span>댓글내용</span></th>
+                    	<th><span>작성자</span></th>
+                    	<th><span>작성일</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="commentList : ${ totalCommentList }" th:if="${not #lists.isEmpty(totalCommentList)}" th:with="cri=${criteria}, total=${total}">
+                		<td th:attr="data-value=${ commentList.COMMENT_NO }"><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td>[[${ commentList.REF_BOARD }]]</td>
+	                	<th:block th:if="${ commentList.REF_BOARD == '문의' }">
+	                		<td><a th:href="@{/cs/inquiry/details(no=${commentList.REF_POST_NO})}">[[${ commentList.REF_TITLE }]]</a></td>
+	                	</th:block>
+	                	<td>[[${ commentList.COMMENT_CONTENT }]]</td>
+	                	<td th:attr="data-value=${ commentList.MEMBER_ID }"><a th:href="@{/admin/member/details(id=${commentList.MEMBER_ID})}">[(${ commentList.NAME })]([(${ commentList.MEMBER_ID })])</a></td>
+	                	<td>[[${#dates.format(commentList.COMMENT_REG_DATE, 'yyyy.MM.dd HH:mm')}]]</td>
+                	</tr>
+                	<tr th:unless="${#lists.size(totalCommentList)} > 0">
+                		<td colspan="7">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: paging"></nav>
+			</th:block>
+		</div>
+		<!--/* 휴지통 삭제댓글 */-->
+		<div class="tab-pane fade show" id="trash" role="tabpanel" aria-labelledby="trash-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th><span>댓글내용</span></th>
+                    	<th><span>작성자</span></th>
+                    	<th><span>삭제자</span></th>
+                    	<th><span>삭제일</span></th>
+                    	<th><span>복구기한</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="commentList : ${ totalTrashList }" th:if="${not #lists.isEmpty(totalTrashList)}" th:with="cri=${criteria}">
+                		<td th:attr="data-value=${ commentList.TRASH_NO }"><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td>[(${ commentList.TRASH_TITLE })]</td>
+	                	<td>[(${ commentList.TRASH_WRITER })]</td>
+	                	<td>[(${ commentList.TRASH_DELETEBY })]</td>
+	                	<td th:text="${#dates.format(commentList.TRASH_DATE_MOVED, 'yyyy.MM.dd')}"></td>
+	                	<td th:text="|~${#dates.format(commentList.TRASH_DATE_UNTIL, 'yyyy.MM.dd')}|"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(totalTrashList)} > 0">
+                		<td colspan="6">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: pagingWithTotalTrashNumber"></nav>
+			</th:block>
+		</div>
+	</div>
+	<th:block layout:fragment="commentToolbar">
+		<div th:replace="/fragments/toolbar.html :: commentToolbar"></div>
+	</th:block>
+	<!--/* JS */-->
+    <th:block layout:fragment="script">
+    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
+    	<script th:src="@{/js/manageCommentList.js}" type="text/javascript"></script>
+    	<script type="text/javascript">
+    		/* 현재 로그인 중인 관리자 정보; session상에 저장해 받아온 id 값으로, 연결된 외부 js에서 ajax 통신 중 사용 */
+    		const admin = '[[${loginMember}]]';
+    	</script>
+    </th:block>
+</body>
+</html>

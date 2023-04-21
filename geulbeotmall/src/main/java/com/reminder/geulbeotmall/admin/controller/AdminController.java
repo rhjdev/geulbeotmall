@@ -38,6 +38,9 @@ import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
+import com.reminder.geulbeotmall.community.model.service.CommentService;
+import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
@@ -56,12 +59,14 @@ public class AdminController {
 	
 	private final AdminService adminService;
 	private final ProductService productService;
+	private final CommentService commentService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public AdminController(AdminService adminService, ProductService productService, MessageSource messageSource) {
+	public AdminController(AdminService adminService, ProductService productService, CommentService commentService, MessageSource messageSource) {
 		this.adminService = adminService;
 		this.productService = productService;
+		this.commentService = commentService;
 		this.messageSource = messageSource;
 	}
 	
@@ -226,7 +231,7 @@ public class AdminController {
 		model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
 		model.addAttribute("pageMakerWithRegularMemberNumber", new PageDTO(regular, 10, criteria));
 		model.addAttribute("pageMakerWithAdminNumber", new PageDTO(admin, 10, criteria));
-		model.addAttribute("pageMaketWithClosedMemberNumber", new PageDTO(closed, 10, criteria));
+		model.addAttribute("pageMakerWithClosedMemberNumber", new PageDTO(closed, 10, criteria));
 	}
 	
 	@GetMapping("/member/details")
@@ -307,18 +312,28 @@ public class AdminController {
 		return result;
 	}
 	
-	/* 게시글관리 */
+	/* 게시글관리(리뷰,문의,휴지통) */
 	@GetMapping("/post/list")
 	public void getPostList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
+		int inquiry = adminService.getTotalInquiryNumber(criteria);
+		int review = adminService.getTotalReviewNumber(criteria);
+		List<InquiryDTO> totalInquiryList = adminService.getTotalInquiryPostList(criteria);
 		List<ReviewDTO> totalReviewList = adminService.getTotalReviewPostList(criteria);
-		List<TrashDTO> reviewsInTrash = adminService.getPostsInTrash(criteria);
-		model.addAttribute("total", totalReviewList.size());
-		model.addAttribute("trash", reviewsInTrash.size());
+		
+		String checkTrashRefBoard = "post"; //휴지통 삭제글 조회용
+		int trash = adminService.getTotalTrashNumber(criteria, checkTrashRefBoard);
+		List<Map<TrashDTO, String>> totalTrashList = adminService.getTotalTrashList(criteria, checkTrashRefBoard);
+		
+		model.addAttribute("inquiry", inquiry);
+		model.addAttribute("review", review);
+		model.addAttribute("trash", trash);
+		model.addAttribute("totalInquiryList", totalInquiryList);
 		model.addAttribute("totalReviewList", totalReviewList);
-		model.addAttribute("reviewsInTrash", reviewsInTrash);
-		model.addAttribute("pageMaker", new PageDTO(totalReviewList.size(), 10, criteria));
+		model.addAttribute("totalTrashList", totalTrashList);
+		model.addAttribute("pageMakerWithTotalInquiryNumber", new PageDTO(inquiry, 10, criteria));
+		model.addAttribute("pageMakerWithTotalReviewNumber", new PageDTO(review, 10, criteria));
+		model.addAttribute("pageMakerWithTotalTrashNumber", new PageDTO(trash, 10, criteria));
 	}
-	
 	@PostMapping("/post/restorePost")
 	@ResponseBody
 	public String restorePostsFromTrash(HttpServletRequest request) {
@@ -330,21 +345,23 @@ public class AdminController {
 		}
 		return count == trashNoArr.length ? "succeed" : "fail";
 	}
-	
 	@PostMapping("/post/moveToTrash")
 	@ResponseBody
 	public String movePostsToTrash(@RequestParam("admin") String admin, HttpServletRequest request) {
 		String[] postNoArr = request.getParameterValues("noArr");
-		String[] postTitleArr = request.getParameterValues("titleArr");
 		String[] postWriterArr = request.getParameterValues("writerArr");
+		String[] refBoardArr = request.getParameterValues("boardArr");
 		log.info("게시글 삭제자 admin : {}", admin);
 		int count = 0;
 		
 		TrashDTO trashDTO = new TrashDTO();
 		trashDTO.setTrashDeleteBy(admin);
 		for(int i=0; i < postNoArr.length; i++) {
-			trashDTO.setRefRevwNo(Integer.parseInt(postNoArr[i]));
-			trashDTO.setTrashTitle(postTitleArr[i]);
+			trashDTO.setRefBoard(refBoardArr[i]);
+			if(refBoardArr[i].equals("comment")) {
+				commentService.deleteAComment(Integer.parseInt(postNoArr[i])); //댓글삭제일자 반영
+			}
+			trashDTO.setRefPostNo(Integer.parseInt(postNoArr[i]));
 			trashDTO.setTrashWriter(postWriterArr[i]);
 			int result = adminService.moveAPostToTrash(trashDTO);
 			if(result == 1) count++;
@@ -352,10 +369,33 @@ public class AdminController {
 		return count == postNoArr.length ? "succeed" : "fail";
 	}
 	
+	/* 댓글관리(전체,휴지통) */
+	@GetMapping("/comment/list")
+	public void getCommentList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
+		int total = adminService.getTotalCommentNumber(criteria);
+		List<Map<CommentDTO, String>> totalCommentList = adminService.getTotalCommentList(criteria); //CASE 통해 REF_BOARD마다 TITLE을 선택해 가져오므로 List<Map<CommentDTO, String>> 타입으로 정의
+		
+		String checkTrashRefBoard = "comment"; //휴지통 삭제댓글 조회용
+		int trash = adminService.getTotalTrashNumber(criteria, checkTrashRefBoard);
+		List<Map<TrashDTO, String>> totalTrashList = adminService.getTotalTrashList(criteria, checkTrashRefBoard);
+		
+		model.addAttribute("total", total);
+		model.addAttribute("trash", trash);
+		model.addAttribute("totalCommentList", totalCommentList);
+		model.addAttribute("totalTrashList", totalTrashList);
+		model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
+		model.addAttribute("pageMakerWithTotalTrashNumber", new PageDTO(trash, 10, criteria));
+	}
+	
 	/* 배송관리 */
 	@GetMapping("/order/list")
 	public void getOrderList(@Valid @ModelAttribute("criteria") Criteria criteria, Model model) {
 		log.info("주문/배송 목록 요청");
+		
+		int total = adminService.getTotalOrderNumber(criteria);
+		int preparing = adminService.getPreparingOrderNumber(criteria);
+		int delivering = adminService.getDeliveringOrderNumber(criteria);
+		int completed = adminService.getCompletedOrderNumber(criteria);
 		
 		List<OrderDetailDTO> totalOrderList = adminService.getTotalOrderList(criteria);
 		List<OrderDetailDTO> preparingOnly = adminService.getPreparingOnly(criteria);
@@ -363,15 +403,18 @@ public class AdminController {
 		List<OrderDetailDTO> completedOnly = adminService.getCompletedOnly(criteria);
 		log.info("주문/배송 목록 조회 완료");
 		
-		model.addAttribute("total", totalOrderList.size());
-		model.addAttribute("preparing", preparingOnly.size());
-		model.addAttribute("delivering", deliveringOnly.size());
-		model.addAttribute("completed", completedOnly.size());
+		model.addAttribute("total", total);
+		model.addAttribute("preparing", preparing);
+		model.addAttribute("delivering", delivering);
+		model.addAttribute("completed", completed);
 		model.addAttribute("totalOrderList", totalOrderList);
 		model.addAttribute("preparingOnly", preparingOnly);
 		model.addAttribute("deliveringOnly", deliveringOnly);
 		model.addAttribute("completedOnly", completedOnly);
-		model.addAttribute("pageMaker", new PageDTO(adminService.getTotalOrderNumber(criteria), 10, criteria));
+		model.addAttribute("pageMaker", new PageDTO(total, 10, criteria));
+		model.addAttribute("pageMakerWithPreparingOrderNumber", new PageDTO(preparing, 10, criteria));
+		model.addAttribute("pageMakerWithDeliveringOrderNumber", new PageDTO(delivering, 10, criteria));
+		model.addAttribute("pageMakerWithCompletedOrderNumber", new PageDTO(completed, 10, criteria));
 	}
 
 	@PostMapping(value="/order/manageDeliveryStatus", produces="application/json; charset=UTF-8")

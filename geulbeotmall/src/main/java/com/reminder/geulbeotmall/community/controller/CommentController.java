@@ -88,22 +88,4 @@ public class CommentController {
 		int result = commentService.deleteAComment(commentNo);
 		if(result == 1) log.info("comment deleted");
 	}
-	
-	/* 댓글 페이징 */
-//	@GetMapping(value = "list", produces = MediaType.APPLICATION_JSON_VALUE)
-//	public void getCommentList(@ModelAttribute("criteria") Criteria criteria, Model model) {
-//		String refBoard = "문의";
-//		int refPostNo = 5;
-//		List<CommentDTO> comments = commentService.getCommentsInPost(refBoard, refPostNo, criteria);
-//		List<CommentDTO> nestedComments = commentService.getNestedCommentsInPost(refBoard, refPostNo);
-//		model.addAttribute("refBoard", refBoard);
-//		model.addAttribute("refPostNo", refPostNo);
-//		model.addAttribute("comments", comments); //댓글
-//		model.addAttribute("nestedComments", nestedComments); //대댓글
-//		model.addAttribute("pageMakerWithComments", new PageDTO(commentService.getTotalNumber(refBoard, refPostNo, criteria), 5, criteria)); //댓글 페이징
-//	}
-	
-	public void checkBoardAndNo(String refBoard, int refPostNo) {
-		
-	}
 }

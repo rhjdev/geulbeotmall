@@ -164,6 +164,21 @@
 		<result property="pointStatus" column="POINT_STATUS"/>
 	</resultMap>
 	
+	<!-- 1:1 문의 조회용 -->
+	<resultMap id="inquiryResultMap" type="com.reminder.geulbeotmall.cs.model.dto.InquiryDTO">
+		<id property="inquiryNo" column="INQUIRY_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="inquiryTitle" column="INQUIRY_TITLE"/>
+		<result property="inquiryContent" column="INQUIRY_CONTENT"/>
+		<result property="inquiryType" column="INQUIRY_TYPE"/>
+		<result property="inquiryRegDate" column="INQUIRY_REG_DATE"/>
+		<result property="inquiryChgDate" column="INQUIRY_CHG_DATE"/>
+		<result property="inquiryHits" column="INQUIRY_HITS"/>
+		<result property="inquiryAnsweredYn" column="INQUIRY_ANSWERED_YN"/>
+		<association property="member" resultMap="memberResultMap"/>
+		<association property="attachmentList" resultMap="thumbnailResultMap"/>
+	</resultMap>
+	
 	<!-- 리뷰 조회용 -->
 	<resultMap id="reviewResultMap" type="com.reminder.geulbeotmall.review.model.dto.ReviewDTO">
 		<id property="reviewNo" column="REVIEW_NO"/>
@@ -177,13 +192,30 @@
 		<result property="revwRatings" column="REVW_RATINGS"/>
 		<association property="option" resultMap="optionResultMap"/>
 		<association property="product" resultMap="productResultMap"/>
+		<association property="member" resultMap="memberResultMap"/>
 		<collection property="attachmentList" resultMap="thumbnailResultMap"/>
+	</resultMap>
+	
+	<!-- 댓글 조회용 -->
+	<resultMap id="commentResultMap" type="com.reminder.geulbeotmall.community.model.dto.CommentDTO">
+		<id property="commentNo" column="COMMENT_NO"/>
+		<result property="memberId" column="MEMBER_ID"/>
+		<result property="refBoard" column="REF_BOARD"/>
+		<result property="refPostNo" column="REF_POST_NO"/>
+		<result property="commentContent" column="COMMENT_CONTENT"/>
+		<result property="commentRegDate" column="COMMENT_REG_DATE"/>
+		<result property="commentChgDate" column="COMMENT_CHG_DATE"/>
+		<result property="commentDelDate" column="COMMENT_DEL_DATE"/>
+		<result property="commentNestLevel" column="COMMENT_NEST_LEVEL"/>
+		<result property="commentNestedTo" column="COMMENT_NESTED_TO"/>
+		<association property="member" resultMap="memberResultMap"></association>
 	</resultMap>
 	
 	<!-- 휴지통 삭제글 조회용 -->
 	<resultMap id="trashResultMap" type="com.reminder.geulbeotmall.admin.model.dto.TrashDTO">
 		<id property="trashNo" column="TRASH_NO"/>
-		<result property="refRevwNo" column="REF_REVW_NO"/>
+		<result property="refBoard" column="REF_BOARD"/>
+		<result property="refPostNo" column="REF_POST_NO"/>
 		<result property="trashTitle" column="TRASH_TITLE"/>
 		<result property="trashWriter" column="TRASH_WRITER"/>
 		<result property="trashDeleteBy" column="TRASH_DELETEBY"/>
@@ -539,59 +571,266 @@
 		 WHERE MEMBER_ID = #{ memberId }
 	</update>
 	
-	<!-- 게시글관리 -->
-	<select id="getTotalReviewPostList" resultMap="reviewResultMap">
+	<!-- 게시글관리(문의,리뷰,휴지통) -->
+	<select id="getTotalInquiryNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   A.REVIEW_NO
-			 , A.OPTION_NO
-			 , A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.REVW_TITLE
-			 , A.REVW_CONTENT
-			 , A.REVW_REG_DATE
-			 , A.REVW_HITS
-			 , A.REVW_RATINGS
-			 , B.THUMBNAIL_PATH
-			 , C.REF_PROD_NO
-			 , C.OPT_BODY_COLOR
-			 , C.OPT_INK_COLOR
-			 , C.OPT_POINT_SIZE
-			 , C.OPT_EXTRA_CHARGE
-			 , D.PROD_NAME
+			   COUNT(DISTINCT A.INQUIRY_NO)
+		  FROM TBL_INQUIRY A
+		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+		 WHERE A.INQUIRY_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'inquiry')
+		<trim prefix="AND">
+			<if test="keyword != null and condition eq 'titleOrContent'">A.INQUIRY_TITLE LIKE '%' || #{ keyword } || '%' OR A.INQUIRY_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'idOrName'">B.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+	</select>
+	<select id="getTotalReviewNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT A.REVIEW_NO)
 		  FROM TBL_REVIEW A
 		  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
 		  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
 		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
-		 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_REVW_NO FROM TBL_TRASH T)
-		  <trim prefix="AND">
-			<if test="keyword != null and condition eq 'revwTitle'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'revwContent'">A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		  </trim>
+		  LEFT JOIN TBL_MEMBER E ON(A.MEMBER_ID = E.MEMBER_ID)
+		 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'review')
+		   AND B.FILE_TYPE = 'THUMB_MAIN'
+		<trim prefix="AND">
+			<if test="keyword != null and condition eq 'titleOrContent'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'idOrName'">E.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+	</select>
+	<select id="getTotalTrashNumber" parameterType="map" resultType="_int">
+		SELECT
+			   COUNT(DISTINCT T.TRASH_NO)
+		  FROM TBL_TRASH T
+		LEFT JOIN TBL_COMMENT A ON(T.REF_POST_NO = A.COMMENT_NO)
+		LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+		LEFT JOIN TBL_INQUIRY I ON(A.REF_POST_NO = I.INQUIRY_NO)
+		LEFT JOIN TBL_REVIEW R ON(A.REF_POST_NO = R.REVIEW_NO)
+		<choose>
+			<when test="checkTrashRefBoard == 'post'"> <!-- 휴지통 삭제글 -->
+				WHERE T.REF_BOARD = 'inquiry' OR T.REF_BOARD = 'review'
+				<trim prefix="AND">
+					<if test="keyword != null and condition eq 'titleOrContent'">
+						R.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR R.REVW_CONTENT LIKE '%' || #{ keyword } || '%'
+						OR I.INQUIRY_TITLE LIKE '%' || #{ keyword } || '%' OR I.INQUIRY_CONTENT LIKE '%' || #{ keyword } || '%'
+					</if>
+					<if test="keyword != null and condition eq 'idOrName'">
+						B.NAME LIKE '%' || #{ keyword } || '%' OR B.MEMBER_ID LIKE '%' || #{ keyword } || '%'
+					</if>
+				</trim>
+			</when>
+			<otherwise> <!-- 휴지통 삭제댓글 -->
+				WHERE T.REF_BOARD = 'comment'
+				  AND T.REF_POST_NO IN (SELECT C.COMMENT_NO FROM TBL_COMMENT C)
+				<trim prefix="AND">
+					<if test="criteria.keyword != null and criteria.condition eq 'commentContent'">A.COMMENT_CONTENT LIKE '%' || #{ criteria.keyword } || '%'</if>
+					<if test="criteria.keyword != null and criteria.condition eq 'idOrName'">B.NAME LIKE '%' || #{ criteria.keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ criteria.keyword } || '%'</if>
+				</trim>
+			</otherwise>
+		</choose>
+	</select>
+	<select id="getTotalInquiryPostList" resultMap="inquiryResultMap">
+		SELECT
+			   D.*
+		  FROM (
+				SELECT
+					   C.RANK RK
+					 , C.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY A.INQUIRY_REG_DATE DESC, A.INQUIRY_NO DESC) RANK
+							 , A.INQUIRY_NO
+							 , A.MEMBER_ID
+							 , A.INQUIRY_TITLE
+							 , A.INQUIRY_CONTENT
+							 , A.INQUIRY_TYPE
+							 , A.INQUIRY_REG_DATE
+							 , A.INQUIRY_HITS
+							 , A.INQUIRY_ANSWERED_YN
+							 , B.NAME
+						  FROM TBL_INQUIRY A
+						  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+						 WHERE A.INQUIRY_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'inquiry')
+						<trim prefix="AND">
+							<if test="keyword != null and condition eq 'titleOrContent'">A.INQUIRY_TITLE LIKE '%' || #{ keyword } || '%' OR A.INQUIRY_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+							<if test="keyword != null and condition eq 'idOrName'">B.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+						</trim>
+				  	   ) C
+				<![CDATA[
+				 WHERE C.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+			   ) D
+		<![CDATA[
+		 WHERE D.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getTotalReviewPostList" resultMap="reviewResultMap">
+		SELECT
+			   G.*
+		  FROM (
+				SELECT
+					   F.RANK RK
+					 , F.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY A.REVW_REG_DATE DESC) RANK
+							 , A.REVIEW_NO
+							 , A.OPTION_NO
+							 , A.ORDER_NO
+							 , A.MEMBER_ID
+							 , A.REVW_TITLE
+							 , A.REVW_CONTENT
+							 , A.REVW_REG_DATE
+							 , A.REVW_HITS
+							 , A.REVW_RATINGS
+							 , B.THUMBNAIL_PATH
+							 , C.REF_PROD_NO
+							 , C.OPT_BODY_COLOR
+							 , C.OPT_INK_COLOR
+							 , C.OPT_POINT_SIZE
+							 , C.OPT_EXTRA_CHARGE
+							 , D.PROD_NAME
+							 , E.NAME
+						  FROM TBL_REVIEW A
+						  LEFT JOIN TBL_ATTACHMENT B ON(A.REVIEW_NO = B.REF_REVW_NO)
+						  LEFT JOIN TBL_OPTION C ON(A.OPTION_NO = C.OPTION_NO)
+						  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
+						  LEFT JOIN TBL_MEMBER E ON(A.MEMBER_ID = E.MEMBER_ID)
+						 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'review')
+						   AND B.FILE_TYPE = 'THUMB_MAIN'
+						<trim prefix="AND">
+							<if test="keyword != null and condition eq 'titleOrContent'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+							<if test="keyword != null and condition eq 'idOrName'">E.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+						</trim>
+				  		) F
+				<![CDATA[
+				 WHERE F.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  		) G
+		 <![CDATA[
+		 WHERE G.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		 ]]>
+	</select>
+	<select id="getTotalTrashList" resultType="map">
+		SELECT
+			   B.*
+		  FROM (
+				SELECT
+					   A.RANK RK
+					 , A.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY T.TRASH_DATE_UNTIL, T.TRASH_NO) RANK
+							 , T.TRASH_NO
+							 , T.REF_BOARD
+							 , T.REF_POST_NO
+							 , T.TRASH_TITLE
+							 , T.TRASH_WRITER
+							 , T.TRASH_DELETEBY
+							 , T.TRASH_DATE_MOVED
+							 , T.TRASH_DATE_UNTIL
+						  FROM TBL_TRASH T
+						  LEFT JOIN TBL_COMMENT A ON(T.REF_POST_NO = A.COMMENT_NO)
+						  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+						  LEFT JOIN TBL_INQUIRY I ON(A.REF_POST_NO = I.INQUIRY_NO)
+						  LEFT JOIN TBL_REVIEW R ON(A.REF_POST_NO = R.REVIEW_NO)
+						<choose>
+							<when test="checkTrashRefBoard == 'post'"> <!-- 휴지통 삭제글 -->
+								WHERE T.REF_BOARD = 'inquiry' OR T.REF_BOARD = 'review'
+							</when>
+							<otherwise> <!-- 휴지통 삭제댓글 -->
+								WHERE T.REF_BOARD = 'comment'
+								  AND T.REF_POST_NO IN (SELECT C.COMMENT_NO FROM TBL_COMMENT C)
+								<trim prefix="AND">
+									<if test="criteria.keyword != null and criteria.condition eq 'commentContent'">A.COMMENT_CONTENT LIKE '%' || #{ criteria.keyword } || '%'</if>
+									<if test="criteria.keyword != null and criteria.condition eq 'idOrName'">B.NAME LIKE '%' || #{ criteria.keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ criteria.keyword } || '%'</if>
+								</trim>
+							</otherwise>
+						</choose>
+				  	   ) A
+				<![CDATA[
+				 WHERE A.RANK <= #{ criteria.currentPageNo } * #{ criteria.recordsPerPage }
+				]]>
+		  	   ) B
+		<![CDATA[
+		 WHERE B.RK > (#{ criteria.currentPageNo } - 1) * #{ criteria.recordsPerPage }
+		]]>
 	</select>
 	
-	<select id="getPostsInTrash" resultMap="trashResultMap">
+	<!-- 댓글 관리(댓글,휴지통) -->
+	<!-- CASE 통해 REF_BOARD마다 TITLE을 선택해 가져가므로 List<Map<CommentDTO, String>> 타입으로 정의 -->
+	<select id="getTotalCommentNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   T.TRASH_NO
-			 , T.REF_REVW_NO
-			 , T.TRASH_TITLE
-			 , T.TRASH_WRITER
-			 , T.TRASH_DELETEBY
-			 , T.TRASH_DATE_MOVED
-			 , T.TRASH_DATE_UNTIL
-		  FROM TBL_TRASH T
-		  LEFT JOIN TBL_REVIEW A ON(T.REF_REVW_NO = A.REVIEW_NO)
-		  LEFT JOIN TBL_OPTION B ON(A.OPTION_NO = B.OPTION_NO)
-		  LEFT JOIN TBL_PRODUCT C ON(B.REF_PROD_NO = C.PROD_NO)
-		 WHERE A.REVIEW_NO IN (SELECT T.REF_REVW_NO FROM TBL_TRASH T)
-		  <trim prefix="AND">
-			<if test="keyword != null and condition eq 'revwTitle'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'revwContent'">A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
-			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
-		  </trim>
+			   COUNT(DISTINCT A.COMMENT_NO)
+		  FROM TBL_COMMENT A
+		  LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+		  LEFT JOIN TBL_INQUIRY I ON(A.REF_POST_NO = I.INQUIRY_NO)
+		  LEFT JOIN TBL_REVIEW R ON(A.REF_POST_NO = R.REVIEW_NO)
+		 WHERE A.COMMENT_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'comment')
+		<trim prefix="AND">
+			<if test="keyword != null and condition eq 'commentContent'">A.COMMENT_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+			<if test="keyword != null and condition eq 'idOrName'">B.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+		</trim>
+	</select>
+	<select id="getTotalCommentList" resultType="HashMap">
+		SELECT
+			   Y.*
+		  FROM (
+				SELECT
+					   Z.RANK RK
+					 , Z.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY A.COMMENT_REG_DATE DESC, A.COMMENT_NO) RANK
+							 , A.COMMENT_NO
+							 , A.MEMBER_ID
+							 , A.REF_BOARD
+							 , A.REF_POST_NO
+							 , A.COMMENT_CONTENT
+							 , A.COMMENT_REG_DATE
+							 , A.COMMENT_CHG_DATE
+							 , A.COMMENT_DEL_DATE
+							 , A.COMMENT_NEST_LEVEL
+							 , A.COMMENT_NESTED_TO
+							 , B.NAME
+							 , CASE
+							 		WHEN A.REF_BOARD = '문의' THEN I.INQUIRY_TITLE
+							 		WHEN A.REF_BOARD = '리뷰' THEN R.REVW_TITLE
+							   ELSE NULL END AS REF_TITLE
+						 FROM TBL_COMMENT A
+						 LEFT JOIN TBL_MEMBER B ON(A.MEMBER_ID = B.MEMBER_ID)
+						 LEFT JOIN TBL_INQUIRY I ON(A.REF_POST_NO = I.INQUIRY_NO)
+						 LEFT JOIN TBL_REVIEW R ON(A.REF_POST_NO = R.REVIEW_NO)
+						WHERE A.COMMENT_DEL_DATE IS NULL
+						<trim prefix="AND">
+							<if test="keyword != null and condition eq 'commentContent'">A.COMMENT_CONTENT LIKE '%' || #{ keyword } || '%'</if>
+							<if test="keyword != null and condition eq 'idOrName'">B.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
+						</trim>
+				  	   ) Z
+				<![CDATA[
+				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  	   ) Y
+		<![CDATA[
+		 WHERE Y.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
 	
 	<!-- 삭제글 복구 -->
+	<!-- 댓글의 경우 삭제일자 초기화 또한 적용 -->
+	<select id="getRefBoardNameFromTrash" resultMap="trashResultMap">
+		SELECT
+			   REF_POST_NO
+			 , REF_BOARD
+		  FROM TBL_TRASH
+		 WHERE TRASH_NO = #{ trashNo }
+	</select>
+	<update id="updateCommentDelDateDefault">
+		UPDATE
+			   TBL_COMMENT
+		   SET COMMENT_DEL_DATE = NULL
+		 WHERE COMMENT_NO = #{ commentNo }
+	</update>
 	<delete id="restoreAPostFromTrash">
 		DELETE
 		  FROM TBL_TRASH
@@ -600,11 +839,21 @@
 	
 	<!-- 게시글삭제단계A. 휴지통 삭제글로 지정 -->
 	<insert id="moveAPostToTrash">
+		<selectKey keyProperty="trashTitle" resultType="String" order="BEFORE"> <!-- 문의/리뷰/댓글별 저장용 데이터 조회 -->
+			SELECT
+				   CASE
+						WHEN #{ refBoard } = 'inquiry' THEN (SELECT INQUIRY_TITLE FROM TBL_INQUIRY WHERE INQUIRY_NO = #{ refPostNo })
+						WHEN #{ refBoard } = 'review' THEN (SELECT REVW_TITLE FROM TBL_REVIEW WHERE REVIEW_NO = #{ refPostNo })
+						WHEN #{ refBoard } = 'comment' THEN (SELECT COMMENT_CONTENT FROM TBL_COMMENT WHERE COMMENT_NO = #{ refPostNo })
+				   ELSE NULL END AS TRASH_TITLE
+			  FROM DUAL
+		</selectKey>
 		INSERT
 		  INTO TBL_TRASH
 		(
 		  TRASH_NO
-		, REF_REVW_NO
+		, REF_BOARD
+		, REF_POST_NO
 		, TRASH_TITLE
 		, TRASH_WRITER
 		, TRASH_DELETEBY
@@ -614,7 +863,8 @@
 		VALUES
 		(
 		  SEQ_TRASH_NO.NEXTVAL
-		, #{ refRevwNo }
+		, #{ refBoard }
+		, #{ refPostNo }
 		, #{ trashTitle }
 		, #{ trashWriter }
 		, #{ trashDeleteBy }
@@ -622,17 +872,15 @@
 		, SYSDATE+100
 		)
 	</insert>
-	
 	<!-- 게시글삭제단계B. 복구기한 100일 후 영구 삭제 -->
 	<select id="getTrashItemToDelete" resultType="_int">
 	<![CDATA[
 		SELECT
-			   REF_REVW_NO
+			   REF_POST_NO
 		  FROM TBL_TRASH
 		 WHERE TRASH_DATE_UNTIL < SYSDATE
 	]]>
 	</select>
-	
 	<delete id="permanentlyDeleteFromTrash">
 	<![CDATA[
 		DELETE
@@ -641,7 +889,6 @@
 		   AND REF_REVW_NO = #{ reviewNo }
 	]]>
 	</delete>
-	
 	<delete id="permanentlyDeleteReviewPost">
 	<![CDATA[
 		DELETE
@@ -650,44 +897,16 @@
 	]]>
 	</delete>
 	
-	<!-- 주문/배송관리 -->
+	<!-- 주문/배송관리 *전체/상품준비중/배송중/배송완료* -->
 	<sql id="dashboardOrderSearch">
-		<trim prefix="WHERE">
+		<trim prefix="AND">
 			<if test="keyword != null and condition eq 'memberId'">A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
 			<if test="keyword != null and condition eq 'paymentMethod'">C.PAYMENT_METHOD LIKE '%' || #{ keyword } || '%'</if>
 		</trim>
 	</sql>
-	
-	<select id="getTotalOrderList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+	<select id="getTotalOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.ORDER_DATE
-			 , A.RCVR_NAME
-			 , A.RCVR_PHONE
-			 , A.RCVR_ADDRESS
-			 , A.DLVR_REQ_MESSAGE
-			 , A.DLVR_STATUS
-			 , B.OPTION_NO
-			 , B.ORDER_QUANTITY
-			 , B.ORDER_AMOUNT
-			 , C.PAYMENT_NO
-			 , C.PAYMENT_METHOD
-			 , C.PAYMENT_AMOUNT
-			 , C.PAYMENT_DATETIME
-			 , L.DELIVERY_FEE
-			 , L.DELIVERY_COMPANY
-			 , L.DISPATCH_DATE
-			 , L.DELIVERY_DATE
-			 , N.POINT_AMOUNT
-			 , O.OPT_BODY_COLOR
-			 , O.OPT_INK_COLOR
-			 , O.OPT_POINT_SIZE
-			 , O.OPT_EXTRA_CHARGE
-			 , P.PROD_NO
-			 , P.PROD_NAME
-			 , D.BRAND_NAME
-			 , T.THUMBNAIL_PATH
+			   COUNT(DISTINCT A.ORDER_NO)
 		  FROM TBL_ORDER_DETAIL A
 		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
 		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
@@ -697,39 +916,12 @@
 		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
 		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+		 WHERE 1 = 1
 		<include refid="dashboardOrderSearch"></include>
 	</select>
-	
-	<select id="getPreparingOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+	<select id="getPreparingOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.ORDER_DATE
-			 , A.RCVR_NAME
-			 , A.RCVR_PHONE
-			 , A.RCVR_ADDRESS
-			 , A.DLVR_REQ_MESSAGE
-			 , A.DLVR_STATUS
-			 , B.OPTION_NO
-			 , B.ORDER_QUANTITY
-			 , B.ORDER_AMOUNT
-			 , C.PAYMENT_NO
-			 , C.PAYMENT_METHOD
-			 , C.PAYMENT_AMOUNT
-			 , C.PAYMENT_DATETIME
-			 , L.DELIVERY_FEE
-			 , L.DELIVERY_COMPANY
-			 , L.DISPATCH_DATE
-			 , L.DELIVERY_DATE
-			 , N.POINT_AMOUNT
-			 , O.OPT_BODY_COLOR
-			 , O.OPT_INK_COLOR
-			 , O.OPT_POINT_SIZE
-			 , O.OPT_EXTRA_CHARGE
-			 , P.PROD_NO
-			 , P.PROD_NAME
-			 , D.BRAND_NAME
-			 , T.THUMBNAIL_PATH
+			   COUNT(DISTINCT A.ORDER_NO)
 		  FROM TBL_ORDER_DETAIL A
 		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
 		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
@@ -742,37 +934,9 @@
 		 WHERE A.DLVR_STATUS = '상품준비중'
 		<include refid="dashboardOrderSearch"></include>
 	</select>
-	
-	<select id="getDeliveringOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+	<select id="getDeliveringOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.ORDER_DATE
-			 , A.RCVR_NAME
-			 , A.RCVR_PHONE
-			 , A.RCVR_ADDRESS
-			 , A.DLVR_REQ_MESSAGE
-			 , A.DLVR_STATUS
-			 , B.OPTION_NO
-			 , B.ORDER_QUANTITY
-			 , B.ORDER_AMOUNT
-			 , C.PAYMENT_NO
-			 , C.PAYMENT_METHOD
-			 , C.PAYMENT_AMOUNT
-			 , C.PAYMENT_DATETIME
-			 , L.DELIVERY_FEE
-			 , L.DELIVERY_COMPANY
-			 , L.DISPATCH_DATE
-			 , L.DELIVERY_DATE
-			 , N.POINT_AMOUNT
-			 , O.OPT_BODY_COLOR
-			 , O.OPT_INK_COLOR
-			 , O.OPT_POINT_SIZE
-			 , O.OPT_EXTRA_CHARGE
-			 , P.PROD_NO
-			 , P.PROD_NAME
-			 , D.BRAND_NAME
-			 , T.THUMBNAIL_PATH
+			   COUNT(DISTINCT A.ORDER_NO)
 		  FROM TBL_ORDER_DETAIL A
 		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
 		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
@@ -785,37 +949,9 @@
 		 WHERE A.DLVR_STATUS = '배송중'
 		<include refid="dashboardOrderSearch"></include>
 	</select>
-	
-	<select id="getCompletedOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+	<select id="getCompletedOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
 		SELECT
-			   A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.ORDER_DATE
-			 , A.RCVR_NAME
-			 , A.RCVR_PHONE
-			 , A.RCVR_ADDRESS
-			 , A.DLVR_REQ_MESSAGE
-			 , A.DLVR_STATUS
-			 , B.OPTION_NO
-			 , B.ORDER_QUANTITY
-			 , B.ORDER_AMOUNT
-			 , C.PAYMENT_NO
-			 , C.PAYMENT_METHOD
-			 , C.PAYMENT_AMOUNT
-			 , C.PAYMENT_DATETIME
-			 , L.DELIVERY_FEE
-			 , L.DELIVERY_COMPANY
-			 , L.DISPATCH_DATE
-			 , L.DELIVERY_DATE
-			 , N.POINT_AMOUNT
-			 , O.OPT_BODY_COLOR
-			 , O.OPT_INK_COLOR
-			 , O.OPT_POINT_SIZE
-			 , O.OPT_EXTRA_CHARGE
-			 , P.PROD_NO
-			 , P.PROD_NAME
-			 , D.BRAND_NAME
-			 , T.THUMBNAIL_PATH
+			   COUNT(DISTINCT A.ORDER_NO)
 		  FROM TBL_ORDER_DETAIL A
 		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
 		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
@@ -828,14 +964,250 @@
 		 WHERE A.DLVR_STATUS = '배송완료'
 		<include refid="dashboardOrderSearch"></include>
 	</select>
-	
-	<select id="getTotalOrderNumber" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultType="_int">
+	<!-- 상품마다 연결된 사진파일이 세 종류(thumb_main/thumb_sub/content)이므로 file_type 명시 필요 -->
+	<select id="getTotalOrderList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
 		SELECT
-			   COUNT(ORDER_NO)
-		  FROM TBL_ORDER_DETAIL
-		<include refid="dashboardOrderSearch"></include>
+			   Y.*
+		  FROM (
+				SELECT
+					   Z.RANK RK
+					 , Z.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							 , B.ORDER_NO
+							 , B.OPTION_NO
+							 , B.ORDER_QUANTITY
+							 , B.ORDER_AMOUNT
+							 , A.MEMBER_ID
+							 , A.ORDER_DATE
+							 , A.RCVR_NAME
+							 , A.RCVR_PHONE
+							 , A.RCVR_ADDRESS
+							 , A.DLVR_REQ_MESSAGE
+							 , A.DLVR_STATUS
+							 , C.PAYMENT_NO
+							 , C.PAYMENT_METHOD
+							 , C.PAYMENT_AMOUNT
+							 , C.PAYMENT_DATETIME
+							 , L.DELIVERY_FEE
+							 , L.DELIVERY_COMPANY
+							 , L.DISPATCH_DATE
+							 , L.DELIVERY_DATE
+							 , N.POINT_AMOUNT
+							 , O.OPT_BODY_COLOR
+							 , O.OPT_INK_COLOR
+							 , O.OPT_POINT_SIZE
+							 , O.OPT_EXTRA_CHARGE
+							 , P.PROD_NO
+							 , P.PROD_NAME
+							 , D.BRAND_NAME
+							 , T.THUMBNAIL_PATH
+							 , M.NAME
+						  FROM TBL_ORDER_DETAIL A
+						  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+						  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+						  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+						  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+						  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+						  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+						  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+						  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+						  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
+						 WHERE T.FILE_TYPE = 'THUMB_MAIN'
+						<include refid="dashboardOrderSearch"></include>
+				  	   ) Z
+				<![CDATA[
+				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  	   ) Y
+		<![CDATA[
+		 WHERE Y.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
 	</select>
-	
+	<select id="getPreparingOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+		SELECT
+			   Y.*
+		  FROM (
+				SELECT
+					   Z.RANK RK
+					 , Z.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							 , B.ORDER_NO
+							 , B.OPTION_NO
+							 , B.ORDER_QUANTITY
+							 , B.ORDER_AMOUNT
+							 , A.MEMBER_ID
+							 , A.ORDER_DATE
+							 , A.RCVR_NAME
+							 , A.RCVR_PHONE
+							 , A.RCVR_ADDRESS
+							 , A.DLVR_REQ_MESSAGE
+							 , A.DLVR_STATUS
+							 , C.PAYMENT_NO
+							 , C.PAYMENT_METHOD
+							 , C.PAYMENT_AMOUNT
+							 , C.PAYMENT_DATETIME
+							 , L.DELIVERY_FEE
+							 , L.DELIVERY_COMPANY
+							 , L.DISPATCH_DATE
+							 , L.DELIVERY_DATE
+							 , N.POINT_AMOUNT
+							 , O.OPT_BODY_COLOR
+							 , O.OPT_INK_COLOR
+							 , O.OPT_POINT_SIZE
+							 , O.OPT_EXTRA_CHARGE
+							 , P.PROD_NO
+							 , P.PROD_NAME
+							 , D.BRAND_NAME
+							 , T.THUMBNAIL_PATH
+							 , M.NAME
+						  FROM TBL_ORDER_DETAIL A
+						  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+						  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+						  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+						  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+						  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+						  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+						  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+						  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+						  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
+						 WHERE T.FILE_TYPE = 'THUMB_MAIN'
+						   AND A.DLVR_STATUS = '상품준비중'
+						<include refid="dashboardOrderSearch"></include>
+				  	   ) Z
+				<![CDATA[
+				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  	   ) Y
+		<![CDATA[
+		 WHERE Y.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getDeliveringOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+		SELECT
+			   Y.*
+		  FROM (
+				SELECT
+					   Z.RANK RK
+					 , Z.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							 , B.ORDER_NO
+							 , B.OPTION_NO
+							 , B.ORDER_QUANTITY
+							 , B.ORDER_AMOUNT
+							 , A.MEMBER_ID
+							 , A.ORDER_DATE
+							 , A.RCVR_NAME
+							 , A.RCVR_PHONE
+							 , A.RCVR_ADDRESS
+							 , A.DLVR_REQ_MESSAGE
+							 , A.DLVR_STATUS
+							 , C.PAYMENT_NO
+							 , C.PAYMENT_METHOD
+							 , C.PAYMENT_AMOUNT
+							 , C.PAYMENT_DATETIME
+							 , L.DELIVERY_FEE
+							 , L.DELIVERY_COMPANY
+							 , L.DISPATCH_DATE
+							 , L.DELIVERY_DATE
+							 , N.POINT_AMOUNT
+							 , O.OPT_BODY_COLOR
+							 , O.OPT_INK_COLOR
+							 , O.OPT_POINT_SIZE
+							 , O.OPT_EXTRA_CHARGE
+							 , P.PROD_NO
+							 , P.PROD_NAME
+							 , D.BRAND_NAME
+							 , T.THUMBNAIL_PATH
+							 , M.NAME
+						  FROM TBL_ORDER_DETAIL A
+						  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+						  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+						  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+						  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+						  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+						  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+						  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+						  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+						  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
+						 WHERE T.FILE_TYPE = 'THUMB_MAIN'
+						   AND A.DLVR_STATUS = '배송중'
+						<include refid="dashboardOrderSearch"></include>
+				  	   ) Z
+				<![CDATA[
+				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  	   ) Y
+		<![CDATA[
+		 WHERE Y.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
+	<select id="getCompletedOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="orderDetailResultMap">
+		SELECT
+			   Y.*
+		  FROM (
+				SELECT
+					   Z.RANK RK
+					 , Z.*
+				  FROM (
+						SELECT
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							 , B.ORDER_NO
+							 , B.OPTION_NO
+							 , B.ORDER_QUANTITY
+							 , B.ORDER_AMOUNT
+							 , A.MEMBER_ID
+							 , A.ORDER_DATE
+							 , A.RCVR_NAME
+							 , A.RCVR_PHONE
+							 , A.RCVR_ADDRESS
+							 , A.DLVR_REQ_MESSAGE
+							 , A.DLVR_STATUS
+							 , C.PAYMENT_NO
+							 , C.PAYMENT_METHOD
+							 , C.PAYMENT_AMOUNT
+							 , C.PAYMENT_DATETIME
+							 , L.DELIVERY_FEE
+							 , L.DELIVERY_COMPANY
+							 , L.DISPATCH_DATE
+							 , L.DELIVERY_DATE
+							 , N.POINT_AMOUNT
+							 , O.OPT_BODY_COLOR
+							 , O.OPT_INK_COLOR
+							 , O.OPT_POINT_SIZE
+							 , O.OPT_EXTRA_CHARGE
+							 , P.PROD_NO
+							 , P.PROD_NAME
+							 , D.BRAND_NAME
+							 , T.THUMBNAIL_PATH
+							 , M.NAME
+						  FROM TBL_ORDER_DETAIL A
+						  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+						  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+						  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+						  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+						  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+						  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+						  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+						  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+						  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
+						 WHERE T.FILE_TYPE = 'THUMB_MAIN'
+						   AND A.DLVR_STATUS = '배송완료'
+						<include refid="dashboardOrderSearch"></include>
+				  	   ) Z
+				<![CDATA[
+				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				]]>
+		  	   ) Y
+		<![CDATA[
+		 WHERE Y.RK > (#{ currentPageNo } - 1) * #{ recordsPerPage }
+		]]>
+	</select>
 	<!-- 주문번호별 상세정보조회 -->
 	<select id="getOrderDetailsByOrderNo" resultMap="orderDetailResultMap">
 		SELECT
@@ -881,21 +1253,18 @@
 		  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
 		 WHERE A.ORDER_NO = #{ orderNo }
 	</select>
-	
 	<update id="updateDeliveryStatus">
 		UPDATE
 			   TBL_ORDER_DETAIL
 		   SET DLVR_STATUS = #{ dlvrStatus }
 		 WHERE ORDER_NO = #{ orderNo }
 	</update>
-	
 	<update id="updateDispatchDate">
 		UPDATE
 			   TBL_DELIVERY
 		   SET DISPATCH_DATE = SYSDATE
 		 WHERE ORDER_NO = #{ orderNo }
 	</update>
-	
 	<update id="updateDeliveryDate">
 		UPDATE
 			   TBL_DELIVERY

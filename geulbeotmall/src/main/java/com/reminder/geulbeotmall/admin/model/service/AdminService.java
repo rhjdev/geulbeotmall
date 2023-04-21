@@ -7,6 +7,8 @@ import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
+import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
@@ -14,7 +16,7 @@ import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
 
 public interface AdminService {
-
+	/* 회원관리 */
 	List<MemberDTO> getMemberList(Criteria criteria);
 
 	MemberDTO getMemberDetails(String memberId);
@@ -48,7 +50,16 @@ public interface AdminService {
 	int insertAccSuspension(String memberId, String accSuspDesc);
 
 	int updateAccActivation(String memberId);
-
+	
+	/* 주문/배송관리 */
+	int getTotalOrderNumber(Criteria criteria);
+	
+	int getPreparingOrderNumber(Criteria criteria);
+	
+	int getDeliveringOrderNumber(Criteria criteria);
+	
+	int getCompletedOrderNumber(Criteria criteria);
+	
 	List<OrderDetailDTO> getTotalOrderList(Criteria criteria);
 
 	List<OrderDetailDTO> getPreparingOnly(Criteria criteria);
@@ -61,11 +72,21 @@ public interface AdminService {
 
 	OrderDetailDTO getOrderDetailsByOrderNo(String orderNo);
 
+	/* 디자인관리 */
 	int addDisplayImages(DesignImageDTO designImage);
+	
+	/* 게시글관리 */
+	int getTotalInquiryNumber(Criteria criteria);
+	
+	int getTotalReviewNumber(Criteria criteria);
+	
+	int getTotalTrashNumber(Criteria criteria, String checkTrashRefBoard);
+	
+	List<InquiryDTO> getTotalInquiryPostList(Criteria criteria);
 
 	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
 	
-	List<TrashDTO> getPostsInTrash(Criteria criteria);
+	List<Map<TrashDTO, String>> getTotalTrashList(Criteria criteria, String checkTrashRefBoard);
 
 	int moveAPostToTrash(TrashDTO trashDTO);
 
@@ -74,12 +95,16 @@ public interface AdminService {
 	List<Integer> getTrashItemToDelete();
 
 	int permanentlyDeleteFromTrashAndReviewData(int reviewNo);
+	
+	/* 댓글관리 */
+	int getTotalCommentNumber(Criteria criteria);
+	
+	List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end);
+	
+	List<Map<CommentDTO, String>> getTotalCommentList(Criteria criteria);
 
-	int getTotalOrderNumber(Criteria criteria);
-
+	/* 통계 */
 	List<Map<String, Integer>> getMemberDataByDate(String range, String start, String end);
 
 	List<Map<String, Integer>> getSalesDataByDate(String range, String start, String end);
-
-	List<Map<ProductDTO, Integer>> getTopSalesProduct(String range, String start, String end);
 }

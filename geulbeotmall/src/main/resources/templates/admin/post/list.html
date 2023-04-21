@@ -18,9 +18,8 @@
 			<div class="search-container">
 				<form id="searchForm" name="searchForm" class="search-form" th:object="${criteria}" th:action="@{/admin/post/list}" method="get" onsubmit="checkKeywordForPost(); return false;">
 					<select id="condition" name="condition" class="dataTable-selector">
-						<option value="revwTitle" th:selected="*{condition} eq 'revwTitle'">제목</option>
-						<option value="revwContent" th:selected="*{condition} eq 'revwContent'">내용</option>
-						<option value="memberId" th:selected="*{condition} eq 'memberId'">작성자</option>
+						<option value="titleOrContent" th:selected="*{condition} eq 'titleOrContent'">제목+내용</option>
+						<option value="idOrName" th:selected="*{condition} eq 'idOrName'">작성자</option>
 					</select>
 					<input type="search" name="keyword" th:field="*{keyword}" class="form-control search-bar" autocomplete="off">
 					<input type="hidden" name="currentPageNo" th:field="*{currentPageNo}">
@@ -32,15 +31,57 @@
     </div>
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item" role="presentation">
-			<button class="nav-link active" id="total-tab" data-bs-toggle="tab" data-bs-target="#total" type="button" role="tab" aria-controls="total" aria-selected="true">전체 게시글 <b th:text="${ total }" style="color: #ff0000;"></b></button>
+			<button class="nav-link" id="inquiry-tab" data-bs-toggle="tab" data-bs-target="#inquiry" type="button" role="tab" aria-controls="inquiry" aria-selected="true">문의 게시글 <b th:text="${ inquiry }" style="color: #ff0000;"></b></button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="true">리뷰 게시글 <b th:text="${ review }" style="color: #ff0000;"></b></button>
 		</li>
 		<li class="nav-item" role="presentation">
 			<button class="nav-link" id="trash-tab" data-bs-toggle="tab" data-bs-target="#trash" type="button" role="tab" aria-controls="trash" aria-selected="true">휴지통 삭제글 <b th:text="${ trash }" style="color: #6c757d;"></b></button>
 		</li>
 	</ul>
 	<div class="tab-content" id="myTabContent">
-		<!--/* 전체 게시글 */-->
-		<div class="tab-pane fade show active" id="total" role="tabpanel" aria-labelledby="total-tab">
+		<!--/* 문의 게시글 */-->
+		<div class="tab-pane fade show" id="inquiry" role="tabpanel" aria-labelledby="inquiry-tab">
+            <div class="dataTable-container">
+            <table class="dataTable-table table-striped">
+                <thead>
+                    <tr>
+                    	<th><input type="checkbox" class="input-checkbox checkAll"></th>
+                    	<th><span>문의유형</span></th>
+                    	<th><span>제목</span></th>
+                    	<th><span>작성자</span></th>
+                    	<th><span>작성일</span></th>
+                    	<th><span>조회수</span></th>
+                    	<th><span>답변상태</span></th>
+                   	</tr>
+                </thead>
+                <tbody>
+                	<tr th:each="postList : ${ totalInquiryList }" th:if="${not #lists.isEmpty(totalInquiryList)}" th:with="cri=${criteria}, inquiry=${inquiry}">
+                		<td th:attr="data-value=${ postList.inquiryNo }"><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td th:text="${ postList.inquiryType }"></td>
+	                	<td>
+	    					<a th:href="@{/cs/inquiry/details(no=${ postList.inquiryNo })}">[[${ postList.inquiryTitle }]]</a>
+	                	</td>
+	                	<td>
+	                		<a th:href="@{/admin/member/details(id=${ postList.memberId })}">[[${ postList.member.name }]]([[${#strings.replace(postList.memberId, #strings.substring(postList.memberId, 4), '***')}]])</a>
+	                	</td>
+	                	<td th:text="${#dates.format(postList.inquiryRegDate, 'yyyy.MM.dd HH:mm')}"></td>
+	                	<td th:text="${ postList.inquiryHits }"></td>
+	                	<td th:attr="data-value=${ postList.inquiryAnsweredYn }" th:text="${ postList.inquiryAnsweredYn == 'Y' ? '답변완료' : '미답변' }"></td>
+                	</tr>
+                	<tr th:unless="${#lists.size(totalInquiryList)} > 0">
+                		<td colspan="6">조회된 결과가 없습니다.</td>
+                	</tr>
+               	</tbody>
+            </table>
+            </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: pagingWithTotalInquiryNumber"></nav>
+			</th:block>
+		</div>
+		<!--/* 리뷰 게시글 */-->
+		<div class="tab-pane fade show" id="review" role="tabpanel" aria-labelledby="review-tab">
             <div class="dataTable-container">
             <table class="dataTable-table table-striped">
                 <thead>
@@ -54,9 +95,9 @@
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="postList : ${ totalReviewList }" th:if="${not #lists.isEmpty(totalReviewList)}" th:with="cri=${criteria}, total=${total}">
-                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
-	                	<td th:value="${ postList.reviewNo }">
+                	<tr th:each="postList : ${ totalReviewList }" th:if="${not #lists.isEmpty(totalReviewList)}" th:with="cri=${criteria}, review=${review}">
+                		<td th:attr="data-value=${ postList.reviewNo }"><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td>
 	                		<p class="review-detail">
 		    					<a data-toggle="modal" th:href="'#review-content' + ${ postList.reviewNo }">[[${ postList.revwTitle }]]</a>
 		    				</p>
@@ -75,6 +116,9 @@
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: pagingWithTotalReviewNumber"></nav>
+			</th:block>
 		</div>
 		<!--/* 휴지통 삭제글 */-->
 		<div class="tab-pane fade show" id="trash" role="tabpanel" aria-labelledby="trash-tab">
@@ -91,25 +135,25 @@
                    	</tr>
                 </thead>
                 <tbody>
-                	<tr th:each="postList : ${ reviewsInTrash }" th:if="${not #lists.isEmpty(reviewsInTrash)}" th:with="cri=${criteria}">
-                		<td><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
-	                	<td th:value="${ postList.trashNo }">[(${ postList.trashTitle })]</td>
-	                	<td>[(${ postList.trashWriter })]</td>
-	                	<td>[(${ postList.trashAdmin })]</td>
-	                	<td th:text="${#dates.format(postList.trashDateMoved, 'yyyy.MM.dd')}"></td>
-	                	<td th:text="|~${#dates.format(postList.trashDateUntil, 'yyyy.MM.dd')}|"></td>
+                	<tr th:each="postList : ${ totalTrashList }" th:if="${not #lists.isEmpty(totalTrashList)}" th:with="cri=${criteria}">
+                		<td th:attr="data-value=${ postList.TRASH_NO }"><input type="checkbox" class="input-checkbox item" name="checkItem"></td>
+	                	<td>[(${ postList.TRASH_TITLE })]</td>
+	                	<td>[(${ postList.TRASH_WRITER })]</td>
+	                	<td>[(${ postList.TRASH_DELETEBY })]</td>
+	                	<td th:text="${#dates.format(postList.TRASH_DATE_MOVED, 'yyyy.MM.dd')}"></td>
+	                	<td th:text="|~${#dates.format(postList.TRASH_DATE_UNTIL, 'yyyy.MM.dd')}|"></td>
                 	</tr>
-                	<tr th:unless="${#lists.size(reviewsInTrash)} > 0">
-                		<td colspan="7">조회된 결과가 없습니다.</td>
+                	<tr th:unless="${#lists.size(totalTrashList)} > 0">
+                		<td colspan="6">조회된 결과가 없습니다.</td>
                 	</tr>
                	</tbody>
             </table>
             </div>
+            <th:block layout:fragment="paging">
+				<nav th:replace="/fragments/paging.html :: pagingWithTotalTrashNumber"></nav>
+			</th:block>
 		</div>
 	</div>
-	<th:block layout:fragment="paging">
-		<nav th:replace="/fragments/paging.html :: paging"></nav>
-	</th:block>
     <th:block layout:fragment="postToolbar">
 		<div th:replace="/fragments/toolbar.html :: postToolbar"></div>
 	</th:block>

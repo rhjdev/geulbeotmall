@@ -3,14 +3,14 @@ $(document).ready(function(){
 	let tabs = document.querySelectorAll('button.nav-link');
 	let panels = document.querySelectorAll('div.tab-pane');
 	
-	let activeTab = localStorage.getItem('activeTab') == 'undefined' ? 'inquiry-tab' : localStorage.getItem('activeTab'); //기본 active tab=inquiry-tab
-	if(localStorage.getItem('activeTab') == 'total-tab') activeTab = 'inquiry-tab';
+	let activeTab = localStorage.getItem('activeTab') == 'undefined' ? 'total-tab' : localStorage.getItem('activeTab'); //기본 active tab=total-tab
+	console.log(localStorage.getItem('activeTab'));
 	
 	for(let i=0; i < tabs.length; i++) {
 		if(tabs[i].id == activeTab) { tabs[i].classList.add('active'); } //선택 tab 활성화
 	}
 	for(let i=0; i < panels.length; i++) {
-		if(panels[i].attributes['aria-labelledby'].value == activeTab) { panels[i].classList.add('active'); } //aria-labelledby="inquiry-tab"
+		if(panels[i].attributes['aria-labelledby'].value == activeTab) { panels[i].classList.add('active'); } //aria-labelledby="total-tab"
 	}
 	
 	$('button.nav-link').click(function(){
@@ -125,8 +125,8 @@ function moveToTrash() {
 		checkbox.each(function(i){
 			let tr = checkbox.parent().parent().eq(i);
 			postNo = tr.find('td:first-child')[0].attributes['data-value'].value; //th:attr="data-value=${ value }"
-			memberId = tr.children().eq(3).text();
-			board = document.querySelector('.tab-pane.active').id;
+			memberId = tr.children().eq(4)[0].attributes['data-value'].value;
+			board = 'comment';
 			if(postNo != '') noArr.push(postNo);
 			if(memberId != '') writerArr.push(memberId);
 			if(board != '') boardArr.push(board);
@@ -259,5 +259,5 @@ function suspendAcc() {
 
 /* 새로고침 */
 function refreshList() {
-	window.location.assign('/admin/post/list');
+	window.location.assign('/admin/comment/list');
 }

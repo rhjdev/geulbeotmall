@@ -8,7 +8,8 @@ import lombok.Data;
 public class TrashDTO {
 
 	private int trashNo;
-	private int refRevwNo;
+	private String refBoard;
+	private int refPostNo;
 	private String trashTitle;
 	private String trashWriter;
 	private String trashDeleteBy;

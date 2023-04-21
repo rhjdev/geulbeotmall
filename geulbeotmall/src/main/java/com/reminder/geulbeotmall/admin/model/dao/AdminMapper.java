@@ -9,11 +9,15 @@ import com.reminder.geulbeotmall.admin.model.dto.MemberSuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
+import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
 import com.reminder.geulbeotmall.review.model.dto.ReviewDTO;
 import com.reminder.geulbeotmall.upload.model.dto.DesignImageDTO;
+
+import io.lettuce.core.dynamic.annotation.Param;
 
 @Mapper
 public interface AdminMapper {
@@ -71,12 +75,24 @@ public interface AdminMapper {
 	int updateDeliveryDate(String orderNo);
 
 	int addDisplayImages(DesignImageDTO designImage);
+	
+	int getTotalInquiryNumber(Criteria criteria);
+	
+	int getTotalReviewNumber(Criteria criteria);
+	
+	int getTotalTrashNumber(@Param("criteria") Criteria criteria, String checkTrashRefBoard);
 
+	List<InquiryDTO> getTotalInquiryPostList(Criteria criteria);
+	
 	List<ReviewDTO> getTotalReviewPostList(Criteria criteria);
 	
-	List<TrashDTO> getPostsInTrash(Criteria criteria);
+	List<Map<TrashDTO, String>> getTotalTrashList(@Param("criteria") Criteria criteria, String checkTrashRefBoard);
 
 	int moveAPostToTrash(TrashDTO trashDTO);
+	
+	TrashDTO getRefBoardNameFromTrash(int trashNo);
+	
+	void updateCommentDelDateDefault(int commentNo);
 
 	int restoreAPostFromTrash(int trashNo);
 
@@ -87,6 +103,16 @@ public interface AdminMapper {
 	int permanentlyDeleteFromTrash(int reviewNo);
 
 	int getTotalOrderNumber(Criteria criteria);
+	
+	int getPreparingOrderNumber(Criteria criteria);
+	
+	int getDeliveringOrderNumber(Criteria criteria);
+	
+	int getCompletedOrderNumber(Criteria criteria);
+	
+	int getTotalCommentNumber(Criteria criteria);
+	
+	List<Map<CommentDTO, String>> getTotalCommentList(Criteria criteria);
 
 	List<Map<String, Integer>> getMemberDataByDate(String range, String start, String end);
 
