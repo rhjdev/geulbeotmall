@@ -48,6 +48,7 @@
 		<result property="pointSize" column="OPT_POINT_SIZE"/>
 		<result property="extraCharge" column="OPT_EXTRA_CHARGE"/>
 		<association property="stock" resultMap="stockResultMap"/> <!-- 1:1 -->
+		<association property="product" resultMap="productResultMap"/> <!-- 1:1 -->
 	</resultMap>
 	
 	<!-- 재고 조회용 -->
@@ -1231,9 +1232,35 @@
 		  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
 		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
 		  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
-		 WHERE A.PROD_NAME LIKE '%' || #{ keyword } || '%'
-		    OR C.BRAND_NAME LIKE '%' || #{ keyword } || '%'
-		    OR A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'
-		    OR O.OPT_POINT_SIZE LIKE TO_NUMBER(#{ keyword })
+		 WHERE A.PROD_AVAIL_YN = 'Y' <!-- 판매중인 상품에 한하여 검색 -->
+		   AND (
+		   <choose>
+		   	<when test="@org.apache.commons.lang3.math.NumberUtils@isCreatable(keyword) 
+		   			and @org.apache.commons.lang3.StringUtils@contains(keyword, 46) and keyword lt 2"> <!-- parameterType 동적 구분 / ASCII 코드 기반 '.' 포함 여부 확인 / 취급 중인 상품의 심두께는 2.0 이하 -->
+		   		   O.OPT_POINT_SIZE LIKE TO_NUMBER(#{ keyword })
+		   	</when>
+		   	<otherwise>
+			   	   A.PROD_NAME LIKE '%' || #{ keyword } || '%'
+			    OR C.BRAND_NAME LIKE '%' || #{ keyword } || '%'
+			    OR A.PRODUCT_TAG LIKE '%' || #{ keyword } || '%'
+		   	</otherwise>
+		   </choose>
+		       )
+	</select>
+	
+	<!-- 랜덤 상품 옵션 1개 추출 *dummy data test* -->
+	<select id="getRandomProductOption" resultMap="optionResultMap">
+		SELECT
+			   *
+		  FROM (
+		  		 SELECT O.*
+			 		  , P.PROD_PRICE
+			 	   FROM TBL_OPTION O
+			 	   LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+			 	  ORDER BY DBMS_RANDOM.RANDOM
+			    )
+		<![CDATA[
+		 WHERE ROWNUM <= 1
+		]]>
 	</select>
 </mapper>
