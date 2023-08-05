@@ -147,7 +147,7 @@ li {
 	margin-bottom: 160px;
 	text-align: center;
 }
-.buttonBox button[type="button"] {
+.buttonBox button[type="button"], button[type="submit"] {
 	width: 30%;
 	height: 44px;
 	border-radius: 0;

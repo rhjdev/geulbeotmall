@@ -10,22 +10,25 @@
 <div class="sticky-top">
     <nav class="py-2 border-bottom">
         <div class="container d-flex flex-wrap">
-            <ul class="nav me-auto">
-            	<th:block sec:authorize="isAuthenticated()">
-                	<li class="nav-item"><span sec:authentication="principal.name" id="isLoggedInAs" class="nav-menu nav-link link-secondary px-3"></span></li> <!-- UserImpl 클래스 통해 회원 정보 호출 -->
-                </th:block>
+            <ul class="nav me-auto"> <!--/* UserImpl 클래스 통해 회원 정보 호출 */-->
+               	<li sec:authorize="isAuthenticated()" style="color: #6c757d; font-size: 12px;">
+               		<span sec:authentication="principal.name" id="isLoggedInAs"></span> 님 안녕하세요!
+               	</li>
             </ul>
             <ul class="nav">
-            	<!-- 로그인(관리자) -->
+            	<!--/* 로그인(회원) */-->
+            	<th:block sec:authorize="isAuthenticated()">
+		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
+            	</th:block>
+            	<!--/* 로그인(관리자) */-->
             	<th:block sec:authorize="hasRole('ADMIN')">
 	                <li class="nav-item"><a th:href="@{/admin/dashboard}" class="nav-menu nav-link link-secondary px-3">관리자페이지</a></li>
             	</th:block>
-            	<!-- 로그인(회원) -->
+            	<!--/* 로그인(회원) */-->
             	<th:block sec:authorize="isAuthenticated()">
-		            <li class="nav-item"><a th:href="@{/member/signout}" class="nav-menu nav-link link-secondary px-3">로그아웃</a></li>
                 	<li class="nav-item"><a th:href="@{/mypage/main}" class="nav-menu nav-link link-secondary px-3">마이페이지</a></li>
-            	</th:block>
-            	<!-- 비로그인 -->
+                </th:block>
+            	<!--/* 비로그인 */-->
             	<th:block sec:authorize="isAnonymous()">
 	                <li class="nav-item"><a th:href="@{/member/signin}" class="nav-menu nav-link link-secondary px-3">로그인</a></li>
 	                <li class="nav-item"><a th:href="@{/member/signup}" class="nav-menu nav-link link-secondary px-3">회원가입</a></li>
@@ -54,7 +57,7 @@
               <li class="nav-item"><a th:href="@{/product/list?section=펜/연필}" class="head-menu nav-link link-secondary px-3">펜/연필</a></li>
               <li class="nav-item"><a th:href="@{/product/list?section=마카/컬러링}" class="head-menu nav-link link-secondary px-3">마카/컬러링</a></li>
               <li class="nav-item"><a th:href="@{/product/list?section=디자인문구}" class="head-menu nav-link link-secondary px-3">디자인 문구</a></li>
-              <li class="nav-item"><a th:href="@{/product/list?section=기획전}" class="head-menu nav-link link-secondary px-3">기획전</a></li>
+              <li class="nav-item"><a th:href="@{/cs/main}" class="head-menu nav-link link-secondary px-3" style="color: #6c757d;">고객센터</a></li>
             </ul>
             <form id="searchForm" name="searchForm" class="col-12 col-lg-auto mb-3 mb-lg-0 search-form" th:action="@{/product/search}" method="get" onsubmit="checkKeywordToSearch()">
                 <input type="search" name="keyword" class="form-control search-bar">
@@ -63,6 +66,8 @@
         </div>
     </header>
     <div id="buttonTop" style="display: none;"><a><i class="fa-solid fa-arrow-up"></i></a></div>
+    
+    <!--/* JS */-->
     <script>
     	/* TOP 버튼*/
     	$(window).scroll(function(){
@@ -78,7 +83,6 @@
     		$('html, body').animate({scrollTop: 0}, 600);
     	});
     </script>
-    <!-- JS -->
     <th:block layout:fragment="script">
     	<script th:src="@{/js/search.js}" type="text/javascript"></script>
     </th:block>

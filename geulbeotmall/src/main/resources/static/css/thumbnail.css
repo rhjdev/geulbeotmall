@@ -53,7 +53,7 @@
 	border-radius: 10px;
 }
 
-.reviewImage {
+.reviewImage, .inquiryImage {
 	width: 150px;
 	height: 150px;
 }

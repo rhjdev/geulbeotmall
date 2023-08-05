@@ -71,7 +71,7 @@
 	                	<td th:attr="data-value=${ postList.inquiryAnsweredYn }" th:text="${ postList.inquiryAnsweredYn == 'Y' ? '답변완료' : '미답변' }"></td>
                 	</tr>
                 	<tr th:unless="${#lists.size(totalInquiryList)} > 0">
-                		<td colspan="6">조회된 결과가 없습니다.</td>
+                		<td colspan="7">조회된 결과가 없습니다.</td>
                 	</tr>
                	</tbody>
             </table>

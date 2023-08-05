@@ -236,7 +236,10 @@ function verifyPhone() {
 					confirmButtonColor: '#00008b',
 					confirmButtonText: '확인'
 				}).then((result) => {
-					if(result.isConfirmed) { console.log('인증번호 전송완료'); }
+					if(result.isConfirmed) { 
+						console.log('인증번호 전송완료');
+						$('.typeVerifyPhoneNumber').attr('style', 'display: contents;');
+					}
 				})
 				/* 2. 인증하기 */
 				$('.submitNumberBtn').click(function(){

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>마이페이지 | 글벗문구</title>
-	<!-- CSS -->
+	<!--/* CSS */-->
    	<link th:href="@{/css/dashboard.css}" rel="stylesheet">
     <th:block layout:fragment="css">
 	    <link th:href="@{/css/customtable.css}" rel="stylesheet">
@@ -108,26 +108,30 @@
 					<tbody>
 						<tr>
 							<th>상품금액</th>
-							<td><input type="text" th:value="|${#numbers.formatInteger(totalOrderAmount, 3, 'COMMA')}원|" readonly></td>
+							<td><input type="text" th:value="|+ ${#numbers.formatInteger(totalOrderAmount, 3, 'COMMA')}원|" readonly></td>
 						</tr>
 						<tr>
 							<th>배송비</th>
 							<td>
 							<th:block th:if="*{ delivery.deliveryFee > 0}">
-								<input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|" readonly>
+								<input type="text" th:value="|+ ${#numbers.formatInteger(memberOrderDetails.delivery.deliveryFee, 3, 'COMMA')}원|" readonly>
 							</th:block>
 							<th:block th:if="*{ delivery.deliveryFee == 0}">
-								<input type="text" th:value="|0원|" readonly>
+								<input type="text" th:value="|+ 0원|" readonly>
 							</th:block>
 							</td>
 						</tr>
 						<tr>
 							<th>포인트 사용</th>
-							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.point.pointAmount, 3, 'COMMA')}원|" readonly></td>
+							<td><input type="text" th:value="|- ${#numbers.formatInteger(memberOrderDetails.point.pointAmount, 3, 'COMMA')}원|" readonly></td>
+						</tr>
+						<tr>
+							<th>총 결제금액</th>
+							<td><input type="text" th:value="|${#numbers.formatInteger(memberOrderDetails.payment.paymentAmount, 3, 'COMMA')}원|" readonly></td>
 						</tr>
 						<tr>
 							<th>결제수단</th>
-							<td><input type="text" th:value="|*{ payment.paymentMethod } (*{ payment.paymentDateTime })|" readonly></td>
+							<td><input type="text" th:value="|*{ payment.paymentMethod }(*{ payment.paymentDateTime })|" readonly></td>
 						</tr>
 					</tbody>
 				</table>
@@ -168,7 +172,7 @@
 			</div>
 		</div>
 	</div>
-	<!-- JS -->
+	<!--/* JS */-->
     <th:block layout:fragment="script">
     	<script type="text/javascript">
 	    	/* 주문상세 테이블 병합 */

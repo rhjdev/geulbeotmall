@@ -232,14 +232,17 @@ function submitForm(form) {
 			reverseButtons: true
 		}).then((result) => {
 			if(result.isConfirmed) {
-				form.submit();
 				Swal.fire({
 					icon: 'success',
-					title: '회원가입이 완료되었습니다',
-					text: '본인인증메일 확인 통해 계정을 활성화하세요',
+					title: '본인인증메일을 발송합니다',
+					text: '화면이 새로고침 될 때까지 잠시만 기다려 주세요',
 					confirmButtonColor: '#00008b',
 					confirmButtonText: '확인'
-				})
+				}).then((result) => {
+					if(result.isConfirmed) {
+						form.submit();
+					}
+				});
 			}
 		});
 	}

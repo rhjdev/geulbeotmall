@@ -4,6 +4,14 @@
     font-family: 'Noto Sans KR', sans-serif;
 }
 
+/* 배너 */
+.mainBanner {
+    position: relative;
+    width: 1248px;
+    height: 120px;
+    margin: 0 auto;
+}
+
 /* 카드 */
 .card {
     border: 0;
@@ -89,41 +97,6 @@
 
 .fa-heart:hover {
 	color: #ff0000;
-}
-
-/* 스토리 */
-.bar {
-    height: 2px;
-    background: #fff;
-}
-
-.story-scroll {
-    position: relative;
-    height: 300px;
-    text-align: center;
-}
-
-.media-wrapper {
-    width: 100vw;
-}
-
-.media-wrapper img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit:cover;
-    z-index: -999;
-}
-
-iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit:cover;
 }
 
 /* 전체 폰트 적용 */
