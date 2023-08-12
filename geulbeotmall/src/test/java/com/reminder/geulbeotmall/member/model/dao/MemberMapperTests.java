@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +82,10 @@ public class MemberMapperTests {
 			        "흔", "악", "람", "뜸", "권", "복", "심", "헌", "엽", "학", "개", "롱", "평", "늘", "늬", "랑", "얀", "향", "울", "련");
 			List<String> gu = Arrays.asList("서울 강남구", "서울 강동구", "서울 강북구", "서울 강서구", "서울 관악구", "서울 광진구", "서울 구로구", "서울 금천구",
 					"서울 노원구", "서울 도봉구", "서울 동대문구", "서울 동작구", "서울 마포구", "서울 서대문구", "서울 서초구", "서울 성동구", "서울 성북구", "서울 송파구",
-					"서울 양천구", "서울 영등포구", "서울 용산구", "서울 은평구", "서울 종로구", "서울 중구", "서울 중랑구");
+					"서울 양천구", "서울 영등포구", "서울 용산구", "서울 은평구", "서울 종로구", "서울 중구", "서울 중랑구",
+					"경기도 고양시 덕양구", "경기도 고양시 일산동구", "경기도 고양시 일산서구", "경기도 성남시 분당구", "경기도 성남시 수정구", "경기도 성남시 중원구",
+					"경기도 수원시 권선구", "경기도 수원시 영통구", "경기도 수원시 장안구", "경기도 수원시 팔달구", "경기도 안양시 동안구", "경기도 안양시 만안구",
+					"경기도 안산시 단원구", "경기도 안산시 상록구", "경기도 용인시 기흥구", "경기도 용인시 수지구", "경기도 용인시 처인구");
 			Collections.shuffle(familyName);
 			Collections.shuffle(hangeul);
 			Collections.shuffle(gu);
@@ -90,11 +94,16 @@ public class MemberMapperTests {
 			String fourDigit = (int) (Math.random() * 8999) + 1000 + "";
 			String fiveDigit = new Random().nextInt(10000, 99999) + "";
 			
-			
 			/* 1. 회원 등록 */
 			/* 2. 권한 등록 */
-			/* 3. 인증여부 등록(기본 N) */
+			/* 3. 인증필요여부 등록(기본 N) */
 			/* 4. 적립금 혜택 등록 */
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+			Calendar cal = Calendar.getInstance();
+			cal.set(2023, 6, 1); //month+1이므로 0~11
+			//String specificDate = simpleDateFormat.format(cal.getTime());
+			//String today = simpleDateFormat.format(new Date());
+			
 			MemberDTO member = new MemberDTO();
 			member.setMemberId(randomId + fourDigit);
 			member.setMemberPwd(password);
@@ -102,20 +111,20 @@ public class MemberMapperTests {
 			member.setPhone("010" + fourDigit + new StringBuffer(fourDigit).reverse().toString());
 			member.setEmail(randomId + "@reminder.com");
 			member.setAddress(fiveDigit + "$" + gu.get(0) + " " + hangeul.get(10) + hangeul.get(11) + "로 " + threeDigit + "$" 
-							+ hangeul.get(12) + hangeul.get(13) + hangeul.get(14) + hangeul.get(15) + hangeul.get(16) + "아파트");
+							+ hangeul.get(12) + hangeul.get(13) + "아파트" + " 10" + fourDigit.substring(2) + "호");
 			member.setAgreement('Y');
 			member.setAccInactiveYn('N');
+			member.setAccCreationDate(cal.getTime());
+			member.setAccChangedDate(cal.getTime());
 			
 			RoleDTO role = new RoleDTO();
 			role.setMemberId(member.getMemberId());
 			role.setAuthorityCode(1);
 			
 			PointDTO point = new PointDTO();
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
-			String addDate = simpleDateFormat.format(new Date());
 			point.setBonusReason("신규회원가입[" + member.getMemberId() + "]");
 			point.setPointAmount(2000);
-			point.setPointDateTime(addDate);
+			point.setPointDateTime(simpleDateFormat.format(cal.getTime()));
 			point.setPointStatus("적립");
 			
 			//when

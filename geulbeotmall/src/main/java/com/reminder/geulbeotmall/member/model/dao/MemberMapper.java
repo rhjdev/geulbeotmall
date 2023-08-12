@@ -92,4 +92,7 @@ public interface MemberMapper {
 	MemberDTO findMemberByEmail(String email);
 
 	Integer checkAdminOrNot(String memberId);
+	
+	/* 랜덤 회원 추출 */
+	MemberDTO getRandomMember();
 }

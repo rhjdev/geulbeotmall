@@ -131,8 +131,14 @@
 		  #{ orderNo }
 		, #{ deliveryFee }
 		, #{ deliveryCompany }
+		<if test="dispatchDate != null"> <!-- dummy data 생성용 -->
+		, #{ dispatchDate }
+		, #{ deliveryDate }
+		</if>
+		<if test="dispatchDate == null">
 		, NULL
 		, NULL
+		</if>
 		)
 	</insert>
 	

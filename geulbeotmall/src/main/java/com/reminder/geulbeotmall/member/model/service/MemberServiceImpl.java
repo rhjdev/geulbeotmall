@@ -95,7 +95,7 @@ public class MemberServiceImpl implements MemberService {
 		
 		/* 4. 적립금 혜택 등록 */
 		PointDTO point = new PointDTO();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a hh:mm:ss");
 		String addDate = simpleDateFormat.format(new Date());
 		point.setBonusReason("신규회원가입[" + member.getMemberId() + "]");
 		point.setPointAmount(2000);

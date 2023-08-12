@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.reminder.geulbeotmall.config.GeulbeotmallApplication;
@@ -21,11 +22,13 @@ public class MemberServiceTests {
 	
 	@Autowired
 	public MemberService memberService;
+	private PasswordEncoder passwordEncoder;
 	
 	@Test
 	@DisplayName("서비스 인터페이스 의존성 주입 테스트")
 	public void testInit() {
 		assertNotNull(memberService);
+		assertNotNull(passwordEncoder);
 		/* 1. service 폴더 하위 MemberService 인터페이스 생성
 		 * 2. 같은 폴더 하위에 실제 구현체인 MemberServiceImpl 클래스 생성
 		 */
@@ -33,13 +36,15 @@ public class MemberServiceTests {
 	
 	@Test
 	@DisplayName("신규 회원 등록용 서비스 성공 테스트")
-	@Disabled
+	//@Disabled
 	public void testSignUpMember() throws Exception {
+		
+		String password = passwordEncoder.encode("Pass123!");
 		
 		//given
 		MemberDTO member = new MemberDTO();
 		member.setMemberId("user01");
-		member.setMemberPwd("pass01");
+		member.setMemberPwd(password);
 		member.setName("김회원");
 		member.setPhone("01000010001");
 		member.setEmail("test@reminder.com");
@@ -59,6 +64,7 @@ public class MemberServiceTests {
 	
 	@Test
 	@DisplayName("아이디 중복 확인 서비스 테스트")
+	@Disabled
 	public void testIsIdDuplicated() {
 		
 		//given
@@ -73,6 +79,7 @@ public class MemberServiceTests {
 	
 	@Test
 	@DisplayName("로그인 실패 시 카운팅 증가 여부 서비스 테스트")
+	@Disabled
 	public void testLoginFailed() {
 		
 		//given

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,12 +27,20 @@ public class MemberControllerTests {
 	@Autowired
 	private MemberController memberController;
 	private MockMvc mockMvc;
+	private PasswordEncoder passwordEncoder;
 	
+	/*
+	@Autowired
+	public MemberControllerTests(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
+	*/
 	@Test
 	@DisplayName("컨트롤러 의존성 주입 테스트")
 	public void testInit() {
 		assertNotNull(memberController);
 		assertNotNull(mockMvc);
+		assertNotNull(passwordEncoder);
 		/* 1. 하단의 setUp() 메소드 통해 MockMvc 빌더 객체 설정
 		 * 2. @BeforeEach 또는 @BeforeAll 어노테이션 적용하여 테스트 코드 전에 수행하도록 만듦
 		 */
@@ -44,13 +53,15 @@ public class MemberControllerTests {
 	
 	@Test
 	@DisplayName("신규 회원 등록용 컨트롤러 성공 테스트")
-	@Disabled
+	//@Disabled
 	public void testSignUpMember() throws Exception {
+		
+		String password = passwordEncoder.encode("Pass123!");
 		
 		//given
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>(); //요청 통해 넘어오는 모든 값은 String
 		params.add("memberId", "user01");
-		params.add("memberPwd", "pass01");
+		params.add("memberPwd", password);
 		params.add("name", "김회원");
 		params.add("phone", "01000010001");
 		params.add("email", "test@reminder.com");

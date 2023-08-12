@@ -281,13 +281,19 @@
 		, #{ email }
 		, #{ address }
 		, DECODE(#{ agreement }, 'Y', 'Y', 'N')
-		, DEFAULT
+		, #{ accInactiveYn }
 		, DEFAULT
 		, DEFAULT
 		, DEFAULT
 		, NULL
+		<if test="accCreationDate != null"> <!-- dummy data 생성용 -->
+		, #{ accCreationDate }
+		, #{ accChangedDate }
+		</if>
+		<if test="accCreationDate == null">
 		, SYSDATE
 		, SYSDATE
+		</if>
 		, NULL
 		, DEFAULT
 		)
@@ -641,6 +647,7 @@
 		 WHERE B.MEMBER_ID = #{ memberId }
 		   AND (A.ORDER_NO, A.OPTION_NO) NOT IN (SELECT ORDER_NO, OPTION_NO FROM TBL_REVIEW)
 		   AND D.DELIVERY_DATE IS NOT NULL
+		 ORDER BY D.DELIVERY_DATE DESC
 	</select>
 	
 	<!-- 리뷰 작성용 주문정보 조회 -->
@@ -695,6 +702,7 @@
 		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
 		 WHERE A.MEMBER_ID = #{ memberId }
 		   AND A.REVIEW_NO NOT IN (SELECT REF_REVW_NO FROM TBL_TRASH)
+		 ORDER BY A.REVW_REG_DATE
 	</select>
 	
 	<!-- 현재 위시리스트 조회 -->
@@ -755,7 +763,7 @@
 		   AND OPTION_NO = #{ optionNo }
 	</delete>
 	
-	<!-- 적립금 사용내역 조회 -->
+	<!-- 적립금 사용내역 조회 *주문/결제 시 0원 사용 또한 기록되므로 0원 이상의 내역에 한하여 보여줌* -->
 	<select id="getReserveDetails" resultMap="pointResultMap">
 		SELECT
 			   A.POINT_NO
@@ -768,22 +776,26 @@
 		  LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
 		  LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
 		 WHERE C.MEMBER_ID = #{ memberId }
+		   AND A.POINT_AMOUNT > 0
 		    OR A.BONUS_REASON LIKE '%' || #{ memberId } || '%'
+		 ORDER BY A.POINT_DATETIME
 	</select>
 	
 	<!-- 현재 보유 적립금 -->
 	<select id="getMemberPoint" resultType="_int">
+	<![CDATA[
 		SELECT
-			   NVL((SELECT SUM(POINT_AMOUNT) BONUS FROM TBL_POINT WHERE BONUS_REASON = '신규회원가입[' || #{ memberId } || ']'), 0)
+			   NVL((SELECT SUM(POINT_AMOUNT) BONUS FROM TBL_POINT WHERE BONUS_REASON LIKE '%' || '가입[' || #{ memberId } || ']' || '%'), 0)
 			   +
 			   NVL((SELECT SUM(POINT_AMOUNT) SAVE FROM TBL_POINT A
 				      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
 				      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립'), 0) - (SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
-																					      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
-																					      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
-																					     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용')
+				     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '적립'), 0) - NVL((SELECT SUM(POINT_AMOUNT) USED FROM TBL_POINT A
+																						      LEFT JOIN TBL_PAYMENT B ON(A.PAYMENT_NO = B.PAYMENT_NO)
+																						      LEFT JOIN TBL_ORDER_DETAIL C ON(B.ORDER_NO = C.ORDER_NO)
+																						     WHERE C.MEMBER_ID = #{ memberId } AND POINT_STATUS = '사용'), 0)
 		  FROM DUAL
+	]]>
 	</select>
 	
 	<!-- 회원 탈퇴 -->
@@ -802,5 +814,14 @@
 		  FROM TBL_ROLE
 		 WHERE MEMBER_ID = #{ memberId }
 		   AND AUTHORITY_CODE = 2
+	</select>
+	
+	<!-- 랜덤 회원 1명 추출 *dummy data test* -->
+	<select id="getRandomMember" resultMap="memberResultMap">
+		SELECT *
+		  FROM (SELECT * FROM TBL_MEMBER ORDER BY DBMS_RANDOM.RANDOM)
+		<![CDATA[
+		 WHERE ROWNUM <= 1
+		]]>
 	</select>
 </mapper>

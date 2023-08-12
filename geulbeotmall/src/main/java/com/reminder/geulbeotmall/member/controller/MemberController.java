@@ -138,6 +138,7 @@ public class MemberController {
 		String address = params.get("postalCode") + "$" + params.get("address") + "$" + params.get("detailAddress");
 		member.setPhone(phone);
 		member.setAddress(address);
+		member.setAccInactiveYn('Y');
 		memberService.signUpMember(member);
 		
 		/* 리다이렉트 시에는 요청이 새로 생겨나는 것이므로 RedirectAttributes 사용 
