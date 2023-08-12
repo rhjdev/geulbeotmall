@@ -8,7 +8,10 @@ public enum PointSize {
 	FOURTH(0.7),
 	FIFTH(0.9),
 	SIXTH(1.0),
-	SEVENTH(1.2);
+	SEVENTH(1.2),
+	EIGHTH(1.5),
+	NINTH(1.7),
+	TENTH(2.0);
 	
 	private final double value;
 	
