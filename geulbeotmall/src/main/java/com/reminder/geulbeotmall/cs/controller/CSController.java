@@ -81,6 +81,18 @@ public class CSController {
 	public void getCSPage(@Valid @ModelAttribute("criteria") Criteria criteria, String type, HttpSession session, Model model) {
 		log.info("고객센터 criteria : {}", criteria);
 		log.info("문의 유형 type : {}", type);
+		if(type != null) { //DB에는 한글로 저장 중
+			switch(type) {
+			case "info": type = "회원정보"; break;
+			case "product": type = "상품"; break;
+			case "order": type = "주문/결제"; break;
+			case "delivery": type = "배송"; break;
+			case "refund": type = "교환/반품/취소"; break;
+			case "reserve": type = "적립금"; break;
+			case "report": type = "신고"; break;
+			case "site": type = "홈페이지 이용"; break;
+			}
+		}
 		
 		String memberId = (String) session.getAttribute("loginMember");
 		
