@@ -76,7 +76,7 @@ public class OrderController {
 		boolean isAutehnticated = memberService.checkIsAuthenticated(user.getMemberId()) == 'Y' ? true : false;
 		log.info("isAutehnticated : {}", isAutehnticated);
 		if(!isAutehnticated) { //본인인증이 필요한 경우
-			rttr.addFlashAttribute("errorMessage", messageSource.getMessage("authenticationRequired", null, locale));
+			rttr.addFlashAttribute("authenticationRequired", messageSource.getMessage("authenticationRequired", null, locale));
 			log.info("마이페이지 연락처 인증란 이동");
 			return "redirect:/mypage/change";
 		}
@@ -198,7 +198,7 @@ public class OrderController {
 		String paymentNo = params.get("paymentNo").toString();
 		String paymentMethod = params.get("paymentMethod").toString();
 		String paymentAmount = params.get("paymentAmount").toString();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a hh:mm:ss");
 		String orderDate = simpleDateFormat.format(new Date());
 		String paymentDate = orderDate;
 		
