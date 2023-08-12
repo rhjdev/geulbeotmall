@@ -592,7 +592,7 @@
 		  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
 		  LEFT JOIN TBL_MEMBER E ON(A.MEMBER_ID = E.MEMBER_ID)
 		 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'review')
-		   AND B.FILE_TYPE = 'THUMB_MAIN'
+		 <!--  AND B.FILE_TYPE = 'THUMB_MAIN'  --> 
 		<trim prefix="AND">
 			<if test="keyword != null and condition eq 'titleOrContent'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
 			<if test="keyword != null and condition eq 'idOrName'">E.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
@@ -610,12 +610,12 @@
 			<when test="checkTrashRefBoard == 'post'"> <!-- 휴지통 삭제글 -->
 				WHERE T.REF_BOARD = 'inquiry' OR T.REF_BOARD = 'review'
 				<trim prefix="AND">
-					<if test="keyword != null and condition eq 'titleOrContent'">
-						R.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR R.REVW_CONTENT LIKE '%' || #{ keyword } || '%'
-						OR I.INQUIRY_TITLE LIKE '%' || #{ keyword } || '%' OR I.INQUIRY_CONTENT LIKE '%' || #{ keyword } || '%'
+					<if test="criteria.keyword != null and criteria.condition eq 'titleOrContent'">
+						R.REVW_TITLE LIKE '%' || #{ criteria.keyword } || '%' OR R.REVW_CONTENT LIKE '%' || #{ criteria.keyword } || '%'
+						OR I.INQUIRY_TITLE LIKE '%' || #{ criteria.keyword } || '%' OR I.INQUIRY_CONTENT LIKE '%' || #{ criteria.keyword } || '%'
 					</if>
-					<if test="keyword != null and condition eq 'idOrName'">
-						B.NAME LIKE '%' || #{ keyword } || '%' OR B.MEMBER_ID LIKE '%' || #{ keyword } || '%'
+					<if test="criteria.keyword != null and criteria.condition eq 'idOrName'">
+						B.NAME LIKE '%' || #{ criteria.keyword } || '%' OR B.MEMBER_ID LIKE '%' || #{ criteria.keyword } || '%'
 					</if>
 				</trim>
 			</when>
@@ -673,7 +673,7 @@
 					 , F.*
 				  FROM (
 						SELECT
-							   DENSE_RANK() OVER(ORDER BY A.REVW_REG_DATE DESC) RANK
+							   DENSE_RANK() OVER(ORDER BY A.REVIEW_NO DESC) RANK
 							 , A.REVIEW_NO
 							 , A.OPTION_NO
 							 , A.ORDER_NO
@@ -697,7 +697,7 @@
 						  LEFT JOIN TBL_PRODUCT D ON(C.REF_PROD_NO = D.PROD_NO)
 						  LEFT JOIN TBL_MEMBER E ON(A.MEMBER_ID = E.MEMBER_ID)
 						 WHERE A.REVIEW_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'review')
-						   AND B.FILE_TYPE = 'THUMB_MAIN'
+						   <!-- AND B.FILE_TYPE = 'THUMB_MAIN'  -->
 						<trim prefix="AND">
 							<if test="keyword != null and condition eq 'titleOrContent'">A.REVW_TITLE LIKE '%' || #{ keyword } || '%' OR A.REVW_CONTENT LIKE '%' || #{ keyword } || '%'</if>
 							<if test="keyword != null and condition eq 'idOrName'">E.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>

@@ -47,7 +47,7 @@ public interface ProductMapper {
 	
 	int checkNextProdNo();
 
-	void updateProdNoContentImage();
+	void updateProdNoContentImage(String savePath);
 
 	int incrementProdDetailViewCount(int prodNo);
 
@@ -128,4 +128,8 @@ public interface ProductMapper {
 	List<ProductDTO> searchProductByKeyword(String keyword);
 
 	List<Integer> getAllProdNo();
+	
+	OptionDTO getRandomProductOption(int number);
+
+	List<ProductDTO> getProductsToDisplay();
 }

@@ -43,6 +43,8 @@ public interface ProductService {
 	int checkCurrProdNo();
 
 	ProductDTO getProductDetails(int prodNo);
+	
+	ProductDTO getProductDetailsWithIncrementViewCount(int prodNo);
 
 	int getTotalNumber(Criteria criteria);
 	
@@ -111,4 +113,6 @@ public interface ProductService {
 	List<ProductDTO> searchProductByKeyword(String keyword);
 
 	List<Integer> getAllProdNo();
+
+	List<ProductDTO> getProductsToDisplay();
 }

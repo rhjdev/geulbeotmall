@@ -81,7 +81,7 @@
 		<association property="product" resultMap="productResultMap"/>
 	</resultMap>
 	
-	<!-- 판매량 기준 인기 상품 TOP 8 -->
+	<!-- 판매량 기준 인기 상품 TOP 8 *상품마다 첨부파일이 여러 개이므로 중복 조회 방지용 FILE_TYPE 정의 필요* -->
 	<select id="getTop8ProductByPopularity" resultMap="productResultMap">
 		SELECT TB.*
 		  FROM(SELECT
@@ -97,6 +97,7 @@
 			   			LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 			   			LEFT JOIN TBL_ORDER R ON(O.OPTION_NO = R.OPTION_NO)
 			   		   WHERE A.PROD_AVAIL_YN = 'Y'
+			   		     AND T.FILE_TYPE = 'THUMB_MAIN'
 			   		   GROUP BY A.PROD_NO
 			   		  ) TA
 			   ) TB
@@ -109,7 +110,7 @@
 	<select id="getLatest8ProductByEnrollDate" resultMap="productResultMap">
 		SELECT TB.*
 		  FROM(SELECT
-					  ROW_NUMBER() OVER (ORDER BY TA.PROD_ENROLL_DATE DESC) RANK
+					  ROW_NUMBER() OVER (ORDER BY TA.PROD_ENROLL_DATE DESC, TA.PROD_NO DESC) RANK
 					, TA.*
 				 FROM(SELECT
 			   				 DISTINCT(A.PROD_NO)
@@ -134,6 +135,7 @@
 			   A.SAVE_PATH
 			 , A.REF_PROD_NO
 			 , B.PROD_NAME
+			 , B.PROD_NO
 		  FROM TBL_DESIGNIMAGE A
 		  LEFT JOIN TBL_PRODUCT B ON(A.REF_PROD_NO = B.PROD_NO)
 		 WHERE A.IMAGE_TYPE = 'SLIDER'

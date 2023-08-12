@@ -79,7 +79,8 @@ public class ProductServiceImpl implements ProductService {
 	public int addProduct(int categoryNo, String prodName, String prodDesc, String productTag, int discountRate,
 			int prodPrice, int brandNo, String prodOrigin, String prodDetailContent) {
 		int result = productMapper.addProduct(categoryNo, prodName, prodDesc, productTag, discountRate, prodPrice, brandNo, prodOrigin, prodDetailContent);
-		productMapper.updateProdNoContentImage(); //상품 상세내용이미지와 해당 상품번호 연결
+		String savePath = prodDetailContent.split("\"")[3]; //본문 태그에서 url만 추출(/upload/product/content/000.jpg)
+		productMapper.updateProdNoContentImage(savePath); //상품 상세내용이미지와 해당 상품번호 연결
 		return result;
 	}
 
@@ -100,6 +101,11 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDTO getProductDetails(int prodNo) {
+		return productMapper.getProductDetails(prodNo);
+	}
+	
+	@Override
+	public ProductDTO getProductDetailsWithIncrementViewCount(int prodNo) {
 		ProductDTO productDetail = null;
 		int count = productMapper.incrementProdDetailViewCount(prodNo); //상품상세조회수 증가
 		if(count > 0) {
@@ -279,5 +285,10 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<Integer> getAllProdNo() {
 		return productMapper.getAllProdNo();
+	}
+
+	@Override
+	public List<ProductDTO> getProductsToDisplay() {
+		return productMapper.getProductsToDisplay();
 	}
 }

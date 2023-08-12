@@ -194,6 +194,7 @@
 		, #{ prodOrigin }
 		, #{ prodDetailContent }
 		, DEFAULT
+		<!-- , TO_DATE('2022-11-30', 'YYYY-MM-DD')  --> <!-- 필요 시 날짜 지정 -->
 		, SYSDATE
 		, NULL
 		, DEFAULT
@@ -319,14 +320,15 @@
 	<!-- 상품 상세내용이미지와 해당 상품번호 연결 -->
 	<update id="updateProdNoContentImage">
 		UPDATE
-			   TBL_ATTACHMENT
-		   SET REF_PROD_NO = (SELECT
-		   							 A.PROD_NO
-		   						FROM TBL_PRODUCT A
-		   						LEFT JOIN TBL_ATTACHMENT B ON(A.PROD_NO = B.REF_PROD_NO)
-		   					   WHERE A.PROD_DETAIL_CONTENT LIKE '%' || B.SAVE_PATH || '%'
-		   					     AND ROWNUM = 1)
-		 WHERE FILE_TYPE = 'CONTENT'
+			   TBL_ATTACHMENT T
+		   SET T.REF_PROD_NO = (SELECT
+		   							   A.PROD_NO
+		   						  FROM TBL_PRODUCT A
+		   						  LEFT JOIN TBL_ATTACHMENT B ON(A.PROD_NO = B.REF_PROD_NO)
+		   					     WHERE A.PROD_DETAIL_CONTENT LIKE '%' || #{ savePath } || '%'
+		   					       AND ROWNUM = 1)
+		 WHERE T.FILE_TYPE = 'CONTENT'
+		   AND T.SAVE_PATH = #{ savePath }
 	</update>
 	
 	<!-- 전체상품번호 조회 -->
@@ -334,6 +336,7 @@
 		SELECT
 			   PROD_NO
 		  FROM TBL_PRODUCT
+		 ORDER BY PROD_NO DESC <!-- 상품목록페이징에서 descending순으로 조회해오기 때문에 일치하게 호출 => list[stat.index] 활용으로 이어짐 -->
 	</select>
 	
 	<!-- 전체상품 개수 조회 -->
@@ -449,7 +452,7 @@
 		</trim>
 	</sql>
 	
-	<!-- 전체상품 목록 조회 *페이징* -->
+	<!-- 전체상품 목록 조회 *페이징* --> <!-- 상품마다 옵션 개수가 상이하므로 페이징 설정 중 SELECT 생략 -->
 	<select id="getProductList" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -467,9 +470,6 @@
 			 , E.PROD_ENROLL_DATE
 			 , E.PROD_CHANGE_DATE
 			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
 		  FROM
 		(
 		SELECT D.RANK RK 
@@ -487,11 +487,8 @@
 			 , D.PROD_ENROLL_DATE
 			 , D.PROD_CHANGE_DATE
 			 , D.PROD_AVAIL_YN
-			 , D.OPT_BODY_COLOR
-			 , D.OPT_INK_COLOR
-			 , D.OPT_POINT_SIZE
 		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO DESC) RANK
 		  			  , A.PROD_NO
 					  , B.CATEGORY_NAME
 					  , C.BRAND_NAME
@@ -506,13 +503,9 @@
 					  , A.PROD_ENROLL_DATE
 					  , A.PROD_CHANGE_DATE
 					  , A.PROD_AVAIL_YN
-					  , O.OPT_BODY_COLOR
-					  , O.OPT_INK_COLOR
-					  , O.OPT_POINT_SIZE
 			 	  FROM TBL_PRODUCT A
 			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 		 		  ) D
 		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
 		]]>
@@ -523,7 +516,31 @@
 		]]>
 	</select>
 	
-	<!-- 판매중 상품 목록 조회 *페이징* -->
+	<!-- 판매중 상품 목록 조회 *디자인 등록용, 페이징 제외* -->
+	<select id="getProductsToDisplay" resultMap="productResultMap">
+		SELECT 
+  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO DESC) RANK
+  			  , A.PROD_NO
+			  , B.CATEGORY_NAME
+			  , C.BRAND_NAME
+			  , A.PROD_NAME
+			  , A.PROD_DESC
+			  , A.PRODUCT_TAG
+			  , A.DISCOUNT_RATE
+			  , A.PROD_PRICE
+			  , A.PROD_ORIGIN
+			  , A.PROD_DETAIL_CONTENT
+			  , A.PROD_DETAIL_VIEW_COUNT
+			  , A.PROD_ENROLL_DATE
+			  , A.PROD_CHANGE_DATE
+			  , A.PROD_AVAIL_YN
+	 	  FROM TBL_PRODUCT A
+	 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
+	 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
+	 	 WHERE A.PROD_AVAIL_YN = 'Y'
+	</select>
+	
+	<!-- 판매중 상품 목록 조회 *페이징* --> <!-- 상품마다 옵션 개수가 상이하므로 페이징 설정 중 옵션 SELECT 생략 -->
 	<select id="getOnSaleOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -541,9 +558,6 @@
 			 , E.PROD_ENROLL_DATE
 			 , E.PROD_CHANGE_DATE
 			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
 		  FROM
 		(
 		SELECT D.RANK RK 
@@ -561,11 +575,8 @@
 			 , D.PROD_ENROLL_DATE
 			 , D.PROD_CHANGE_DATE
 			 , D.PROD_AVAIL_YN
-			 , D.OPT_BODY_COLOR
-			 , D.OPT_INK_COLOR
-			 , D.OPT_POINT_SIZE
 		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO DESC) RANK
 		  			  , A.PROD_NO
 					  , B.CATEGORY_NAME
 					  , C.BRAND_NAME
@@ -580,13 +591,9 @@
 					  , A.PROD_ENROLL_DATE
 					  , A.PROD_CHANGE_DATE
 					  , A.PROD_AVAIL_YN
-					  , O.OPT_BODY_COLOR
-					  , O.OPT_INK_COLOR
-					  , O.OPT_POINT_SIZE
 			 	  FROM TBL_PRODUCT A
 			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 			 	 WHERE A.PROD_AVAIL_YN = 'Y'
 		 		  ) D
 		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
@@ -598,7 +605,7 @@
 		]]>
 	</select>
 	
-	<!-- 판매중지 상품 목록 조회 -->
+	<!-- 판매중지 상품 목록 조회 --> <!-- 상품마다 옵션 개수가 상이하므로 페이징 설정 중 SELECT 생략 -->
 	<select id="getStopSaleOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -616,9 +623,6 @@
 			 , E.PROD_ENROLL_DATE
 			 , E.PROD_CHANGE_DATE
 			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
 		  FROM
 		(
 		SELECT D.RANK RK 
@@ -636,11 +640,8 @@
 			 , D.PROD_ENROLL_DATE
 			 , D.PROD_CHANGE_DATE
 			 , D.PROD_AVAIL_YN
-			 , D.OPT_BODY_COLOR
-			 , D.OPT_INK_COLOR
-			 , D.OPT_POINT_SIZE
 		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO DESC) RANK
 		  			  , A.PROD_NO
 					  , B.CATEGORY_NAME
 					  , C.BRAND_NAME
@@ -655,13 +656,9 @@
 					  , A.PROD_ENROLL_DATE
 					  , A.PROD_CHANGE_DATE
 					  , A.PROD_AVAIL_YN
-					  , O.OPT_BODY_COLOR
-					  , O.OPT_INK_COLOR
-					  , O.OPT_POINT_SIZE
 			 	  FROM TBL_PRODUCT A
 			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 			 	 WHERE A.PROD_AVAIL_YN = 'N'
 		 		  ) D
 		 WHERE D.RANK <= #{ currentPageNo } * #{ recordsPerPage }
@@ -673,7 +670,7 @@
 		]]>
 	</select>
 	
-	<!-- 할인중 상품 목록 조회 -->
+	<!-- 할인중 상품 목록 조회 --> <!-- 상품마다 옵션 개수가 상이하므로 페이징 설정 중 SELECT 생략 -->
 	<select id="getOnDiscountOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -691,9 +688,6 @@
 			 , E.PROD_ENROLL_DATE
 			 , E.PROD_CHANGE_DATE
 			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
 		  FROM
 		(
 		SELECT D.RANK RK 
@@ -711,11 +705,8 @@
 			 , D.PROD_ENROLL_DATE
 			 , D.PROD_CHANGE_DATE
 			 , D.PROD_AVAIL_YN
-			 , D.OPT_BODY_COLOR
-			 , D.OPT_INK_COLOR
-			 , D.OPT_POINT_SIZE
 		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO) RANK
 		  			  , A.PROD_NO
 					  , B.CATEGORY_NAME
 					  , C.BRAND_NAME
@@ -730,13 +721,9 @@
 					  , A.PROD_ENROLL_DATE
 					  , A.PROD_CHANGE_DATE
 					  , A.PROD_AVAIL_YN
-					  , O.OPT_BODY_COLOR
-					  , O.OPT_INK_COLOR
-					  , O.OPT_POINT_SIZE
 			 	  FROM TBL_PRODUCT A
 			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
-			 	  LEFT JOIN TBL_OPTION O ON(A.PROD_NO = O.REF_PROD_NO)
 			 	 WHERE A.PROD_AVAIL_YN = 'Y'
 		   		   AND A.DISCOUNT_RATE > 0
 		 		  ) D
@@ -749,7 +736,7 @@
 		]]>
 	</select>
 	
-	<!-- 품절 상품 목록 조회 -->
+	<!-- 품절 상품 목록 조회 --> <!-- 상품마다 옵션 개수가 상이하므로 페이징 설정 중 SELECT 생략 -->
 	<select id="getSoldOutOnly" parameterType="com.reminder.geulbeotmall.paging.model.dto.Criteria" resultMap="productResultMap">
 		<![CDATA[
 		SELECT
@@ -767,9 +754,6 @@
 			 , E.PROD_ENROLL_DATE
 			 , E.PROD_CHANGE_DATE
 			 , E.PROD_AVAIL_YN
-			 , E.OPT_BODY_COLOR
-			 , E.OPT_INK_COLOR
-			 , E.OPT_POINT_SIZE
 		  FROM
 		(
 		SELECT D.RANK RK 
@@ -787,11 +771,8 @@
 			 , D.PROD_ENROLL_DATE
 			 , D.PROD_CHANGE_DATE
 			 , D.PROD_AVAIL_YN
-			 , D.OPT_BODY_COLOR
-			 , D.OPT_INK_COLOR
-			 , D.OPT_POINT_SIZE
 		  FROM (SELECT 
-		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE) RANK
+		  			   DENSE_RANK() OVER (ORDER BY PROD_ENROLL_DATE, PROD_NO) RANK
 		  			  , A.PROD_NO
 					  , B.CATEGORY_NAME
 					  , C.BRAND_NAME
@@ -806,9 +787,6 @@
 					  , A.PROD_ENROLL_DATE
 					  , A.PROD_CHANGE_DATE
 					  , A.PROD_AVAIL_YN
-					  , O.OPT_BODY_COLOR
-					  , O.OPT_INK_COLOR
-					  , O.OPT_POINT_SIZE
 			 	  FROM TBL_PRODUCT A
 			 	  LEFT JOIN TBL_CATEGORY B ON(A.CATEGORY_NO = B.CATEGORY_NO)
 			 	  LEFT JOIN TBL_BRAND C ON(A.BRAND_NO = C.BRAND_NO)
@@ -1248,7 +1226,7 @@
 		       )
 	</select>
 	
-	<!-- 랜덤 상품 옵션 1개 추출 *dummy data test* -->
+	<!-- 주문 가능한 랜덤 상품 옵션 1개 추출 *dummy data test* -->
 	<select id="getRandomProductOption" resultMap="optionResultMap">
 		SELECT
 			   *
@@ -1257,6 +1235,8 @@
 			 		  , P.PROD_PRICE
 			 	   FROM TBL_OPTION O
 			 	   LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+			 	   LEFT JOIN TBL_STOCK S ON(O.REF_STOCK_NO = S.STOCK_NO)
+			 	  WHERE S.STOCK_AMOUNT >= #{ number }
 			 	  ORDER BY DBMS_RANDOM.RANDOM
 			    )
 		<![CDATA[

@@ -337,7 +337,7 @@ public class ProductController {
 			String imageUploadPath = realPath + "upload" + File.separator + "product" + File.separator + "content";
 			File contentImageDirectory = new File(imageUploadPath);
 			if(!contentImageDirectory.exists()) { //지정 폴더가 존재하지 않을 시 생성
-				contentImageDirectory.mkdir();
+				contentImageDirectory.mkdirs(); //thumbnail보다 content가 먼저 등록되므로 product/content 폴더를 연달아 생성하기 위해 mkdir()이 아닌 mkdirs()로 작성
 			}
 			
 			UUID uuid = UUID.randomUUID(); //랜덤 문자 생성
@@ -558,7 +558,7 @@ public class ProductController {
 		session.removeAttribute("orderItem"); //주문 요청 시마다 주문목록 session 갱신
 		
 		/* 상품 상세 정보 호출 */
-		ProductDTO detail = productService.getProductDetails(prodNo);
+		ProductDTO detail = productService.getProductDetailsWithIncrementViewCount(prodNo); //getProductDetails()는 전역적으로 사용되고 있어 상세페이지 조회용을 별도로 구분
 		
 		/* 상품 썸네일 조회 */
 		AttachmentDTO mainThumb = productService.getMainThumbnailByProdNo(prodNo);

@@ -121,8 +121,8 @@ public class AdminController {
 	
 	/* 디자인관리 */
 	@GetMapping("/design")
-	public String getDesignPage(Criteria criteria, Model model) {
-		List<ProductDTO> allProducts = productService.getOnSaleOnly(criteria);
+	public String getDesignPage(Model model) {
+		List<ProductDTO> allProducts = productService.getProductsToDisplay();
 		model.addAttribute("allProducts", allProducts);
 		return "admin/design";
 	}
