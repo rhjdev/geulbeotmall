@@ -68,7 +68,10 @@ public class ReviewServiceImpl implements ReviewService {
 	public int updateAReview(ReviewDTO reviewDTO) {
 		/* A.기존 첨부파일 일괄 삭제 */
 		char checkFiles = reviewMapper.checkAttachedFiles(reviewDTO.getReviewNo()) > 0 ? 'Y' : 'N'; //파일 유무 확인
-		if(checkFiles == 'Y') reviewMapper.deleteAttachedFiles(reviewDTO.getReviewNo()); //파일 삭제
+		if(checkFiles == 'Y') {
+			reviewMapper.deleteDownloadHits(reviewDTO.getReviewNo()); //누적다운로드횟수 삭제
+			reviewMapper.deleteAttachedFiles(reviewDTO.getReviewNo()); //파일 삭제
+		}
 		/* B. 상세 내용 수정 */
 		return reviewMapper.updateAReview(reviewDTO);
 	}

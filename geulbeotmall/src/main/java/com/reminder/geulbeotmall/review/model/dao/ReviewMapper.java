@@ -29,7 +29,9 @@ public interface ReviewMapper {
 
 	int updateAReview(ReviewDTO reviewDTO);
 
-	int deleteAttachedFiles(int reviewNo);
-
 	int checkAttachedFiles(int reviewNo);
+	
+	void deleteAttachedFiles(int reviewNo);
+
+	void deleteDownloadHits(int reviewNo);
 }

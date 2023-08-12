@@ -245,6 +245,11 @@
 	</select>
 	
 	<!-- 리뷰 수정 중 기존 첨부파일 삭제 -->
+	<delete id="deleteDownloadHits">
+		DELETE
+		  FROM TBL_DOWNLOAD A
+		 WHERE A.ATTACHMENT_NO = (SELECT B.ATTACHMENT_NO FROM TBL_ATTACHMENT B WHERE B.REF_REVW_NO = #{ refRevwNo })
+	</delete>
 	<delete id="deleteAttachedFiles">
 		DELETE
 		  FROM TBL_ATTACHMENT

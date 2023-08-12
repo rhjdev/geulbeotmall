@@ -112,7 +112,7 @@ public class ReviewController {
 		/* 첨부파일 저장 및 적립금 반영 */
 		PointDTO pointDTO = new PointDTO();
 		String paymentNo = reviewService.getPaymentNoByOrderNo(reviewDTO.getOrderNo());
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a HH:mm:ss");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd a hh:mm:ss");
 		String addDate = simpleDateFormat.format(new Date());
 		pointDTO.setPaymentNo(paymentNo);
 		pointDTO.setPointDateTime(addDate);
@@ -257,7 +257,8 @@ public class ReviewController {
 		ReviewDTO reviewDTO = reviewService.getReviewDetails(reviewNo);
 		
 		TrashDTO trashDTO = new TrashDTO();
-		trashDTO.setRefRevwNo(reviewNo);
+		trashDTO.setRefBoard("review");
+		trashDTO.setRefPostNo(reviewNo);
 		trashDTO.setTrashTitle(reviewDTO.getRevwTitle());
 		trashDTO.setTrashWriter(reviewDTO.getMemberId());
 		trashDTO.setTrashDeleteBy(reviewDTO.getMemberId());
