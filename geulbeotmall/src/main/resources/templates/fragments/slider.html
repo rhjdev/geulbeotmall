@@ -10,7 +10,7 @@
 	<div class="swiper mainSwiper">
 		<div class="main-wrapper swiper-wrapper">
 			<div class="main swiper-slide" th:each="slide : ${ slides }">
-				<button type="button" class="viewBtn btn">[[${slide.product.prodName}]]</button>
+				<button type="button" class="viewBtn btn" th:onclick="|location.href='@{/product/details(no=${slide.product.prodNo})}'|">[[${slide.product.prodName}]]</button>
 				<div class="image-wrapper">
 					<div class=imageBox>
 						<div class="background"></div>

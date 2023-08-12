@@ -630,47 +630,58 @@ function addToCart() {
 	console.log(orderOptionNo);
 	console.log(orderOptionQt);
 	
-	$.ajax({
-		url : '/cart/mycart/add',
-		type : 'post',
-		traditional : true, //배열 넘기기 위한 세팅
-		dataType : 'text',
-		data : {
-			orderOptionNo : orderOptionNo,
-			orderOptionQt : orderOptionQt
-		},
-		success : function(result){
-			if(result == '성공'){
-				Swal.fire({
-					icon: 'success',
-					title: '장바구니에 담았습니다',
-					text: '장바구니로 이동하시겠습니까?',
-					showCloseButton: true,
-					showDenyButton: true,
-					denyButtonColor: '#6c757d',
-					denyButtonText: '취소',
-					confirmButtonColor: '#00008b',
-					confirmButtonText: '이동',
-					reverseButtons: true
-				}).then((result) => {
-					if(result.isConfirmed) {
-						window.location.href='/cart/mycart';
-					}
-				})
-			} else {
-				Swal.fire({
-					icon: 'warning',
-					title: result,
-					text: '해당 상품의 수량을 추가했습니다',
-					confirmButtonColor: '#00008b',
-					confirmButtonText: '확인'
-				}).then((result) => {
-					if(result.isConfirmed) {}
-				})
-			}
-		},
-		error : function(status, error){ console.log(status, error); }
-	});
+	if(orderOptionNo.length == 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: '1개 이상의 옵션을 선택하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {}
+		})
+	} else {
+		$.ajax({
+			url : '/cart/mycart/add',
+			type : 'post',
+			traditional : true, //배열 넘기기 위한 세팅
+			dataType : 'text',
+			data : {
+				orderOptionNo : orderOptionNo,
+				orderOptionQt : orderOptionQt
+			},
+			success : function(result){
+				if(result == '성공'){
+					Swal.fire({
+						icon: 'success',
+						title: '장바구니에 담았습니다',
+						text: '장바구니로 이동하시겠습니까?',
+						showCloseButton: true,
+						showDenyButton: true,
+						denyButtonColor: '#6c757d',
+						denyButtonText: '취소',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '이동',
+						reverseButtons: true
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.href='/cart/mycart';
+						}
+					})
+				} else {
+					Swal.fire({
+						icon: 'warning',
+						title: result,
+						text: '해당 상품의 수량을 추가했습니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {}
+					})
+				}
+			},
+			error : function(status, error){ console.log(status, error); }
+		});
+	}
 };
 
 /* 바로 구매하기 */
@@ -679,39 +690,50 @@ function orderProduct() {
 	console.log(orderOptionNo);
 	console.log(orderOptionQt);
 	
-	//로그인 여부 확인
-	if(!document.getElementById('isLoggedInAs')) {
-		$.ajax({
-			url : '/member/signin',
-			type : 'post',
-			traditional : true,
-			dataType : 'text',
-			data : {
-				orderOptionNo : orderOptionNo,
-				orderOptionQt : orderOptionQt
-			},
-			success : function(result){
-				console.log('로그인 요청');
-				location.href='/cart/order';
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
+	if(orderOptionNo.length == 0) {
+		Swal.fire({
+			icon: 'warning',
+			title: '1개 이상의 옵션을 선택하세요',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {}
+		})
 	} else {
-		$.ajax({
-			url : '/cart/order',
-			type : 'get',
-			traditional : true,
-			dataType : 'text',
-			data : {
-				orderOptionNo : orderOptionNo,
-				orderOptionQt : orderOptionQt
-			},
-			success : function(result){
-				console.log('주문페이지 이동');
-				location.href='/cart/order';
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
+		//로그인 여부 확인
+		if(!document.getElementById('isLoggedInAs')) {
+			$.ajax({
+				url : '/member/signin',
+				type : 'post',
+				traditional : true,
+				dataType : 'text',
+				data : {
+					orderOptionNo : orderOptionNo,
+					orderOptionQt : orderOptionQt
+				},
+				success : function(result){
+					console.log('로그인 요청');
+					location.href='/cart/order';
+				},
+				error : function(status, error){ console.log(status, error); }
+			});
+		} else {
+			$.ajax({
+				url : '/cart/order',
+				type : 'get',
+				traditional : true,
+				dataType : 'text',
+				data : {
+					orderOptionNo : orderOptionNo,
+					orderOptionQt : orderOptionQt
+				},
+				success : function(result){
+					console.log('주문페이지 이동');
+					location.href='/cart/order';
+				},
+				error : function(status, error){ console.log(status, error); }
+			});
+		}
 	}
 };
 

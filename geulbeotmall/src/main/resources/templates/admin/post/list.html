@@ -106,7 +106,9 @@
 							</th:block>
 	                	</td>
 	                	<td class="review-content">[(${ postList.revwContent })]</td>
-	                	<td th:text="${ postList.memberId }"></td>
+	                	<td>
+	                		<a th:href="@{/admin/member/details(id=${ postList.memberId })}">[[${ postList.member.name }]]([[${#strings.replace(postList.memberId, #strings.substring(postList.memberId, 4), '***')}]])</a>
+	                	</td>
 	                	<td th:text="${#dates.format(postList.revwRegDate, 'yyyy.MM.dd')}"></td>
 	                	<td th:text="${ postList.revwHits }"></td>
                 	</tr>

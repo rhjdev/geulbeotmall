@@ -214,7 +214,7 @@ input[type="search"]::-webkit-search-cancel-button {
 	margin-left: 2%;
 }
 
-#pointSize, #prodInfo {
+#tag, #bodyColor, #inkColor, #pointSize, #prodInfo {
 	width: 100%;
 	margin-right: 0;
 }

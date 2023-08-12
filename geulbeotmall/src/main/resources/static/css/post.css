@@ -33,16 +33,25 @@
 }
 
 .modal-header > .product > a {
+	display: block;
 	font-size: 15px;
 	font-weight: bold;
 	color: #000;
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	margin-inline-end: 10px;
 	text-decoration: none;
+	text-align: left;
 }
 
 .modal-header > h5 {
 	display: inline-block;
-	width: 80%;
+	max-width: 400px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	margin-bottom: 0 !important;
 	text-align: left;
 }
@@ -94,6 +103,7 @@
 }
 
 .modal-body > .body > #imageNotFound > span {
+	font-family: 'Gowun Dodum', sans-serif;
 	display: block;
 	width: 100% !important;
 	height: 100% !important;

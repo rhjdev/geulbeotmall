@@ -9,8 +9,9 @@
 	<div class="container comment-wrapper" th:fragment="commentWrapper">
 		<!--/* 댓글 목록 */-->
 		<div class="comment-list">
-			<div th:if="${not #lists.isEmpty(comments)}" th:each="comment : ${ comments }" th:insert="/fragments/commentBox.html :: commentBox(${comments})"></div>
 			<div th:if="${#lists.isEmpty(comments)}">작성된 댓글이 없습니다.</div>
+			<div th:if="${not #lists.isEmpty(comments)}">전체 댓글 <b style="color: #ff0000;">[[${#lists.size(comments) + #lists.size(nestedComments)}]]</b>개</div>
+			<div th:if="${not #lists.isEmpty(comments)}" th:each="comment : ${ comments }" th:insert="/fragments/commentBox.html :: commentBox(${comments})"></div>
 		</div>
 		<!--/* 새 댓글 등록 */-->
 		<form id="commentForm" name="commentForm" class="comment-form" th:action="@{/comment/write}" method="post">
@@ -22,6 +23,10 @@
 				<button class="writeCommentBtn btn btn-dark">등록</button>
 			</div>
 		</form>
+		<!--/* 새로고침 버튼 */-->
+		<div class="refresh-button" th:if="${ comments != null }">
+			<button type="button" class="btn" onclick="javascript: history.go(0);"><i class="fa-solid fa-arrows-rotate"></i></button>
+		</div>
 	</div>
 </body>
 </html>

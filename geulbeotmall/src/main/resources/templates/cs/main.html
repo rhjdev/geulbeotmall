@@ -79,6 +79,7 @@
 			    		<tr th:each="inquiry, loop : ${ memberInquiry }" th:if="${not #lists.isEmpty(memberInquiry)}">
 			    			<td th:text="${ total - ((criteria.currentPageNo-1) * pageMaker.pageSize) - loop.index }"></td> <!--/* 게시글번호 역순 */-->
 			    			<td th:onclick="|location.href='@{/cs/inquiry/details(no=${inquiry.inquiryNo})}'|">
+			    				<span style="color: #6c757d; font-size: 14px;">[[${ inquiry.inquiryType }]]</span>
 			    				[[${ inquiry.inquiryTitle }]]
 			    				<th:block th:each="key : ${ totalCommentNumberMap.keySet() }" th:if="${ key == inquiry.inquiryNo }">
 			    					<span class="commentNumberBadge">[[${ totalCommentNumberMap.get(key) }]]</span>

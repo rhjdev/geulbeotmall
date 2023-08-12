@@ -10,7 +10,9 @@
 </head>
 <body layout:fragment="content">
 	<!--/* Slider */-->
-	<section th:if="${ slides != null }" th:replace="/fragments/slider.html :: slider"></section>
+	<section th:if="${#lists.size(slides) > 0}">
+		<div th:replace="/fragments/slider.html :: slider"></div>
+	</section>
 
     <!--/* 인기 상품 */-->
     <section th:if="${ bestSelling != null }" class="best-selling">
@@ -65,7 +67,7 @@
     </section>
 
     <!--/* 회원가입 혜택 홍보 배너 */-->
-    <section sec:authorize="isAnonymous()">
+    <section sec:authorize="isAnonymous() or hasRole('ROLE_ADMIN')">
     	<a th:href="@{/member/signup}">
     		<div class="banner mainBanner" th:if="${#lists.size(banner) >= 1}" th:style="'background-image: url(' + @{${banner[0].savePath}}+ ')'"></div>
     	</a>

@@ -21,8 +21,8 @@
 			</div>
 			<div class="comment-button">
 				<button th:if="${ comment.commentNestLevel == 1 }" class="nestCommentBtn">답글</button> <!--/* '댓글'일 때만 '답글' 작성 가능 */-->
-				<button class="editCommentBtn">수정</button>
-				<button class="deleteCommentBtn">삭제</button>
+				<button th:if="${ comment.memberId == session.loginMember }" class="editCommentBtn">수정</button> <!--/* 수정,삭제 버튼은 작성자에 한해 노출 */-->
+				<button th:if="${ comment.memberId == session.loginMember }" class="deleteCommentBtn">삭제</button>
 			</div>
 			<div class="comment-content" th:value="${ comment.commentNo }">
 				<span>[(${ comment.commentContent })]</span>
