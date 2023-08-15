@@ -125,7 +125,8 @@ function moveToTrash() {
 		checkbox.each(function(i){
 			let tr = checkbox.parent().parent().eq(i);
 			postNo = tr.find('td:first-child')[0].attributes['data-value'].value; //th:attr="data-value=${ value }"
-			memberId = tr.children().eq(3).text();
+			memberId = tr.children().eq(3)[0].attributes.value.nodeValue;
+			//console.log(memberId);
 			board = document.querySelector('.tab-pane.active').id;
 			if(postNo != '') noArr.push(postNo);
 			if(memberId != '') writerArr.push(memberId);
