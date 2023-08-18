@@ -13,7 +13,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ENC(2dd5gAy4bV3p0WscFK5A9mEzZAUCuInVHQ3DfphmgWQ=)
-    password: ENC(e+fTxJdQn1LsACb1HV8Mqg6VLpyONs/MglnVI12ldrk=)
+    password: ENC(l6MW26ItvASvjwA0r1Mb8WpIWYSzyq0LUv9BaXx5vqY=)
     properties:
       mail:
         smtp:
@@ -27,13 +27,13 @@ spring:
       client:
         registration:
           google:
-            client-id: 379509982036-0bif98f16ehcajc506sieke74tm61mjq.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ENC(RDj46aFFXI4qeluaZgcXHTSUd9BWgwBQA9hNdYTd4FWb5v78gPIPouJFBwcatdA+IToVpPoYYpxpPNVuWhqKEhCDZKmzCyJZVRnqjRjCDEmgx22SFCRNrQ==)
+            client-secret: ENC(Vmg4lHJjl7LBilupF6tdwa0lNiopmc1mVWNn3XIf3/c5FJBrJ5GuIxWY22yfe1Ut)
             scope:
             - profile
             - email
           kakao:
-            client-id: 35cefc5d159445c5fa222b39f4d4775f
+            client-id: ENC(melVgbEVbLvJMZO3szLidU1ateWkIID/2LelR6pGDHcGYSzt++g7bqI51w0MBZiH)
             redirect-uri: http://localhost:8001/oauth2/kakao #server port와 일치하게 등록 및 설정
             client-authentication-method: POST
             authorization-grant-type: authorization_code
@@ -80,11 +80,11 @@ jasypt:
 # social login
 social:
   kakao:
-    apiKey: 35cefc5d159445c5fa222b39f4d4775f
+    apiKey: ENC(zqX5+fFjQBqF4tpZ0KusGJYKKIqBjJnFwcLsO9Kl9ooGifL+vAsDHtlXfUCD8wx2)
     redirectUri: http://localhost:8001/oauth2/kakao #server port와 일치하게 등록 및 설정
   google:
-    apiKey: 379509982036-0bif98f16ehcajc506sieke74tm61mjq.apps.googleusercontent.com
-    secretKey: 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
+    apiKey: ENC(sihF2RMc486/5BW7IMA7pW/YoAjL5pzJCz9DJIUJ8sXZ3e3DtpBQsl2Jdvye5pmLJJFsu604cc2t9TpxNA/Y+tLKngATR4LP4DdYpECg7FuXCO22lssPNg==)
+    secretKey: ENC(WRi9kpDysY9z8MwbuyZ9Ojdl0jv1vvajwoS40wxfEY4w+Nd2onMlz0bCFkTzlGvO)
     redirectUri: http://localhost:8001/oauth2/google
     
 # sms message
