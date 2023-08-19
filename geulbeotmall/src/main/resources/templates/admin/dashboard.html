@@ -33,6 +33,9 @@
 				 ~ 
 				<input type="text" id="endDate" name="endDate" autocomplete="off" placeholder="종료일자">
 			</div>
+			<div class="downloadExcel">
+				<button type="button" id="downloadExcelBtn" class="downloadExcelBtn btn btn-sm"><i class="fa-solid fa-file-csv"></i>엑셀다운로드</button>
+			</div>
 		</div>
 		<div class="chartBox">
 			<div><canvas id="memberChart"></canvas></div>
@@ -47,6 +50,10 @@
 		<!--/* Datepicker */-->
 		<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 		<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+		<!--/* Excel */-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+		<!--/* FileSaver.js */-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 		<!--/* Chart.js */-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 		<script th:inline="javascript">
@@ -234,6 +241,37 @@
 						hoverOffset: 4
 					});
 				}
+				
+				/* 엑셀 다운로드 */
+				$('#downloadExcelBtn').click(function() {
+					let memberDataURL = memberChart.toDataURL(1.0);
+					let salesDataURL = salesChart.toDataURL(1.0);
+					
+					let workbook = new ExcelJS.Workbook();
+					let worksheetA = workbook.addWorksheet('회원수');
+					let worksheetB = workbook.addWorksheet('매출액');
+					worksheetA.mergeCells('A1:O26');
+					worksheetB.mergeCells('A1:O26');
+					workbook.xlsx.readFile('example.xlsx');
+					
+					let memberDataImage = workbook.addImage({
+						base64: memberDataURL,
+						extension: 'png'
+					});
+					worksheetA.addImage(memberDataImage, 'A1:O26');
+					
+					let salesDataImage = workbook.addImage({
+						base64: salesDataURL,
+						extension: 'png'
+					});
+					worksheetB.addImage(salesDataImage, 'A1:O26');
+					
+					workbook.xlsx.writeBuffer().then(function(data) {
+						let blob = new Blob([data], {type: 'application/vnd.ms-excel;charset=utf-8'});
+						saveAs(blob, '글벗문구.xlsx');
+					});
+				});
+				
 			});
 		</script>
 	</th:block>

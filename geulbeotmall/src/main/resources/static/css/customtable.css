@@ -497,10 +497,23 @@ input:read-only {
 	padding: 0.375rem 0.25rem 0.375rem 1.25rem;
 }
 
-#memberChart, #salesChart {
-	width: 1000px;
+.chart-wrapper > .statisticsSearch > .downloadExcel {
+	display: contents;
+}
+
+.chart-wrapper > .statisticsSearch > .downloadExcel > button:hover {
+	color: #209e63;
+}
+
+#memberChart {
+	width: 1000px !important;
 }
 
 #top8Product {
-	width: 500px;
+	width: 500px !important;
+}
+
+#salesChart {
+	height: 360px !important;
+	width: auto !important;
 }
