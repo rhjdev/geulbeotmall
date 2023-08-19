@@ -73,11 +73,14 @@ public class AdminController {
 	@GetMapping("/dashboard")
 	public String getDashboard(Model model) {
 		/* 복구기한 100일이 경과한 휴지통 삭제글 영구 삭제 */
-		List<Integer> reviewNoList = adminService.getTrashItemToDelete();
-		log.info("금일 기준 '영구 삭제 대상 휴지통 삭제글' 개수 : {}", reviewNoList.size());
+		List<Map<String, Integer>> postNoList = adminService.getTrashItemToDelete();
+		log.info("금일 기준 '영구 삭제 대상 휴지통 삭제글' 개수 : {}", postNoList.size());
+		
 		int count = 0;
-		for(int i=0; i < reviewNoList.size(); i++) {
-			int result = adminService.permanentlyDeleteFromTrashAndReviewData(reviewNoList.get(i));
+		for(int i=0; i < postNoList.size(); i++) {
+			String refBoard = String.valueOf(postNoList.get(i).get("REF_BOARD")); //컬럼명 기준으로 값 호출
+			int refPostNo = Integer.parseInt(String.valueOf(postNoList.get(i).get("REF_POST_NO")));
+			int result = adminService.permanentlyDeleteFromTrashAndOriginalTableData(refBoard, refPostNo);
 			if(result == 1) count++;
 		}
 		log.info("영구 삭제글 count : {}", count);

@@ -92,9 +92,9 @@ public interface AdminService {
 
 	int restoreAPostFromTrash(int trashNo);
 
-	List<Integer> getTrashItemToDelete();
+	List<Map<String, Integer>> getTrashItemToDelete();
 
-	int permanentlyDeleteFromTrashAndReviewData(int reviewNo);
+	int permanentlyDeleteFromTrashAndOriginalTableData(String refBoard, int refPostNo);
 	
 	/* 댓글관리 */
 	int getTotalCommentNumber(Criteria criteria);

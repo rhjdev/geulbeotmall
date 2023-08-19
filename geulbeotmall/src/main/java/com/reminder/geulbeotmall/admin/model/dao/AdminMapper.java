@@ -96,11 +96,13 @@ public interface AdminMapper {
 
 	int restoreAPostFromTrash(int trashNo);
 
-	List<Integer> getTrashItemToDelete();
+	List<Map<String, Integer>> getTrashItemToDelete();
+	
+	int permanentlyDeleteInquiryPost(int refPostNo);
 
-	int permanentlyDeleteReviewPost(int reviewNo);
+	int permanentlyDeleteReviewPost(int refPostNo);
 
-	int permanentlyDeleteFromTrash(int reviewNo);
+	int permanentlyDeleteFromTrash(String refBoard, int refPostNo);
 
 	int getTotalOrderNumber(Criteria criteria);
 	

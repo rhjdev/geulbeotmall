@@ -873,10 +873,11 @@
 		)
 	</insert>
 	<!-- 게시글삭제단계B. 복구기한 100일 후 영구 삭제 -->
-	<select id="getTrashItemToDelete" resultType="_int">
+	<select id="getTrashItemToDelete" resultType="map">
 	<![CDATA[
 		SELECT
-			   REF_POST_NO
+			   REF_BOARD
+			 , REF_POST_NO
 		  FROM TBL_TRASH
 		 WHERE TRASH_DATE_UNTIL < SYSDATE
 	]]>
@@ -886,14 +887,22 @@
 		DELETE
 		  FROM TBL_TRASH
 		 WHERE TRASH_DATE_UNTIL < SYSDATE
-		   AND REF_REVW_NO = #{ reviewNo }
+		   AND REF_BOARD = #{ refBoard }
+		   AND REF_POST_NO = #{ refPostNo }
+	]]>
+	</delete>
+	<delete id="permanentlyDeleteInquiryPost">
+	<![CDATA[
+		DELETE
+		  FROM TBL_INQUIRY
+		 WHERE INQUIRY_NO = #{ refPostNo }
 	]]>
 	</delete>
 	<delete id="permanentlyDeleteReviewPost">
 	<![CDATA[
 		DELETE
 		  FROM TBL_REVIEW
-		 WHERE REVIEW_NO = #{ reviewNo }
+		 WHERE REVIEW_NO = #{ refPostNo }
 	]]>
 	</delete>
 	

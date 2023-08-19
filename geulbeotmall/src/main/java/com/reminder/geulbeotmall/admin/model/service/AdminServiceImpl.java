@@ -223,14 +223,19 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<Integer> getTrashItemToDelete() {
+	public List<Map<String, Integer>> getTrashItemToDelete() {
 		return adminMapper.getTrashItemToDelete();
 	}
 
 	@Override
-	public int permanentlyDeleteFromTrashAndReviewData(int reviewNo) {
-		int resultA = adminMapper.permanentlyDeleteFromTrash(reviewNo);
-		int resultB = adminMapper.permanentlyDeleteReviewPost(reviewNo);
+	public int permanentlyDeleteFromTrashAndOriginalTableData(String refBoard, int refPostNo) {
+		int resultA = adminMapper.permanentlyDeleteFromTrash(refBoard, refPostNo); //A.휴지통에서 삭제
+		int resultB = 0;
+		if(refBoard.equals("inquiry")) { //B.고유 테이블에서 삭제
+			resultB = adminMapper.permanentlyDeleteInquiryPost(refPostNo);
+		} else if(refBoard.equals("review")) {
+			resultB = adminMapper.permanentlyDeleteReviewPost(refPostNo);
+		}
 		return resultA == 1 && resultB == 1 ? 1 : 0;
 	}
 
