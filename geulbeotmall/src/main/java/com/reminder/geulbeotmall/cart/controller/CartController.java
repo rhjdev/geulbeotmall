@@ -110,6 +110,10 @@ public class CartController {
 					log.info("nonmemberCart.get(j).getOptionNo() : {}", nonmemberCart.get(j).getOptionNo());
 					log.info("Integer.parseInt(optionNoArr[i]) : {}", Integer.parseInt(optionNoArr[i]));
 					if(nonmemberCart.get(j).getOptionNo() == Integer.parseInt(optionNoArr[i])) {
+						int sum = nonmemberCart.get(j).getQuantity() > 0 ? (nonmemberCart.get(j).getQuantity() + cartDTO.getQuantity()) : cartDTO.getQuantity();
+						nonmemberCart.get(j).setQuantity(sum);
+						cartDTO.setQuantity(sum);
+						session.setAttribute("geulbeotCart", nonmemberCart);
 						result = "이미 장바구니에 담겨 있는 상품입니다"; //이미 장바구니에 담겨 있는 상품은 관련 메시지 출력
 						continue LoopA; //다음 상품 옵션 번호로 옮겨감
 					}
