@@ -51,41 +51,37 @@
 					</ul>
 				</th:block>
 				<!-- ProductInkColor ENUM에 정의된 색상 목록 전체를 조회해 알맞은 값을 찾도록 이중 each문으로 작성 -->
-				<ul>
-					<li class="th color-th"><p>잉크컬러</p></li>
-					<li class="td color-td">
-						<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
-							<span class="color-span" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index < 7 }">
-								<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
-								&nbsp;[[${ inkColor }]]
-							</span>
-						</th:block>
-						<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
-							<span class="color-span color-hide" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index > 7 }" style="display: none;">
-								<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
-								&nbsp;[[${ inkColor }]]
-							</span>
-						</th:block>
-						<th:block th:with="inkColor=${ inkColor }" th:if="${#lists.size(inkColor) > 7}">
-							<span class="color-more"><a href="#" style="color: #6c757d;" onclick="return false;">더보기</a></span>
-						</th:block>
-					</li>
-				</ul>
+				<th:block th:with="inkColor=${ inkColor }" th:unless="${#lists.contains(inkColor, '(해당없음)')}">
+					<ul>
+						<li class="th color-th"><p>잉크컬러</p></li>
+						<li class="td color-td">
+							<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
+								<span class="color-span" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index < 7 }">
+									<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
+									&nbsp;[[${ inkColor }]]
+								</span>
+							</th:block>
+							<th:block th:each="ink : ${T(com.reminder.geulbeotmall.product.model.dto.ProductInkColor).values()}">
+								<span class="color-span color-hide" th:each="inkColor, status : ${ inkColor }" th:if="${ inkColor == ink.getLabel() && status.index > 7 }" style="display: none;">
+									<i class="fa-solid fa-circle" th:style="${ ink.getColor() }"></i>
+									&nbsp;[[${ inkColor }]]
+								</span>
+							</th:block>
+							<th:block th:with="inkColor=${ inkColor }" th:if="${#lists.size(inkColor) > 7}">
+								<span class="color-more"><a href="#" style="color: #6c757d;" onclick="return false;">더보기</a></span>
+							</th:block>
+						</li>
+					</ul>
+				</th:block>
 			</div>
 			<div class="size-wrapper">
 				<ul>
 					<li class="th"><p>심두께 및 스펙</p></li>
 					<li class="td">
-						<th:block th:each="pointSize : ${ pointSize }" th:switch="${ pointSize }">
-							<hr class="point" th:case="0.3" style="height: 0.5px;">
-							<hr class="point" th:case="0.4" style="height: 0.7px;">
-							<hr class="point" th:case="0.5" style="height: 1.0px;">
-							<hr class="point" th:case="0.7" style="height: 1.5px;">
-							<hr class="point" th:case="0.9" style="height: 2.0px;">
-							<hr class="point" th:case="1.0" style="height: 2.2px;">
-							<hr class="point" th:case="1.2" style="height: 2.5px;">
+						<th:block th:each="size : ${T(com.reminder.geulbeotmall.product.model.dto.PointSize).values()}">
+							<hr class="point" th:each="pointSize : ${ pointSize }" th:style="${#numbers.formatDecimal(pointSize,1,1) == #numbers.formatDecimal(size.getValue(),1,1) ? size.getThickness() : 'display: none;'}">
+							<span th:each="pointSize : ${ pointSize }" th:if="${#numbers.formatDecimal(pointSize,1,1) == #numbers.formatDecimal(size.getValue(),1,1)}">&nbsp;&nbsp;&nbsp;[(${ #numbers.formatDecimal(pointSize,1,1) })]mm&nbsp;&nbsp;&nbsp;</span>
 						</th:block>
-						<span th:each="pointSize : ${ pointSize }">&nbsp;&nbsp;&nbsp;[(${ pointSize })]mm</span>
 					</li>
 				</ul>
 			</div>
@@ -148,7 +144,9 @@
 									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }">[[${ detail.prodName }]](재고: [[${ option.stock.stockAmount }]]개)</li>
 								</th:block>
 								<th:block th:with="option=${ option }" th:if="${#lists.size(option) > 1}">
-									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }">[[${ option.bodyColor }]]/[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor != '(해당없음)' && option.inkColor == '(해당없음)'}">[[${ option.bodyColor }]]/[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor == '(해당없음)' && option.inkColor != '(해당없음)'}">[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor == '(해당없음)' && option.inkColor == '(해당없음)' }">[[${ option.pointSize }]]mm(재고: [[${ option.stock.stockAmount }]]개)</li>
 								</th:block>
 								</ul>
 							</div>
