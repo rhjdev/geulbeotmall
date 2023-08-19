@@ -270,7 +270,7 @@ function addToWishList() { //wish 버튼
 			type : 'post',
 			traditional : true, //배열 넘기기 위한 세팅
 			dataType : 'text',
-			data : { arr : arr },
+			data : { wishListOptionNo : arr },
 			success : function(result){
 				if(result == '성공') {
 					Swal.fire({

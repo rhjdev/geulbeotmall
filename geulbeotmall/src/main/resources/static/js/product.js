@@ -741,59 +741,113 @@ function orderProduct() {
 function addToWishList() { //wish 버튼
 	setOrderList();
 	console.log(orderOptionNo);
-	//로그인 여부 확인
-	if(!document.getElementById('isLoggedInAs')) {
-		$.ajax({
-			url : '/member/signin',
-			type : 'post',
-			traditional : true,
-			dataType : 'text',
-			data : {
-				orderOptionNo : orderOptionNo,
-				orderOptionQt : orderOptionQt
-			},
-			success : function(result){
-				console.log('로그인 요청');
-				location.href='/cart/order';
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
-	} else {
-		$.ajax({
-			url : '/mypage/wishlist/add',
-			type : 'post',
-			traditional : true, //배열 넘기기 위한 세팅
-			dataType : 'text',
-			data : { arr : orderOptionNo },
-			success : function(result){
-				if(result == '성공') {
-					Swal.fire({
-						icon: 'success',
-						title: '찜하기가 완료되었습니다',
-						confirmButtonColor: '#00008b',
-						confirmButtonText: '확인'
-					}).then((result) => {
-						if(result.isConfirmed) {
-							window.location.reload(); //페이지 새로고침
-							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
-						}
-					})
-				} else {
-					Swal.fire({
-						icon: 'error',
-						title: '이미 찜하기 목록에 존재하는 상품입니다',
-						confirmButtonColor: '#00008b',
-						confirmButtonText: '확인'
-					}).then((result) => {
-						if(result.isConfirmed) {
-							window.location.reload(); //페이지 새로고침
-							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
-						}
-					})
+	
+	let heart = event.target.className; //찜하기 전 'fa-regular', 찜하기 후 'fa-solid'
+	if(heart == 'fa-solid fa-heart') { //이미 채워진 하트모양일 때 찜하기 해제
+		Swal.fire({
+			icon: 'warning',
+			title: '위시리스트에서 삭제할까요?',
+			confirmButtonColor: '#00008b',
+			confirmButtonText: '확인'
+		}).then((result) => {
+			if(result.isConfirmed) {
+				let options = document.querySelectorAll('li.option'); //상품에 속한 모든 옵션에 대해 찜하기 해제
+				let deletedCount = 0;
+				for(let i=0; i < options.length; i++) {
+					let param = { optionNo : options[i].value + '' }; //JSON type으로 넘기므로 quotation mark(") 추가
+					$.ajax({
+						url : '/mypage/wishlist/delete',
+						type: 'post',
+						dataType: 'text',
+						data : JSON.stringify(param),
+						beforeSend : function(xhr) {
+							xhr.setRequestHeader("Accept", "application/json");
+							xhr.setRequestHeader("Content-Type", "application/json");
+						},
+						success : function(result){
+							deletedCount++;
+							if(options.length == deletedCount) {
+								Swal.fire({
+									icon: 'success',
+									title: '위시리스트에서 삭제되었습니다',
+									confirmButtonColor: '#00008b',
+									confirmButtonText: '확인'
+								}).then((result) => {
+									if(result.isConfirmed) {
+										window.location.reload(); //페이지 새로고침
+										window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+									}
+								})
+							}
+						},
+						error : function(status, error){ console.log(status, error); }
+					});
 				}
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
+			}
+		})
+	} else {
+		//로그인 여부 확인
+		if(!document.getElementById('isLoggedInAs')) {
+			$.ajax({
+				url : '/member/signin',
+				type : 'post',
+				traditional : true,
+				dataType : 'text',
+				data : {
+					wishListOptionNo : orderOptionNo,
+				},
+				success : function(result){
+					console.log('로그인 요청');
+					Swal.fire({
+						icon: 'warning',
+						title: '로그인이 필요합니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							location.href='/member/signin';
+						}
+					})
+				},
+				error : function(status, error){ console.log(status, error); }
+			});
+		} else {
+			$.ajax({
+				url : '/mypage/wishlist/add',
+				type : 'post',
+				traditional : true, //배열 넘기기 위한 세팅
+				dataType : 'text',
+				data : { wishListOptionNo : orderOptionNo },
+				success : function(result){
+					if(result == '성공') {
+						Swal.fire({
+							icon: 'success',
+							title: '찜하기가 완료되었습니다',
+							confirmButtonColor: '#00008b',
+							confirmButtonText: '확인'
+						}).then((result) => {
+							if(result.isConfirmed) {
+								window.location.reload(); //페이지 새로고침
+								window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+							}
+						})
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: '이미 찜하기 목록에 존재하는 상품입니다',
+							confirmButtonColor: '#00008b',
+							confirmButtonText: '확인'
+						}).then((result) => {
+							if(result.isConfirmed) {
+								window.location.reload(); //페이지 새로고침
+								window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
+							}
+						})
+					}
+				},
+				error : function(status, error){ console.log(status, error); }
+			});
+		}
 	}
 };
 

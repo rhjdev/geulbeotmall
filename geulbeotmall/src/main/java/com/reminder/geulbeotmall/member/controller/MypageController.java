@@ -154,7 +154,7 @@ public class MypageController {
 	@PostMapping(value="/wishlist/add", produces="application/json; charset=UTF-8")
 	@ResponseBody
 	public String addToWishList(@ModelAttribute("loginMember") String loginMember, HttpServletRequest request, Model model) {
-		String[] optionNoArr = request.getParameterValues("arr");
+		String[] optionNoArr = request.getParameterValues("wishListOptionNo");
 		log.info("optionNoArr : {}", optionNoArr.length);
 		
 		String result = "";
