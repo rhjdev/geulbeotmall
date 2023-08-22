@@ -103,3 +103,114 @@ input[type="search"]::-webkit-search-cancel-button {
 	right: 2%;
 	cursor: pointer;
 }
+
+/* Notification 버튼 */
+#buttonNotification {
+	position: fixed;
+	margin-right: 0;
+	width: 60px;
+	height: 60px;
+	background-color: #fff;
+	border-radius: 50%;
+	border: 1px solid #E5E5E5;
+	font-size: 36px;
+	color: #000;
+	text-align: center;
+	vertical-align: middle;
+	bottom: 12%;
+	right: 2%;
+	cursor: pointer;
+}
+.notificationBell {
+	transform-origin: top;
+	animation: bell 2s infinite linear;
+}
+@keyframes bell{
+  0%, 50%{
+		transform: rotate(0deg);
+	}
+  5%, 15%, 25%, 35%, 45% {
+    transform: rotate(10deg);
+  }
+  10%, 20%, 30%, 40% {
+    transform: rotate(-10deg);
+  }
+}
+/* Alert 개수 */
+.notificationCnt {
+	position: absolute;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    color: #fff;
+    font-size: 8px;
+    font-style: normal;
+    text-align: center;
+    background-color: #ff0000;
+    border-radius: 10px;
+    box-sizing: border-box;
+    margin-left: -6px;
+}
+/* Notification 컨테이너 */
+.notification-container {
+	position:absolute;
+	border-radius: 8px;
+	max-width: 380px;
+	max-height: 380px;
+	background-color: #f0f0f0;
+	overflow: auto;
+	margin-left: -280px;
+    bottom: 140%;
+    font-size: 12px;
+}
+.notification-header {
+	position: relative;
+	margin-top: 16px;
+}
+.notification-footer {
+	font-size: 20px;
+	font-family: 'Gowun Dodum', sans-serif;
+    font-weight: 700;
+}
+.notification-list {
+	list-style: none;
+    font-size: 14px;
+    padding: 0px 21px 0px;
+}
+.notification-item {
+	position: relative;
+	margin-block-end: 6px;
+    background-color: snow;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    align-items: center;
+    padding: 8px;
+    color: #000;
+}
+.notification-item:hover {
+	box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.notification-item-label {
+	width: calc(100% - 25px);
+	text-align: left;
+	margin-inline-end: 10px;
+	cursor: pointer;
+}
+.notification-created {
+	margin-inline-start: 10px;
+    color: #6c757d;
+}
+.closeNotificationBtn {
+	position: absolute;
+    right: 2%;
+    top: 5%;
+}
+.deleteNotificationBtn {
+	position: absolute;
+	padding: 10px;
+	right: 2%;
+}
+.deleteNotificationBtn:hover {
+	color: #ff0000;
+}

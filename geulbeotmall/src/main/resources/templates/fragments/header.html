@@ -60,14 +60,38 @@
               <li class="nav-item"><a th:href="@{/cs/main}" class="head-menu nav-link link-secondary px-3" style="color: #6c757d;">고객센터</a></li>
             </ul>
             <form id="searchForm" name="searchForm" class="col-12 col-lg-auto mb-3 mb-lg-0 search-form" th:action="@{/product/search}" method="get" onsubmit="checkKeywordToSearch()">
-                <input type="search" name="keyword" class="form-control search-bar">
+                <input type="search" name="keyword" class="form-control search-bar" autocomplete="off">
                 <button type="button" class="search-icon"><i class="fa-solid fa-magnifying-glass" onclick="javascript:document.getElementById('searchForm').submit();"></i></button>
             </form>
         </div>
     </header>
+    <!--/* Notification 버튼 */-->
+    <div id="buttonNotification" style="display: none;">
+	    <div class="notification-container" style="display: none;">
+			<p class="notification-header">
+				글벗문구를 찾아주셔서 감사합니다<br>
+				<b class="notificationCntText" style="color: #ff0000;"></b>건의 알림이 있습니다
+				<button type="button" id="closeNotificationBtn" class="btn-close closeNotificationBtn" aria-label="닫기"></button>
+			</p>
+			<ul id="notification-list" class="notification-list">
+				<!--
+				<li class="notification-item">
+					<label class="notification-item-label">
+						<span class="notification-content"></span>
+						<small class="notification-created"></small>
+					</label>
+					<span class="deleteNotificationBtn"><i class="fa-regular fa-trash-can"></i></span>
+				</li>
+				-->
+			</ul>
+			<p class="notification-footer">글벗문구</p>
+		</div>
+		<a><i class="fa-regular fa-bell notificationBell"></i><em class="notificationCnt">0</em></a>
+	</div>
+	<!-- TOP 버튼 -->
     <div id="buttonTop" style="display: none;"><a><i class="fa-solid fa-arrow-up"></i></a></div>
-    
     <!--/* JS */-->
+    <script th:src="@{/js/notification.js}" type="text/javascript"></script>
     <script>
     	/* TOP 버튼*/
     	$(window).scroll(function(){
