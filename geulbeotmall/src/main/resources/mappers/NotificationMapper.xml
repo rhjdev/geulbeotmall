@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reminder.geulbeotmall.notification.model.dao.NotificationMapper">
+	<!-- 알림 조회용 -->
+	<resultMap id="notificationResultMap" type="com.reminder.geulbeotmall.notification.model.dto.Notification">
+		<id property="notificationId" column="NOTIFICATION_ID"/>
+		<result property="receiver" column="RECEIVER"/>
+		<result property="content" column="CONTENT"/>
+		<result property="notificationType" column="NOTIFICATION_TYPE"/>
+		<result property="url" column="URL"/>
+		<result property="readYn" column="READ_YN"/>
+		<result property="deletedYn" column="DELETED_YN"/>
+		<result property="createdAt" column="CREATED_AT"/>
+		<result property="updatedAt" column="UPDATED_AT"/>
+	</resultMap>
+	
+	<!-- 알림 등록 -->
+	<insert id="insertNotification">
+		INSERT
+		  INTO TBL_NOTIFICATION
+		(
+		  NOTIFICATION_ID
+		, RECEIVER
+		, CONTENT
+		, NOTIFICATION_TYPE
+		, URL
+		, READ_YN
+		, DELETED_YN
+		, CREATED_AT
+		, UPDATED_AT
+		)
+		VALUES
+		(
+		  #{ notificationId }
+		, #{ receiver }
+		, #{ content }
+		, #{ notificationType }
+		, #{ url }
+		, #{ readYn }
+		, #{ deletedYn }
+		, SYSTIMESTAMP
+		, NULL
+		)
+	</insert>
+	
+	<!-- 알림 전체 조회 -->
+	<select id="getAllNotificationByUsername" resultMap="notificationResultMap">
+		SELECT
+			   NOTIFICATION_ID
+			 , RECEIVER
+			 , CONTENT
+			 , NOTIFICATION_TYPE
+			 , URL
+			 , READ_YN
+			 , DELETED_YN
+			 , CREATED_AT
+			 , UPDATED_AT
+		 FROM TBL_NOTIFICATION
+		WHERE RECEIVER = #{ receiver }
+		  AND DELETED_YN = 'N'
+		ORDER BY CREATED_AT DESC
+	</select>
+	
+	<!-- 알림 읽음 상태 업데이트 -->
+	<update id="updateNotificationReadStatusByUsername">
+		UPDATE
+			   TBL_NOTIFICATION
+		   SET READ_YN = 'Y'
+		     , UPDATED_AT = SYSTIMESTAMP
+		 WHERE RECEIVER = #{ username }
+	</update>
+	
+	<!-- 알림 삭제 상태 업데이트 -->
+	<update id="updateNotificationDeleteStatusById">
+		UPDATE
+			   TBL_NOTIFICATION
+		   SET READ_YN = 'Y'
+		     , DELETED_YN = 'Y'
+		     , UPDATED_AT = SYSTIMESTAMP
+		 WHERE NOTIFICATION_ID = #{ notificationId }
+	</update>
+	
+	<!-- NotificationId 통한 수신회원 조회 -->
+	<select id="checkUsernameByNotificationId" resultType="string">
+		SELECT
+			   RECEIVER
+		  FROM TBL_NOTIFICATION
+		 WHERE NOTIFICATION_ID = #{ notificationId }
+	</select>
+</mapper>
