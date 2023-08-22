@@ -1,6 +1,7 @@
 package com.reminder.geulbeotmall.community.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
 
@@ -17,4 +18,8 @@ public interface CommentService {
 	int deleteAComment(int commentNo);
 
 	int getTotalCommentNumber(String refBoard, int refPostNo);
+
+	Map<String, String> checkInquiryPostWriter(int refPostNo);
+
+	CommentDTO checkParentComment(int commentNestedTo);
 }

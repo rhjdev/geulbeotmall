@@ -1,6 +1,7 @@
 package com.reminder.geulbeotmall.community.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,5 +47,15 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	public int getTotalCommentNumber(String refBoard, int refPostNo) {
 		return commentMapper.getTotalCommentNumber(refBoard, refPostNo);
+	}
+
+	@Override
+	public Map<String, String> checkInquiryPostWriter(int refPostNo) {
+		return commentMapper.checkInquiryPostWriter(refPostNo);
+	}
+
+	@Override
+	public CommentDTO checkParentComment(int commentNestedTo) {
+		return commentMapper.checkParentComment(commentNestedTo);
 	}
 }

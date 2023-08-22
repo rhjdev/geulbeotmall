@@ -154,4 +154,30 @@
 		 WHERE REF_BOARD = #{ refBoard }
 		   AND REF_POST_NO = #{ refPostNo }
 	</select>
+	
+	<!-- 문의게시글 제목 및 작성자 조회 *알림(notification) 전송용*-->
+	<select id="checkInquiryPostWriter" resultType="map">
+		SELECT
+			   INQUIRY_TITLE
+			 , MEMBER_ID
+		  FROM TBL_INQUIRY
+		 WHERE INQUIRY_NO = #{ refPostNo }
+	</select>
+	
+	<!-- 대댓글 기준 상위 댓글 조회 *알림(notification) 전송용*-->
+	<select id="checkParentComment" resultMap="commentResultMap">
+		SELECT
+			   COMMENT_NO
+			 , MEMBER_ID
+			 , REF_BOARD
+			 , REF_POST_NO
+			 , COMMENT_CONTENT
+			 , COMMENT_REG_DATE
+			 , COMMENT_CHG_DATE
+			 , COMMENT_DEL_DATE
+			 , COMMENT_NEST_LEVEL
+			 , COMMENT_NESTED_TO
+		 FROM TBL_COMMENT
+		WHERE COMMENT_NO = #{ commentNestedTo }
+	</select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.reminder.geulbeotmall.community.model.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -20,4 +21,8 @@ public interface CommentMapper {
 	int deleteAComment(int commentNo);
 
 	int getTotalCommentNumber(String refBoard, int refPostNo);
+
+	Map<String, String> checkInquiryPostWriter(int refPostNo);
+
+	CommentDTO checkParentComment(int commentNestedTo);
 }
