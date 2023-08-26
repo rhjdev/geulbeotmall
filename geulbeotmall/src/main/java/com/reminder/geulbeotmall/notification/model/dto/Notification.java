@@ -1,7 +1,5 @@
 package com.reminder.geulbeotmall.notification.model.dto;
 
-import java.sql.Date;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +19,8 @@ public class Notification {
 	private String url;
 	private char readYn;
 	private char deletedYn;
-	private Date createdAt;
-	private Date updatedAt;
+	private String createdAt;
+	private String updatedAt;
 	
 	public static Notification of(Notification notification) {
 		return Notification.builder()
