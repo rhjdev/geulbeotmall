@@ -64,6 +64,7 @@ public class CommentController {
 				 * => [제목...]게시글에 댓글이 달렸습니다: [댓글...]
 				 * => [댓글...]댓글에 답댓글이 달렸습니다: [대댓글...]
 				 */
+				String sender = (String) session.getAttribute("loginMember");
 				String notificationId = "";
 				String receiver = "";
 				String title = "";
@@ -82,6 +83,7 @@ public class CommentController {
 							+ "["
 							+ commentDTO.getCommentContent().substring(0, 3) + "..."
 							+ "]";
+					log.info("comment receiver, sender : {}, {}", receiver, sender);
 				} else { //대댓글(nest level 2)
 					CommentDTO parentComment = commentService.checkParentComment(commentDTO.getCommentNestedTo());
 					receiver = parentComment.getMemberId(); //댓글 작성자
@@ -94,18 +96,20 @@ public class CommentController {
 							+ "["
 							+ commentDTO.getCommentContent().substring(0, 3) + "..."
 							+ "]";
+					log.info("nested comment receiver, sender : {}, {}", receiver, sender);
 				}
 				
 				Notification notification = Notification.builder()
-						.notificationId(notificationId)
-						.receiver(receiver)
-						.content(content)
-						.notificationType(type)
-						.url("/cs/inquiry/details?no=" + refPostNo)
-						.readYn('N')
-						.deletedYn('N')
-						.build();
-				notificationService.sendNotification(notification);
+								.notificationId(notificationId)
+								.receiver(receiver)
+								.content(content)
+								.notificationType(type)
+								.url("/cs/inquiry/details?no=" + refPostNo)
+								.readYn('N')
+								.deletedYn('N')
+								.build();
+				
+				if(!receiver.equals(sender)) notificationService.sendNotification(notification); //작성자 본인이 댓글/대댓글을 단 것이 아닌 경우에 한하여 알림
 				log.info("comment/nested comment notification added : {}", notification);
 			}
 		}
