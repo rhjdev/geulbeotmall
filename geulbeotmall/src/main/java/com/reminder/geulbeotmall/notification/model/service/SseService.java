@@ -87,7 +87,7 @@ public class SseService {
 	 * [SSE 통신]notification type별 data 생성
 	 */
 	private Notification createNotification(String receiver, String content, String type, String url) {
-		if(type.equals("comment")) { //댓글
+		if(type.equals(NotificationType.COMMENT.getAlias())) { //댓글
 			return Notification.builder()
 					.receiver(receiver)
 					.content(content)
@@ -96,11 +96,38 @@ public class SseService {
 					.readYn('N')
 					.deletedYn('N')
 					.build();
-		} else if(type.equals("nestedComment")) { //대댓글
+		} else if(type.equals(NotificationType.REPLY.getAlias())) { //대댓글
 			return Notification.builder()
 					.receiver(receiver)
 					.content(content)
 					.notificationType(NotificationType.REPLY.getAlias())
+					.url(url)
+					.readYn('N')
+					.deletedYn('N')
+					.build();
+		} else if(type.equals(NotificationType.DISPATCH.getAlias())) { //상품출고
+			return Notification.builder()
+					.receiver(receiver)
+					.content(content)
+					.notificationType(NotificationType.DISPATCH.getAlias())
+					.url(url)
+					.readYn('N')
+					.deletedYn('N')
+					.build();
+		} else if(type.equals(NotificationType.DELIVERY.getAlias())) { //배송완료
+			return Notification.builder()
+					.receiver(receiver)
+					.content(content)
+					.notificationType(NotificationType.DELIVERY.getAlias())
+					.url(url)
+					.readYn('N')
+					.deletedYn('N')
+					.build();
+		} else if(type.equals(NotificationType.NOTICE.getAlias())) { //공지
+			return Notification.builder()
+					.receiver(receiver)
+					.content(content)
+					.notificationType(NotificationType.NOTICE.getAlias())
 					.url(url)
 					.readYn('N')
 					.deletedYn('N')

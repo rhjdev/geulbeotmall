@@ -42,6 +42,9 @@ import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
 import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
+import com.reminder.geulbeotmall.notification.model.dto.Notification;
+import com.reminder.geulbeotmall.notification.model.dto.NotificationType;
+import com.reminder.geulbeotmall.notification.model.service.NotificationService;
 import com.reminder.geulbeotmall.paging.model.dto.Criteria;
 import com.reminder.geulbeotmall.paging.model.dto.PageDTO;
 import com.reminder.geulbeotmall.product.model.dto.ProductDTO;
@@ -60,13 +63,16 @@ public class AdminController {
 	private final AdminService adminService;
 	private final ProductService productService;
 	private final CommentService commentService;
+	private final NotificationService notificationService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public AdminController(AdminService adminService, ProductService productService, CommentService commentService, MessageSource messageSource) {
+	public AdminController(AdminService adminService, ProductService productService, CommentService commentService,
+			NotificationService notificationService, MessageSource messageSource) {
 		this.adminService = adminService;
 		this.productService = productService;
 		this.commentService = commentService;
+		this.notificationService = notificationService;
 		this.messageSource = messageSource;
 	}
 	
@@ -400,7 +406,13 @@ public class AdminController {
 		int delivering = adminService.getDeliveringOrderNumber(criteria);
 		int completed = adminService.getCompletedOrderNumber(criteria);
 		
+		Map<String, Integer> numberOfEachOrder = new HashMap<>();
 		List<OrderDetailDTO> totalOrderList = adminService.getTotalOrderList(criteria);
+		for(int i=0; i < totalOrderList.size(); i++) {
+			String orderNo = totalOrderList.get(i).getOrder().getOrderNo();
+			int number = adminService.getTheNumberOfEachOrder(orderNo);
+			numberOfEachOrder.put(orderNo, number);
+		}
 		List<OrderDetailDTO> preparingOnly = adminService.getPreparingOnly(criteria);
 		List<OrderDetailDTO> deliveringOnly = adminService.getDeliveringOnly(criteria);
 		List<OrderDetailDTO> completedOnly = adminService.getCompletedOnly(criteria);
@@ -410,6 +422,7 @@ public class AdminController {
 		model.addAttribute("preparing", preparing);
 		model.addAttribute("delivering", delivering);
 		model.addAttribute("completed", completed);
+		model.addAttribute("numberOfEachOrder", numberOfEachOrder);
 		model.addAttribute("totalOrderList", totalOrderList);
 		model.addAttribute("preparingOnly", preparingOnly);
 		model.addAttribute("deliveringOnly", deliveringOnly);
@@ -428,12 +441,42 @@ public class AdminController {
 		String[] orderList = request.getParameterValues("arr");
 		boolean isCommited = false;
 		String result = "";
+		List<Notification> notificationList = new ArrayList<>();
 		
 		for(int i=0; i < orderList.length; i++) {
 			isCommited = adminService.updateDeliveryStatus(dlvrStatus, orderList[i]);
+			
+			/* SSE 통신 및 DB 저장(상품출고 또는 배송완료 알림) */
+			OrderDetailDTO orderDetail = adminService.getOrderDetailsByOrderNo(orderList[i]);
+			String receiver = orderDetail.getMemberId();
+			String notificationId = receiver + "_" + System.currentTimeMillis();
+			String content = "";
+			String type = "";
+			String url = "";
+			if(dlvrStatus.equals("배송중")) {
+				content = "🚚주문하신 상품이 출고되었습니다. 안전하게 배송해드릴게요";
+				type = NotificationType.DISPATCH.getAlias();
+				url = NotificationType.DISPATCH.getPath() + orderList[i];
+			} else {
+				content = "🏡배송이 완료되었습니다. 리뷰를 작성하고 적립금 혜택을 받아보세요";
+				type = NotificationType.DELIVERY.getAlias();
+				url = NotificationType.DELIVERY.getPath();
+			}
+			Notification notification = Notification.builder()
+					.notificationId(notificationId)
+					.receiver(receiver)
+					.content(content)
+					.notificationType(type)
+					.url(url)
+					.readYn('N')
+					.deletedYn('N')
+					.build();
+			notificationList.add(notification);
+			log.info("dispatch/delivery notification added : {}", notification);
 		}
 		
 		if(isCommited) {
+			notificationService.sendNotifications(notificationList);
 			result = "succeed";
 		}
 		return result;
