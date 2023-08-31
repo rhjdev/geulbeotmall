@@ -85,7 +85,7 @@
 	                		<img th:src="${ thumbnail.thumbnailPath }" style="width: 100px; height: 100px;">
 	                	</td>
 	                	<!--/* 상품명 */-->
-	                	<td th:text="${ product.prodName }"></td>
+	                	<td><a th:href="@{/product/details(no=${product.prodNo})}">[[${ product.prodName }]]</a></td>
 	                	<!--/* 할인율 */-->
 	                	<td th:text="|${ product.discountRate }%|"></td>
 	                	
@@ -97,15 +97,18 @@
 	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
 	                	<!--/* 판매량 */-->
-	                	<!--/* 상단의 product 목록 기준으로 생성된 index 활용 */-->
-	                	<td th:text="${ salesList[productStat.index] }"></td>
+	                	<th:block th:each="salesMap : ${ salesList }">
+							<th:block th:each="sales : ${ salesMap }">
+								<td th:if="${ product.prodNo == sales.key }" th:text="${ sales.value }"></td>
+							</th:block>
+						</th:block>
 	                	<!--/* 조회수 */-->
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
 	                	<!--/* 옵션/재고 */-->
 	                	<!--/* 태그 인식 위해서 escape 적용되는 th:text 대신 th:utext 사용 */-->
 	                	<td class="optionAndStock">
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'[재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>[재고 <b>' + '0개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원</del>'"></div>
 	                	</td>
 	                	<!--/* 판매여부 */-->
 	                	<td th:switch="${ product.prodAvailYn }">
@@ -157,16 +160,20 @@
 	                	</td>
 	                	<td th:text="${ product.prodName }"></td>
 	                	<td th:text="|${ product.discountRate }%|"></td>
-	                	<td th:if="${product.discountRate} == 0" th:text="${ product.prodPrice } + '원'"></td>
+	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
-	                		<span th:text="${ product.prodPrice - (product.prodPrice * product.discountRate / 100)} + '원'"></span>
+	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
-	                	<td th:text="0"></td>
+	                	<th:block th:each="salesMap : ${ salesList }">
+							<th:block th:each="sales : ${ salesMap }">
+								<td th:if="${ product.prodNo == sales.key }" th:text="${ sales.value }"></td>
+							</th:block>
+						</th:block>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
 	                	<td class="optionAndStock">
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'[재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>[재고 <b>' + '0개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -216,16 +223,20 @@
 	                	</td>
 	                	<td th:text="${ product.prodName }"></td>
 	                	<td th:text="|${ product.discountRate }%|"></td>
-	                	<td th:if="${product.discountRate} == 0" th:text="${ product.prodPrice } + '원'"></td>
+	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
-	                		<span th:text="${ product.prodPrice - (product.prodPrice * product.discountRate / 100)} + '원'"></span>
+	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
-	                	<td th:text="0"></td>
+	                	<th:block th:each="salesMap : ${ salesList }">
+							<th:block th:each="sales : ${ salesMap }">
+								<td th:if="${ product.prodNo == sales.key }" th:text="${ sales.value }"></td>
+							</th:block>
+						</th:block>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
 	                	<td class="optionAndStock">
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'[재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>[재고 <b>' + '0개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -275,16 +286,20 @@
 	                	</td>
 	                	<td th:text="${ product.prodName }"></td>
 	                	<td th:text="|${ product.discountRate }%|"></td>
-	                	<td th:if="${product.discountRate} == 0" th:text="${ product.prodPrice } + '원'"></td>
+	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
-	                		<span th:text="${ product.prodPrice - (product.prodPrice * product.discountRate / 100)} + '원'"></span>
+	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
-	                	<td th:text="0"></td>
+	                	<th:block th:each="salesMap : ${ salesList }">
+							<th:block th:each="sales : ${ salesMap }">
+								<td th:if="${ product.prodNo == sales.key }" th:text="${ sales.value }"></td>
+							</th:block>
+						</th:block>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
 	                	<td class="optionAndStock">
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'[재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>[재고 <b>' + '0개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>
@@ -334,16 +349,20 @@
 	                	</td>
 	                	<td th:text="${ product.prodName }"></td>
 	                	<td th:text="|${ product.discountRate }%|"></td>
-	                	<td th:if="${product.discountRate} == 0" th:text="${ product.prodPrice } + '원'"></td>
+	                	<td th:if="${product.discountRate} == 0" th:text="${#numbers.formatInteger(product.prodPrice, 3, 'COMMA')} + '원'"></td>
 	                	<td th:if="${product.discountRate} > 0">
 	                		<del><span th:text="${ product.prodPrice }"></span></del>
-	                		<span th:text="${ product.prodPrice - (product.prodPrice * product.discountRate / 100)} + '원'"></span>
+	                		<span th:text="${#numbers.formatInteger(product.prodPrice - (product.prodPrice * product.discountRate / 100), 3, 'COMMA')} + '원'"></span>
 	                	</td>
-	                	<td th:text="0"></td>
+	                	<th:block th:each="salesMap : ${ salesList }">
+							<th:block th:each="sales : ${ salesMap }">
+								<td th:if="${ product.prodNo == sales.key }" th:text="${ sales.value }"></td>
+							</th:block>
+						</th:block>
 	                	<td th:text="${ product.prodDetailViewCount }"></td>
 	                	<td class="optionAndStock">
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)'"></div>
-		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원(재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>)</del>'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount > 0 }" th:utext="'[재고 <b>' + ${ option.stock.stockAmount } + '개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원'"></div>
+		                	<div th:each="option : ${ optionList }" th:if="${product.prodNo == option.refProdNo && option.stock.stockAmount == 0 }" th:utext="'<del>[재고 <b>' + '0개' + '</b>]' + ${#strings.replace(option.bodyColor, '$', ',')} + '/' + ${#strings.replace(option.inkColor, '$', ',')} + '/' + ${ option.pointSize } + 'mm/추가금액' + ${ option.extraCharge } + '원</del>'"></div>
 	                	</td>
 	                	<td th:switch="${ product.prodAvailYn }">
 	                		<span th:case="Y">판매중</span>

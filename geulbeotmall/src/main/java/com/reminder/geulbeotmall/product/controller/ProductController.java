@@ -409,7 +409,7 @@ public class ProductController {
 		List<Integer> allProdNo = productService.getAllProdNo();
 		List<AttachmentDTO> thumbnailList = new ArrayList<>();
 		List<OptionDTO> optionList = new ArrayList<>();
-		List<Integer> salesList = new ArrayList<>();
+		List<Map<Integer, Integer>> salesList = new ArrayList<>();
 		for(int prodNo: allProdNo) {
 			/* 상품별 메인썸네일 조회 */
 			AttachmentDTO thumbnail = productService.getMainThumbnailByProdNo(prodNo);
@@ -420,9 +420,11 @@ public class ProductController {
 				optionList.add(option);
 			}
 			/* 상품별 누적 판매량 조회 */
+			Map<Integer, Integer> salesMap = new HashMap<>();
 			Integer sales = productService.getSalesByProdNo(prodNo); //null 값을 취급할 수 있도록 Integer 타입으로 설정
 			if(sales == null) sales = 0;
-			salesList.add(sales);
+			salesMap.put(prodNo, sales);
+			salesList.add(salesMap);
 		}
 		log.info("상품 목록 조회 완료");
 		
@@ -508,11 +510,7 @@ public class ProductController {
 			log.info("현재 판매여부 : {}", current);
 			log.info("선택한 판매여부 : {}", selected);
 			
-			if(current.equals("Y") && selected.equals("Y")) {
-				result = "상품번호" + prodList[i] +"(은)는 이미 판매 중인 상품입니다";
-			} else if(current.equals("N") && selected.equals("N")) {
-				result = "상품번호" + prodList[i] +"(은)는 이미 판매 중지된 상품입니다";
-			} else if(current.equals("Y") && selected.equals("N")) { //현재 판매중에서 판매중지로 변경
+			if(selected.equals("N")) { //현재 판매중에서 판매중지로 변경
 				count += productService.stopSellingAProduct(Integer.parseInt(prodList[i]));
 			} else { //현재 판매중지에서 판매중으로 변경
 				count += productService.putAProductOnSale(Integer.parseInt(prodList[i]));
