@@ -65,12 +65,12 @@ public class CartController {
 		
 		String loginMember = (String) session.getAttribute("loginMember");
 		
-		
 		/* 비회원용 장바구니: session 장바구니가 존재하지 않는 경우 생성 먼저 진행 */
 		if(loginMember == null && session.getAttribute("geulbeotCart") == null) {
 			log.info("비회원용 session 장바구니 생성");
 			List<CartDTO> nonmemberCart = new ArrayList<>();
 			session.setAttribute("geulbeotCart", nonmemberCart);
+			session.setAttribute("countCartItem", 1); //최초 post 요청 시 1개 이상의 상품이 장바구니에 담긴다는 것
 		}
 		
 		LoopA:
