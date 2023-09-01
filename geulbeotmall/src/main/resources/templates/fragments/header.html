@@ -91,7 +91,6 @@
 	<!-- TOP 버튼 -->
     <div id="buttonTop" style="display: none;"><a><i class="fa-solid fa-arrow-up"></i></a></div>
     <!--/* JS */-->
-    <script th:src="@{/js/notification.js}" type="text/javascript"></script>
     <script>
     	/* TOP 버튼*/
     	$(window).scroll(function(){
@@ -107,9 +106,12 @@
     		$('html, body').animate({scrollTop: 0}, 600);
     	});
     </script>
-    <th:block layout:fragment="script">
-    	<script th:src="@{/js/search.js}" type="text/javascript"></script>
-    </th:block>
+	<!-- SSE 통신용 -->
+    <script>
+		const username = '[[${loginMember}]]'
+	</script>
+    <script th:src="@{/js/notification.js}" type="text/javascript"></script>
+	<script th:src="@{/js/search.js}" type="text/javascript"></script>
 </div>
 </body>
 </html>

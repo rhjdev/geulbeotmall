@@ -89,7 +89,17 @@ input[type="checkbox"]:checked {
 tbody > tr > .optionAndStock > div {
 	display: block;
 	margin: 0 auto;
-	max-width: 600px;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 댓글/대댓글 내용 출력 글자수 제한 */
+tbody > tr > .commentContent > div {
+	display: block;
+	margin: 0 auto;
+	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

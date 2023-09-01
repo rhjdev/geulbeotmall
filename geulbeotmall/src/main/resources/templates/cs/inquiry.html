@@ -39,7 +39,7 @@
 							<th>제목<b style="color: #ff0000;"> *</b></th>
 							<td>
 								<input th:if="${ originalInquiry == null }" type="text" id="inquiryTitle" name="inquiryTitle" disabled>
-								<input th:if="${ originalInquiry != null }" th:value="${ originalInquiry.inquiryTitle }" type="text" id="inquiryTitle" name="inquiryTitle">
+								<input th:if="${ originalInquiry != null }" th:value="${ originalInquiry.inquiryTitle }" type="text" id="inquiryTitle" name="inquiryTitle" autocomplete="off">
 							</td>
 						</tr>
 						<tr>

@@ -208,8 +208,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 .deleteNotificationBtn {
 	position: absolute;
-	padding: 10px;
-	right: 2%;
+    display: flex;
+    top: 50%;
+    right: 2%;
+    transform: translate(-50%, -52%);
 }
 .deleteNotificationBtn:hover {
 	color: #ff0000;

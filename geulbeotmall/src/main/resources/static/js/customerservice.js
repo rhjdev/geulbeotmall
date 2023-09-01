@@ -39,7 +39,6 @@ function submitInquiryForm(form, event) {
 }
 
 function confirmToDelete() {
-	let inquiryNo = '[[${ inquiryDetail.inquiryNo }]]';
 	console.log(inquiryNo);
 	Swal.fire({
 		icon: 'warning',
@@ -56,7 +55,18 @@ function confirmToDelete() {
 				url : '/cs/inquiry/delete',
 				type : 'get',
 				data : { no : inquiryNo },
-				success : function(){ console.log('succeed') },
+				success : function(){
+					Swal.fire({
+						icon: 'success',
+						title: '게시글 삭제가 완료되었습니다',
+						confirmButtonColor: '#00008b',
+						confirmButtonText: '확인'
+					}).then((result) => {
+						if(result.isConfirmed) {
+							window.location.assign('/cs/main');
+						}
+					});
+				},
 				error : function(status, error){ console.log(status, error); }
 			});
 		}

@@ -165,11 +165,16 @@ select {
 	opacity: 100;
 }
 
+.tag-wrapper {
+	margin-block-end: 30px;
+}
+
 .tag-span {
 	display: inline-block;
 	line-height: 36px;
 	padding: 0 15px;
 	margin-inline-end: 4px;
+	margin-block-end: 4px;
 	background-color: #f9f9f9;
 	width: -moz-fit-content;
 	width: fit-content;

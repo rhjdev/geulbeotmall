@@ -234,7 +234,7 @@
 	    </div>
 	    <div class="orderItemsBox">
 	    	<button type="button" class="orderSelectionBtn btn" onclick="orderSelection()">선택상품주문</button>
-	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderSelection()">전체상품주문</button>
+	    	<button type="button" class="orderAllBtn btn btn-dark" onclick="orderAll()">전체상품주문</button>
     	</div>
 	    </th:block>
 	    
@@ -289,8 +289,10 @@
 		    		console.log(rows);
 		    		if(rows.length > 1) {
 		    			rows.eq(0).attr('rowspan', rows.length);
-		    			rows.not(':eq(0)').remove();
-		    		}
+		    			rows.not(':eq(0)').hide();
+		    		} else if(rows.length == 1) {
+						row.not(':eq(0)').show(); //병합할 대상이 없는 1개의 주문 건은 별도 처리 없이 노출
+					}
 		    	});
 	    	});
     	</script>

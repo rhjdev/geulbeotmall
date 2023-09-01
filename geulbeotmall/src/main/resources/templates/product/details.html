@@ -144,7 +144,8 @@
 									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }">[[${ detail.prodName }]](재고: [[${ option.stock.stockAmount }]]개)</li>
 								</th:block>
 								<th:block th:with="option=${ option }" th:if="${#lists.size(option) > 1}">
-									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor != '(해당없음)' && option.inkColor == '(해당없음)'}">[[${ option.bodyColor }]]/[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor != '(해당없음)' && option.inkColor != '(해당없음)'}">[[${ option.bodyColor }]]/[[${ option.inkColor }]]/[[${ option.pointSize }]]mm(재고: [[${ option.stock.stockAmount }]]개)</li>
+									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor != '(해당없음)' && option.inkColor == '(해당없음)'}">[[${ option.bodyColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
 									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor == '(해당없음)' && option.inkColor != '(해당없음)'}">[[${ option.inkColor }]](재고: [[${ option.stock.stockAmount }]]개)</li>
 									<li class="option" th:each="option : ${ option }" th:value="${ option.optionNo }" th:if="${ option.bodyColor == '(해당없음)' && option.inkColor == '(해당없음)' }">[[${ option.pointSize }]]mm(재고: [[${ option.stock.stockAmount }]]개)</li>
 								</th:block>
@@ -351,10 +352,10 @@
 						<div class="menu">
 							<span class="views">조회수&nbsp;<b>[[${reviewList.revwHits}]]</b></span>
 							<ul>
-								<li>
+								<li th:if="${ loginMember == null or loginMember != reviewList.memberId }">
 									<span>신고</span>
 								</li>
-								<li>
+								<li th:if="${ loginMember == reviewList.memberId }">
 									<span>삭제</span>
 								</li>
 							</ul>

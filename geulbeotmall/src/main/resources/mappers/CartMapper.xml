@@ -169,7 +169,8 @@
 		  LEFT JOIN TBL_ATTACHMENT T ON(A.PROD_NO = T.REF_PROD_NO)
 		  LEFT JOIN TBL_OPTION O ON(A.OPTION_NO = O.OPTION_NO) <!-- 상품 하나에 여러 옵션이 등록되어 있으므로 옵션별 알맞은 정보를 가져오기 위해서는 장바구니에 담긴 option 번호 기준으로 연결 -->
 		 WHERE MEMBER_ID = #{ username }
-		 ORDER BY C.BRAND_NAME
+		   AND T.FILE_TYPE = 'THUMB_MAIN'
+		 ORDER BY C.BRAND_NAME, A.CART_NO ASC
 	</select>
 	
 	<!-- 옵션번호 기준 옵션 정보 조회 -->

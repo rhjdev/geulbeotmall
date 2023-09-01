@@ -58,7 +58,7 @@
 	                	<th:block th:if="${ commentList.REF_BOARD == '문의' }">
 	                		<td><a th:href="@{/cs/inquiry/details(no=${commentList.REF_POST_NO})}">[[${ commentList.REF_TITLE }]]</a></td>
 	                	</th:block>
-	                	<td>[[${ commentList.COMMENT_CONTENT }]]</td>
+	                	<td class="commentContent"><div>[[${ commentList.COMMENT_CONTENT }]]</div></td>
 	                	<td th:attr="data-value=${ commentList.MEMBER_ID }"><a th:href="@{/admin/member/details(id=${commentList.MEMBER_ID})}">[(${ commentList.NAME })]([(${ commentList.MEMBER_ID })])</a></td>
 	                	<td>[[${#dates.format(commentList.COMMENT_REG_DATE, 'yyyy.MM.dd HH:mm')}]]</td>
                 	</tr>

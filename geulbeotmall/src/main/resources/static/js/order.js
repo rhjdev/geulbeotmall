@@ -364,8 +364,10 @@ if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 �
 	console.log(priceMap); //업체별 총 주문금액
 	let cost = 0;
 	let iteratorMapB = priceMap.keys();
+	let isCheckedBrand = new Map();
 	for(let i=0; i < priceMap.size; i++) {
 		let key = iteratorMapB.next().value;
+		isCheckedBrand.set(key, false);
 		deliveries.forEach(function(item){
 			//조건1. 일부 브랜드는 2만원 이상일 때 무료 배송하며 기본금 상이
 			if(key == '모나미') { cost = priceMap.get(key) >= 20000 ? 0 : 3000;
@@ -376,7 +378,11 @@ if(link.indexOf('order') == -1) { //주소값에 order를 포함하지 않은 �
 				item.parentElement.children[7].innerHTML = cost.toLocaleString('ko-KR') + "원"; //원화 단위로 출력
 				item.parentElement.children[7].attributes.value = cost;
 				//console.log(item.parentElement.children);
-				deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
+				console.log(isCheckedBrand.get(key));
+				if(!isCheckedBrand.get(key)) { //업체별 묶음배송
+					deliveryFee += parseInt(item.parentElement.children[7].attributes.value); //배송비 총합
+					isCheckedBrand.set(key, true);
+				}
 			}
 		});
 	
@@ -509,32 +515,20 @@ function orderAll() {
 		console.log(optionNo);
 		arr.push(optionNo);
 	});
-	if(arr.length > 0 && !document.getElementById('isLoggedInAs')) {
-		Swal.fire({
-			icon: 'warning',
-			title: '로그인이 필요합니다',
-			confirmButtonColor: '#00008b',
-			confirmButtonText: '확인'
-		}).then((result) => {
-			if(result.isConfirmed) {
-				location.href='/member/signin';
-			}
-		})
-	} else {
-		$.ajax({
-			url : '/cart/order',
-			type : 'get',
-			traditional : true, //배열 넘기기 위한 세팅
-			dataType : 'text',
-			data : { arr : arr },
-			success : function(result){
-				console.log('주문페이지 이동');
-				location.href='/cart/order';
-			},
-			error : function(status, error){ console.log(status, error); }
-		});
-	}
+	$.ajax({
+		url : '/cart/order',
+		type : 'get',
+		traditional : true, //배열 넘기기 위한 세팅
+		dataType : 'text',
+		data : { arr : arr },
+		success : function(result){
+			console.log('주문페이지 이동');
+			location.href='/cart/order';
+		},
+		error : function(status, error){ console.log(status, error); }
+	});
 }
+
 function orderSelection() {
 	let checkbox = $('input[name=checkItem]:checked');
 	let optionNo = "";
@@ -559,18 +553,7 @@ function orderSelection() {
 				history.go(0); //현재 페이지 새로고침
 			}
 		})
-	//1-3. 로그인 여부 확인
-	} else if(arr.length > 0 && !document.getElementById('isLoggedInAs')) {
-		Swal.fire({
-			icon: 'warning',
-			title: '로그인이 필요합니다',
-			confirmButtonColor: '#00008b',
-			confirmButtonText: '확인'
-		}).then((result) => {
-			if(result.isConfirmed) {
-				location.href='/member/signin';
-			}
-		})
+	//1-3. 주문(로그인 여부 확인 포함)
 	} else {
 		$.ajax({
 			url : '/cart/order',

@@ -665,6 +665,9 @@ function addToCart() {
 					}).then((result) => {
 						if(result.isConfirmed) {
 							window.location.href='/cart/mycart';
+						} else {
+							window.location.reload();
+							window.history.scrollRestoration = 'manual'; //스크롤 최상단 고정
 						}
 					})
 				} else {

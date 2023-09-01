@@ -165,7 +165,7 @@ function moveToTrash() {
 					confirmButtonText: '확인'
 				}).then((result) => {
 					if(result.isConfirmed) {
-						history.go(0); //현재 페이지 새로고침
+						window.location.assign('/admin/post/list'); //현재 페이지 새로고침
 					}
 				})
 			} else {
