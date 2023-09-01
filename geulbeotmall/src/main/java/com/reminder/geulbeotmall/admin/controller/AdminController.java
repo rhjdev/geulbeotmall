@@ -38,6 +38,7 @@ import com.reminder.geulbeotmall.admin.model.dto.SuspDTO;
 import com.reminder.geulbeotmall.admin.model.dto.TrashDTO;
 import com.reminder.geulbeotmall.admin.model.service.AdminService;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
+import com.reminder.geulbeotmall.cart.model.service.OrderService;
 import com.reminder.geulbeotmall.community.model.dto.CommentDTO;
 import com.reminder.geulbeotmall.community.model.service.CommentService;
 import com.reminder.geulbeotmall.cs.model.dto.InquiryDTO;
@@ -62,15 +63,17 @@ public class AdminController {
 	
 	private final AdminService adminService;
 	private final ProductService productService;
+	private final OrderService orderService;
 	private final CommentService commentService;
 	private final NotificationService notificationService;
 	private final MessageSource messageSource;
 	
 	@Autowired
-	public AdminController(AdminService adminService, ProductService productService, CommentService commentService,
-			NotificationService notificationService, MessageSource messageSource) {
+	public AdminController(AdminService adminService, ProductService productService, OrderService orderService,
+			CommentService commentService, NotificationService notificationService, MessageSource messageSource) {
 		this.adminService = adminService;
 		this.productService = productService;
+		this.orderService = orderService;
 		this.commentService = commentService;
 		this.notificationService = notificationService;
 		this.messageSource = messageSource;
@@ -407,10 +410,12 @@ public class AdminController {
 		int completed = adminService.getCompletedOrderNumber(criteria);
 		
 		Map<String, Integer> numberOfEachOrder = new HashMap<>();
+		String orderNo = "";
+		int number = 0;
 		List<OrderDetailDTO> totalOrderList = adminService.getTotalOrderList(criteria);
 		for(int i=0; i < totalOrderList.size(); i++) {
-			String orderNo = totalOrderList.get(i).getOrder().getOrderNo();
-			int number = adminService.getTheNumberOfEachOrder(orderNo);
+			orderNo = totalOrderList.get(i).getOrder().getOrderNo();
+			number = orderService.getTheNumberOfEachOrder(orderNo);
 			numberOfEachOrder.put(orderNo, number);
 		}
 		List<OrderDetailDTO> preparingOnly = adminService.getPreparingOnly(criteria);

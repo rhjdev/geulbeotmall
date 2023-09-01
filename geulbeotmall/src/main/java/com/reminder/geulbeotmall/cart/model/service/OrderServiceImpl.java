@@ -64,4 +64,9 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return result;
 	}
+
+	@Override
+	public int getTheNumberOfEachOrder(String orderNo) {
+		return orderMapper.getTheNumberOfEachOrder(orderNo);
+	}
 }

@@ -13,4 +13,6 @@ public interface OrderService {
 	boolean orderAndPay(OrderDetailDTO orderDetailDTO, JSONArray optionNoArr, JSONArray optionQtArr, JSONArray orderPriceArr, DeliveryDTO deliveryDTO, PointDTO pointDTO, PaymentDTO paymentDTO);
 
 	OptionDTO getWishItemByOptionNo(String username, int optionNo);
+
+	int getTheNumberOfEachOrder(String orderNo);
 }

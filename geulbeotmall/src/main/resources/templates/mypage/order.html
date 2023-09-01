@@ -39,15 +39,10 @@
 			    			<!-- 상품명(옵션) -->
 			    			<td class="option-area" th:value="${ orderList.order.optionNo }">
 				    			<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
-				    			<p>
-			    					<span>[[${ orderList.option.pointSize }]]mm</span>
-				    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
-				    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
-				    				</th:block>
-				    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
-				    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
-				    				</th:block>
-				    			</p>
+				    			<th:block th:each="number : ${ numberOfEachOrder }">
+			                		<p th:if="${ orderList.order.orderNo == number.key && number.value > 1 }" style="margin-bottom: 0px !important;">외 [[${ number.value - 1 }]]건</p>
+									<p th:if="${ orderList.order.orderNo == number.key && number.value == 1 }" style="margin-bottom: 0px !important;">총 [[${ number.value }]]건</p>
+								</th:block>
 			    			</td>
 			    			
 			    			<!-- 배송상태, 배송업체 -->

@@ -69,15 +69,10 @@
                 		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
 	                	<td>
 	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
-	                		<p>
-		    					<span>[[${ orderList.option.pointSize }]]mm</span>
-			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
-			    				</th:block>
-			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
-			    				</th:block>
-			    			</p>
+	                		<th:block th:each="number : ${ numberOfEachOrder }">
+		                		<p th:if="${ orderList.order.orderNo == number.key && number.value > 1 }" style="margin-bottom: 0px !important;">외 [[${ number.value - 1 }]]건</p>
+								<p th:if="${ orderList.order.orderNo == number.key && number.value == 1 }" style="margin-bottom: 0px !important;">총 [[${ number.value }]]건</p>
+							</th:block>
 	                	</td>
 	                	<td>
 	                		<a th:href="@{/admin/member/details(id=${ orderList.memberId })}">[[${ orderList.member.name }]]([[${#strings.replace(orderList.memberId, #strings.substring(orderList.memberId, 4), '***')}]])</a>
@@ -136,15 +131,10 @@
                 		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
 	                	<td>
 	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
-	                		<p>
-		    					<span>[[${ orderList.option.pointSize }]]mm</span>
-			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
-			    				</th:block>
-			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
-			    				</th:block>
-			    			</p>
+	                		<th:block th:each="number : ${ numberOfEachOrder }">
+		                		<p th:if="${ orderList.order.orderNo == number.key && number.value > 1 }" style="margin-bottom: 0px !important;">외 [[${ number.value - 1 }]]건</p>
+								<p th:if="${ orderList.order.orderNo == number.key && number.value == 1 }" style="margin-bottom: 0px !important;">총 [[${ number.value }]]건</p>
+							</th:block>
 	                	</td>
 	                	<td>
 	                		<a th:href="@{/admin/member/details(id=${ orderList.memberId })}">[[${ orderList.member.name }]]([[${#strings.replace(orderList.memberId, #strings.substring(orderList.memberId, 4), '***')}]])</a>
@@ -203,15 +193,10 @@
                 		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
 	                	<td>
 	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
-	                		<p>
-		    					<span>[[${ orderList.option.pointSize }]]mm</span>
-			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
-			    				</th:block>
-			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
-			    				</th:block>
-			    			</p>
+	                		<th:block th:each="number : ${ numberOfEachOrder }">
+		                		<p th:if="${ orderList.order.orderNo == number.key && number.value > 1 }" style="margin-bottom: 0px !important;">외 [[${ number.value - 1 }]]건</p>
+								<p th:if="${ orderList.order.orderNo == number.key && number.value == 1 }" style="margin-bottom: 0px !important;">총 [[${ number.value }]]건</p>
+							</th:block>
 	                	</td>
 	                	<td>
 	                		<a th:href="@{/admin/member/details(id=${ orderList.memberId })}">[[${ orderList.member.name }]]([[${#strings.replace(orderList.memberId, #strings.substring(orderList.memberId, 4), '***')}]])</a>
@@ -270,15 +255,10 @@
                 		<td><img th:src="${ orderList.product.attachmentList[0].thumbnailPath }" style="width: 100px; height: 100px;"></td>
 	                	<td>
 	                		<a th:href="@{/product/details(no=${orderList.product.prodNo})}">[[${ orderList.product.prodName }]]</a>
-	                		<p>
-		    					<span>[[${ orderList.option.pointSize }]]mm</span>
-			    				<th:block th:if="${ orderList.option.bodyColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.bodyColor, '$', ',')}|"></span>
-			    				</th:block>
-			    				<th:block th:if="${ orderList.option.inkColor != '(해당없음)' }">
-			    					<span th:text="|/ ${#strings.replace(orderList.option.inkColor, '$', ',')}|"></span>
-			    				</th:block>
-			    			</p>
+	                		<th:block th:each="number : ${ numberOfEachOrder }">
+		                		<p th:if="${ orderList.order.orderNo == number.key && number.value > 1 }" style="margin-bottom: 0px !important;">외 [[${ number.value - 1 }]]건</p>
+								<p th:if="${ orderList.order.orderNo == number.key && number.value == 1 }" style="margin-bottom: 0px !important;">총 [[${ number.value }]]건</p>
+							</th:block>
 	                	</td>
 	                	<td>
 	                		<a th:href="@{/admin/member/details(id=${ orderList.memberId })}">[[${ orderList.member.name }]]([[${#strings.replace(orderList.memberId, #strings.substring(orderList.memberId, 4), '***')}]])</a>

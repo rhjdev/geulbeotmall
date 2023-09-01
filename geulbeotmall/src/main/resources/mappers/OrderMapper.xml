@@ -250,4 +250,13 @@
 		  LEFT JOIN TBL_ATTACHMENT T ON(B.PROD_NO = T.REF_PROD_NO)
 		 WHERE A.OPTION_NO = #{ optionNo }
 	</select>
+	
+	<!-- 주문상세서 작성용 건별 개수 *총 n건 표기* -->
+	<select id="getTheNumberOfEachOrder" resultType="_int">
+		SELECT
+			   COUNT(A.OPTION_NO)
+		  FROM TBL_ORDER A
+		  LEFT JOIN TBL_ORDER_DETAIL B ON(A.ORDER_NO = B.ORDER_NO)
+		 WHERE A.ORDER_NO = #{ orderNo }
+	</select>
 </mapper>

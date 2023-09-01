@@ -25,4 +25,6 @@ public interface OrderMapper {
 	int addDeliveryInfo(DeliveryDTO deliveryDTO);
 
 	int addPointInfo(PointDTO pointDTO);
+
+	int getTheNumberOfEachOrder(String orderNo);
 }
