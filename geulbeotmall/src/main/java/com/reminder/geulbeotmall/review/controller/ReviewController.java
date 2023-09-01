@@ -139,66 +139,70 @@ public class ReviewController {
 			 * */
 			Map<String, String> fileMap = new HashMap<>();
 			List<Map<String, String>> fileList = new ArrayList<>();
-			int count = 0;
+			int countFileAttached = 0;
+			int countFileSaved = 0;
 			
 			for(MultipartFile file : files) {
-				UUID uuid = UUID.randomUUID(); //랜덤 문자 생성
-				
-				String origFileName = file.getOriginalFilename(); //원본파일명
-				String extension = FilenameUtils.getExtension(origFileName); //확장자
-				String randomFileName = uuid.toString().replace("-", "") + "." + extension; //랜덤파일명
-				
-				try {
-					//원본 크기 파일을 original 폴더에 저장
-					File target = new File(originalUploadPath, randomFileName);
-					byte[] bytes = file.getBytes();
-					FileCopyUtils.copy(bytes, target);
+				if(!file.isEmpty()) { //첨부 가능한 파일 개수는 최대 3개, 실제 첨부된 파일이 있는 경우에만 반복
+					countFileAttached++;
+					UUID uuid = UUID.randomUUID(); //랜덤 문자 생성
 					
-					String origFileUrl = "/upload/review/original/" + uuid.toString().replace("-", "") + "." + extension;
-					fileMap.put("origFileName", origFileName);
-					fileMap.put("saveFileName", randomFileName);
-					fileMap.put("savePath", origFileUrl);
+					String origFileName = file.getOriginalFilename(); //원본파일명
+					String extension = FilenameUtils.getExtension(origFileName); //확장자
+					String randomFileName = uuid.toString().replace("-", "") + "." + extension; //랜덤파일명
 					
-					//썸네일 파일을 thumbnail 폴더에 저장
-					Thumbnails.of(originalUploadPath + File.separator + randomFileName) //썸네일로 변환 후 저장
-					.size(THUMB_WIDTH_SIZE, THUMB_HEIGHT_SIZE)
-					.toFile(thumbnailUploadPath + File.separator + "thumbnail_" + randomFileName);
-					fileMap.put("thumbnailPath", "/upload/review/thumbnail/thumbnail_" + randomFileName); //웹서버에서 접근 가능한 형태로 썸네일의 저장 경로 작성
-					
-					fileList.add(fileMap);
-					
-					//현재 리뷰번호 조회
-					int currReviewNo;
-					if(originalReviewNo > 0) {
-						currReviewNo = originalReviewNo; //수정 중인 번호 반영
-					} else {
-						currReviewNo = reviewService.checkCurrReviewNo(); //새 글 작성 중 부여된 번호 조회
-					}
-					
-					AttachmentDTO tempFileInfo = new AttachmentDTO();
-					for(int i=0; i < fileList.size(); i++) {
-						tempFileInfo.setRefRevwNo(currReviewNo);
-						tempFileInfo.setOrigFileName(fileList.get(i).get("origFileName"));
-						tempFileInfo.setSaveFileName(fileList.get(i).get("saveFileName"));
-						tempFileInfo.setSavePath(fileList.get(i).get("savePath"));
-						tempFileInfo.setThumbnailPath(fileList.get(i).get("thumbnailPath"));
+					try {
+						//원본 크기 파일을 original 폴더에 저장
+						File target = new File(originalUploadPath, randomFileName);
+						byte[] bytes = file.getBytes();
+						FileCopyUtils.copy(bytes, target);
 						
-						if(i == 0) { //index 기준으로 첫번째 첨부 이미지는 메인썸네일, 그 다음은 서브썸네일에 해당
-							tempFileInfo.setFileType("THUMB_MAIN");
+						String origFileUrl = "/upload/review/original/" + uuid.toString().replace("-", "") + "." + extension;
+						fileMap.put("origFileName", origFileName);
+						fileMap.put("saveFileName", randomFileName);
+						fileMap.put("savePath", origFileUrl);
+						
+						//썸네일 파일을 thumbnail 폴더에 저장
+						Thumbnails.of(originalUploadPath + File.separator + randomFileName) //썸네일로 변환 후 저장
+						.size(THUMB_WIDTH_SIZE, THUMB_HEIGHT_SIZE)
+						.toFile(thumbnailUploadPath + File.separator + "thumbnail_" + randomFileName);
+						fileMap.put("thumbnailPath", "/upload/review/thumbnail/thumbnail_" + randomFileName); //웹서버에서 접근 가능한 형태로 썸네일의 저장 경로 작성
+						
+						fileList.add(fileMap);
+						
+						//현재 리뷰번호 조회
+						int currReviewNo;
+						if(originalReviewNo > 0) {
+							currReviewNo = originalReviewNo; //수정 중인 번호 반영
 						} else {
-							tempFileInfo.setFileType("THUMB_SUB");
+							currReviewNo = reviewService.checkCurrReviewNo(); //새 글 작성 중 부여된 번호 조회
 						}
-					}
-					int result = reviewService.attachReviewImages(tempFileInfo);
-					count += result;
-				} catch (IOException e) { e.printStackTrace(); }
+						
+						AttachmentDTO tempFileInfo = new AttachmentDTO();
+						for(int i=0; i < fileList.size(); i++) {
+							tempFileInfo.setRefRevwNo(currReviewNo);
+							tempFileInfo.setOrigFileName(fileList.get(i).get("origFileName"));
+							tempFileInfo.setSaveFileName(fileList.get(i).get("saveFileName"));
+							tempFileInfo.setSavePath(fileList.get(i).get("savePath"));
+							tempFileInfo.setThumbnailPath(fileList.get(i).get("thumbnailPath"));
+							
+							if(i == 0) { //index 기준으로 첫번째 첨부 이미지는 메인썸네일, 그 다음은 서브썸네일에 해당
+								tempFileInfo.setFileType("THUMB_MAIN");
+							} else {
+								tempFileInfo.setFileType("THUMB_SUB");
+							}
+						}
+						int result = reviewService.attachReviewImages(tempFileInfo);
+						countFileSaved += result;
+					} catch (IOException e) { e.printStackTrace(); }
+				}
 			}
 			/* 적립금A. 포토리뷰 작성 시 300원 적립 */
 			/* 단, 기존 상품리뷰를 -> 포토리뷰로 수정하는 경우 차액인 +200원 반영 */
 			if(originalReviewNo > 0) {
 				pointDTO.setPointAmount(200);
 				int point200 = reviewService.savePoints(pointDTO);
-				if(posting == 1 && count == files.size() && point200 == 1) {
+				if(posting == 1 && countFileSaved == countFileAttached && point200 == 1) {
 					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("reviewEditedSuccessfully", null, locale));
 				} else {
 					rttr.addFlashAttribute("editReviewMessage", messageSource.getMessage("errorWhileEditingAReview", null, locale));
@@ -206,7 +210,7 @@ public class ReviewController {
 			} else {
 				pointDTO.setPointAmount(300);
 				int point300 = reviewService.savePoints(pointDTO);
-				if(posting == 1 && count == files.size() && point300 == 1) {
+				if(posting == 1 && countFileSaved == countFileAttached && point300 == 1) {
 					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("reviewPostedSuccessfully", null, locale));
 				} else {
 					rttr.addFlashAttribute("writeReviewMessage", messageSource.getMessage("errorWhilePostingAReview", null, locale));
