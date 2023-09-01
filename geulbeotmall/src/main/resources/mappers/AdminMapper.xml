@@ -767,6 +767,7 @@
 		  LEFT JOIN TBL_INQUIRY I ON(A.REF_POST_NO = I.INQUIRY_NO)
 		  LEFT JOIN TBL_REVIEW R ON(A.REF_POST_NO = R.REVIEW_NO)
 		 WHERE A.COMMENT_NO NOT IN (SELECT T.REF_POST_NO FROM TBL_TRASH T WHERE T.REF_BOARD = 'comment')
+		   AND A.COMMENT_DEL_DATE IS NULL
 		<trim prefix="AND">
 			<if test="keyword != null and condition eq 'commentContent'">A.COMMENT_CONTENT LIKE '%' || #{ keyword } || '%'</if>
 			<if test="keyword != null and condition eq 'idOrName'">B.NAME LIKE '%' || #{ keyword } || '%' OR A.MEMBER_ID LIKE '%' || #{ keyword } || '%'</if>
@@ -983,7 +984,8 @@
 					 , Z.*
 				  FROM (
 						SELECT
-							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO DESC) RANK
+							 , ROW_NUMBER() OVER(PARTITION BY B.ORDER_NO ORDER BY P.PROD_PRICE DESC) REPR
 							 , B.ORDER_NO
 							 , B.OPTION_NO
 							 , B.ORDER_QUANTITY
@@ -1028,6 +1030,7 @@
 				  	   ) Z
 				<![CDATA[
 				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				   AND REPR = 1
 				]]>
 		  	   ) Y
 		<![CDATA[
@@ -1043,7 +1046,8 @@
 					 , Z.*
 				  FROM (
 						SELECT
-							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO DESC) RANK
+							 , ROW_NUMBER() OVER(PARTITION BY B.ORDER_NO ORDER BY P.PROD_PRICE DESC) REPR
 							 , B.ORDER_NO
 							 , B.OPTION_NO
 							 , B.ORDER_QUANTITY
@@ -1089,6 +1093,7 @@
 				  	   ) Z
 				<![CDATA[
 				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				   AND Z.REPR = 1
 				]]>
 		  	   ) Y
 		<![CDATA[
@@ -1104,7 +1109,8 @@
 					 , Z.*
 				  FROM (
 						SELECT
-							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO DESC) RANK
+							 , ROW_NUMBER() OVER(PARTITION BY B.ORDER_NO ORDER BY P.PROD_PRICE DESC) REPR
 							 , B.ORDER_NO
 							 , B.OPTION_NO
 							 , B.ORDER_QUANTITY
@@ -1150,6 +1156,7 @@
 				  	   ) Z
 				<![CDATA[
 				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				   AND Z.REPR = 1
 				]]>
 		  	   ) Y
 		<![CDATA[
@@ -1165,7 +1172,8 @@
 					 , Z.*
 				  FROM (
 						SELECT
-							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO) RANK
+							   DENSE_RANK() OVER(ORDER BY B.ORDER_NO DESC) RANK
+							 , ROW_NUMBER() OVER(PARTITION BY B.ORDER_NO ORDER BY P.PROD_PRICE DESC) REPR
 							 , B.ORDER_NO
 							 , B.OPTION_NO
 							 , B.ORDER_QUANTITY
@@ -1211,6 +1219,7 @@
 				  	   ) Z
 				<![CDATA[
 				 WHERE Z.RANK <= #{ currentPageNo } * #{ recordsPerPage }
+				   AND Z.REPR = 1
 				]]>
 		  	   ) Y
 		<![CDATA[
@@ -1220,47 +1229,57 @@
 	<!-- 주문번호별 상세정보조회 -->
 	<select id="getOrderDetailsByOrderNo" resultMap="orderDetailResultMap">
 		SELECT
-			   A.ORDER_NO
-			 , A.MEMBER_ID
-			 , A.ORDER_DATE
-			 , A.RCVR_NAME
-			 , A.RCVR_PHONE
-			 , A.RCVR_ADDRESS
-			 , A.DLVR_REQ_MESSAGE
-			 , A.DLVR_STATUS
-			 , B.OPTION_NO
-			 , B.ORDER_QUANTITY
-			 , B.ORDER_AMOUNT
-			 , C.PAYMENT_NO
-			 , C.PAYMENT_METHOD
-			 , C.PAYMENT_AMOUNT
-			 , C.PAYMENT_DATETIME
-			 , L.DELIVERY_FEE
-			 , L.DELIVERY_COMPANY
-			 , L.DISPATCH_DATE
-			 , L.DELIVERY_DATE
-			 , N.POINT_AMOUNT
-			 , O.OPT_BODY_COLOR
-			 , O.OPT_INK_COLOR
-			 , O.OPT_POINT_SIZE
-			 , O.OPT_EXTRA_CHARGE
-			 , P.PROD_NO
-			 , P.PROD_NAME
-			 , D.BRAND_NAME
-			 , T.THUMBNAIL_PATH
-			 , M.PHONE
-			 , M.EMAIL
-		  FROM TBL_ORDER_DETAIL A
-		  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
-		  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
-		  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
-		  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
-		  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
-		  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
-		  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
-		  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
-		  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
-		 WHERE A.ORDER_NO = #{ orderNo }
+			   Z.*
+		  FROM (
+				SELECT
+					   ROWNUM
+					 , A.ORDER_NO
+					 , A.MEMBER_ID
+					 , A.ORDER_DATE
+					 , A.RCVR_NAME
+					 , A.RCVR_PHONE
+					 , A.RCVR_ADDRESS
+					 , A.DLVR_REQ_MESSAGE
+					 , A.DLVR_STATUS
+					 , B.OPTION_NO
+					 , B.ORDER_QUANTITY
+					 , (SELECT SUM(ORDER_AMOUNT) FROM TBL_ORDER WHERE ORDER_NO = #{ orderNo }) ORDER_AMOUNT
+					 , C.PAYMENT_NO
+					 , C.PAYMENT_METHOD
+					 , C.PAYMENT_AMOUNT
+					 , C.PAYMENT_DATETIME
+					 , L.DELIVERY_FEE
+					 , L.DELIVERY_COMPANY
+					 , L.DISPATCH_DATE
+					 , L.DELIVERY_DATE
+					 , N.POINT_AMOUNT
+					 , O.OPT_BODY_COLOR
+					 , O.OPT_INK_COLOR
+					 , O.OPT_POINT_SIZE
+					 , O.OPT_EXTRA_CHARGE
+					 , P.PROD_NO
+					 , P.PROD_NAME
+					 , D.BRAND_NAME
+					 , T.THUMBNAIL_PATH
+					 , M.PHONE
+					 , M.EMAIL
+				  FROM TBL_ORDER_DETAIL A
+				  LEFT JOIN TBL_ORDER B ON(A.ORDER_NO = B.ORDER_NO)
+				  LEFT JOIN TBL_PAYMENT C ON(B.ORDER_NO = C.ORDER_NO)
+				  LEFT JOIN TBL_DELIVERY L ON(C.ORDER_NO = L.ORDER_NO)
+				  LEFT JOIN TBL_POINT N ON(C.PAYMENT_NO = N.PAYMENT_NO)
+				  LEFT JOIN TBL_OPTION O ON(B.OPTION_NO = O.OPTION_NO)
+				  LEFT JOIN TBL_PRODUCT P ON(O.REF_PROD_NO = P.PROD_NO)
+				  LEFT JOIN TBL_BRAND D ON(P.BRAND_NO = D.BRAND_NO)
+				  LEFT JOIN TBL_ATTACHMENT T ON(P.PROD_NO = T.REF_PROD_NO)
+				  LEFT JOIN TBL_MEMBER M ON(A.MEMBER_ID = M.MEMBER_ID)
+				 WHERE A.ORDER_NO = #{ orderNo }
+				   AND FILE_TYPE = 'THUMB_MAIN'
+				 ORDER BY P.PROD_PRICE DESC <!-- 주문 목록 중 고가의 상품 먼저 출력 -->
+			   ) Z
+		<![CDATA[
+		 WHERE ROWNUM <= 1
+		]]>
 	</select>
 	<update id="updateDeliveryStatus">
 		UPDATE
