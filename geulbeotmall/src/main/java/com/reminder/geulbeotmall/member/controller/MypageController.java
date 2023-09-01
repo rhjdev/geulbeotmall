@@ -1,6 +1,7 @@
 package com.reminder.geulbeotmall.member.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDTO;
 import com.reminder.geulbeotmall.cart.model.dto.OrderDetailDTO;
 import com.reminder.geulbeotmall.cart.model.dto.PointDTO;
+import com.reminder.geulbeotmall.cart.model.service.OrderService;
 import com.reminder.geulbeotmall.member.model.dto.MemberDTO;
 import com.reminder.geulbeotmall.member.model.dto.UserImpl;
 import com.reminder.geulbeotmall.member.model.dto.WishListDTO;
@@ -47,14 +49,16 @@ public class MypageController {
 	
 	private final MemberService memberService;
 	private final ProductService productService;
+	private final OrderService orderService;
 	private final MessageSource messageSource;
 	
 	private PasswordEncoder passwordEncoder;
 	
 	@Autowired
-	public MypageController(MemberService memberService, ProductService productService, MessageSource messageSource, PasswordEncoder passwordEncoder) {
+	public MypageController(MemberService memberService, ProductService productService, OrderService orderService, MessageSource messageSource, PasswordEncoder passwordEncoder) {
 		this.memberService = memberService;
 		this.productService = productService;
+		this.orderService = orderService;
 		this.messageSource = messageSource;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -87,6 +91,9 @@ public class MypageController {
 			model.addAttribute("recentlyViewedThumbnailList", recentlyViewedThumbnailList);
 		}
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("preparingOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "상품준비중")); //최근 3개월 주문내역(상품준비중)
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
+		model.addAttribute("deliveredOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송완료")); //최근 3개월 주문내역(배송완료)
 	}
 	
 	/**
@@ -95,7 +102,17 @@ public class MypageController {
 	@GetMapping("order")
 	public void getOrderList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<OrderDetailDTO> memberOrderList = memberService.getMemberOrderList(user.getMemberId());
+		Map<String, Integer> numberOfEachOrder = new HashMap<>();
+		String orderNo = "";
+		int number = 0;
+		for(int i=0; i < memberOrderList.size(); i++) {
+			orderNo = memberOrderList.get(i).getOrder().getOrderNo();
+			number = orderService.getTheNumberOfEachOrder(orderNo);
+			numberOfEachOrder.put(orderNo, number);
+		}
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
+		model.addAttribute("numberOfEachOrder", numberOfEachOrder);
 		model.addAttribute("memberOrderList", memberOrderList);
 	}
 	
@@ -121,6 +138,7 @@ public class MypageController {
 		int totalOrderAmount = memberService.getTotalOrderAmountByOrderNo(orderNo);
 		
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 		model.addAttribute("memberOrderDetails", memberOrderDetails);
 		model.addAttribute("orderOptionList", orderOptionList);
 		model.addAttribute("totalOrderAmount", totalOrderAmount);
@@ -134,6 +152,7 @@ public class MypageController {
 		List<OrderDTO> itemList = memberService.getItemsToPostAReview(user.getMemberId());
 		List<ReviewDTO> postList = memberService.getMemberReviewPosts(user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 		model.addAttribute("itemList", itemList);
 		model.addAttribute("postList", postList);
 	}
@@ -145,6 +164,7 @@ public class MypageController {
 	public void getWishList(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<WishListDTO> memberWishList = memberService.getMemberWishList(user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 		model.addAttribute("memberWishList", memberWishList);
 	}
 
@@ -239,6 +259,7 @@ public class MypageController {
 	public void getReserveDetails(@AuthenticationPrincipal UserImpl user, Model model) {
 		List<PointDTO> memberPointList = memberService.getReserveDetails(user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 		model.addAttribute("memberPointList", memberPointList);
 	}
 	
@@ -251,6 +272,7 @@ public class MypageController {
 		boolean isAuthenticatedMember = memberService.checkIsAuthenticated(user.getMemberId()) == 'Y' ? true : false; //th:value 및 th:disabled 활용 위해 boolean 타입으로 전달
 		model.addAttribute("detail", memberDTO);
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 		model.addAttribute("isAuthenticatedMember", isAuthenticatedMember); //현재 본인인증 여부
 	}
 	
@@ -300,6 +322,7 @@ public class MypageController {
 	public void getCloseForm(@AuthenticationPrincipal UserImpl user, Model model) {
 		model.addAttribute("memberId", user.getMemberId());
 		model.addAttribute("memberPoint", memberService.getMemberPoint(user.getMemberId())); //현재 보유 적립금
+		model.addAttribute("dispatchedOrderCount", memberService.getMemberOrderCountByDlvrStatus(user.getMemberId(), "배송중")); //최근 3개월 주문내역(배송중)
 	}
 	
 	@PostMapping("close")

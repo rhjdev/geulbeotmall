@@ -25,13 +25,13 @@
 						<a th:href="@{/mypage/order}">결제완료<br><b>0</b></a>
 					</li>
 					<li>
-						<a th:href="@{/mypage/order}">상품준비중<br><b>0</b></a>
+						<a th:href="@{/mypage/order}">상품준비중<br><b>[[${ preparingOrderCount }]]</b></a>
 					</li>
 					<li>
-						<a th:href="@{/mypage/order}">배송중<br><b>0</b></a>
+						<a th:href="@{/mypage/order}">배송중<br><b>[[${ dispatchedOrderCount }]]</b></a>
 					</li>
 					<li>
-						<a th:href="@{/mypage/order}">배송완료<br><b>0</b></a>
+						<a th:href="@{/mypage/order}">배송완료<br><b>[[${ deliveredOrderCount }]]</b></a>
 					</li>
 				</ul>
 		    </div>

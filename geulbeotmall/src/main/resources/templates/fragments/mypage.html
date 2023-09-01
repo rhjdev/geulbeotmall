@@ -29,10 +29,13 @@
 			<div class="info-list">
 				<ul>
 					<li>
-						<a>적립금<br><b>[[${#numbers.formatInteger(memberPoint, 3, 'COMMA')}]]</b></a>
+						<a>적립금<br>
+							<b th:if="${ memberPoint > 0}">[[${#numbers.formatInteger(memberPoint, 3, 'COMMA')}]]</b>
+							<b th:if="${ memberPoint == 0}">0</b>
+						</a>
 					</li>
 					<li>
-						<a>배송중<br><b>0</b></a>
+						<a>배송중<br><b>[[${ dispatchedOrderCount }]]</b></a>
 					</li>
 					<li>
 						<a>취소/환불/교환<br><b>0</b></a>

@@ -243,6 +243,11 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
+	public int getMemberOrderCountByDlvrStatus(String memberId, String dlvrStatus) {
+		return memberMapper.getMemberOrderCountByDlvrStatus(memberId, dlvrStatus);
+	}
+	
+	@Override
 	public MemberDTO getMemberDetails(String memberId) {
 		return memberMapper.getMemberDetails(memberId);
 	}

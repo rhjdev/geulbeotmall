@@ -65,6 +65,8 @@ public interface MemberService extends UserDetailsService {
 	List<ReviewDTO> getMemberReviewPosts(String memberId);
 
 	int getMemberPoint(String memberId);
+	
+	int getMemberOrderCountByDlvrStatus(String memberId, String dlvrStatus);
 
 	MemberDTO getMemberDetails(String memberId);
 

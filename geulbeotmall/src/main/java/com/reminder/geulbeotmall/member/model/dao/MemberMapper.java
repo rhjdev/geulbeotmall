@@ -74,6 +74,8 @@ public interface MemberMapper {
 
 	int getMemberPoint(String memberId);
 
+	int getMemberOrderCountByDlvrStatus(String memberId, String dlvrStatus);
+	
 	MemberDTO getMemberDetails(String memberId);
 
 	char checkIsAuthenticated(String memberId);
