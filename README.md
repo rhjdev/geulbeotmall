@@ -3,8 +3,45 @@ Stationery E-Commerce Web Application with Spring Boot
 Author : <rhjdev@gmail.com>
 
 ### 💻프로젝트 개요
-💬 암호화된 프로젝트</U>로서 실행을 위해서는 'Run Configurations - VM Arguments'에 `-Djasypt.encryptor.password=****` 등록이 요구됩니다. 비밀번호가 일치하지 않을 시 BindException과 함께 APPLICATION FAILED TO START.  
-💬 실행 환경에 `Redis` 설치가 필요합니다.
+💬암호화된 프로젝트</U>로서 실행을 위해서는 'Run Configurations - VM Arguments'에 `-Djasypt.encryptor.password=****` 등록이 요구됩니다. 비밀번호가 일치하지 않을 시 BindException과 함께 APPLICATION FAILED TO START.
+- [💿서비스 시연 영상](https://youtu.be/RnkRZ14TDL4)
+- [🎯서비스 핵심기능](#서비스-핵심기능)
+- [🛠기술 스택](#기술-스택)
+- [✨기술적 의사결정](#기술적-의사결정)
+- [📖ERD](#erd)
+
+### 🎯서비스 핵심기능
+```
+👨‍👨‍👧 회원 : 로그인 | 회원가입 | 이메일 인증 | 소셜 로그인(카카오/구글) | 아이디 찾기 | 비밀번호 찾기 | 임시 비밀번호 발송
+🏡 마이페이지 : 주문/배송 조회 | 리뷰 등록,수정,삭제 | 찜하기 목록 조회,삭제 | 적립금 내역 조회 | 최초 주문 전 휴대폰 번호 인증 | 회원정보수정 | 회원탈퇴
+💰 상품 : 헤더 전체 검색 | 찜하기 등록,삭제 | 섹션/브랜드/가격범위/태그/필터별 조회, 장바구니, 바로주문
+🚧 고객센터 : 1:1문의 등록,수정,삭제 | 글·댓글내용/작성자/첨부파일명/말머리별 게시판 검색 | 작성자/관리자 한정 게시글 조회 | 댓글 및 대댓글 등록,수정,삭제,실시간 알림
+📈 관리자페이지 : 기간별 회원수/매출액/누적 판매량 TOP 8 통계 조회,엑셀 다운로드 | 메인슬라이드/이벤트배너 등록,수정 | 회원 권한부여,계정정지,누적신고수관리 | 게시글 삭제,복구,휴지통관리 | 댓글 삭제,복구,휴지통관리 | 상품 등록,수정,판매상태변경,옵션별추가금액관리,재고관리 | 주문/배송 배송상태변경,실시간 알림
+```
+
+|<small>회원가입</small>|<small>이메일인증 및 신규적립금혜택<small>|<small>아이디찾기/비밀번호찾기</small>|
+|:-:|:-:|:-:|
+|![003](https://github.com/rhjdev/geulbeotmall/assets/95993932/dbb1b387-fb7f-461b-af19-3ec222d1d110)|![004](https://github.com/rhjdev/geulbeotmall/assets/95993932/99faf0a1-0197-4a29-8110-2d89314555a7)|![005](https://github.com/rhjdev/geulbeotmall/assets/95993932/42f13241-98d0-4345-895c-ce2dfc75a968)|
+|<small><b>임시비밀번호발송 및 회원정보수정</b></small>|<small><b>소셜로그인(카카오)</b></small>|<small><b>소셜로그인(구글)</b></small>|
+|![006](https://github.com/rhjdev/geulbeotmall/assets/95993932/d3d89f06-1a07-41e2-8d69-83ab172fdff0)|![007](https://github.com/rhjdev/geulbeotmall/assets/95993932/ed538d0d-1f0c-4bf5-8dfd-1543db876983)|![008](https://github.com/rhjdev/geulbeotmall/assets/95993932/82878195-95fc-43a2-ba78-9905f07f1240)|
+|<small><b>상품조회(브랜드,가격범위,태그별)</b></small>|<small><b>상품조회(섹션별)</b></small>|<small><b>상품조회(색상필터별)</b></small>|
+|![009](https://github.com/rhjdev/geulbeotmall/assets/95993932/e51e0c4f-a129-482d-a8df-fe8d92c9eb92)|![010](https://github.com/rhjdev/geulbeotmall/assets/95993932/03056c26-3fd4-4103-9aa8-fd9e02dda7dd)|![011](https://github.com/rhjdev/geulbeotmall/assets/95993932/c9dd3b41-584e-4499-9b67-cfc86717a87b)|
+|<small><b>찜하기</b></small>|<small><b>상품검색 및 장바구니</b></small>|<small><b>최초 주문 전 휴대폰 인증</b></small>|
+|![012](https://github.com/rhjdev/geulbeotmall/assets/95993932/2fd77cbd-989f-4fb6-8e58-f5da10d85567)|![013](https://github.com/rhjdev/geulbeotmall/assets/95993932/3bc2e2ae-d3b2-4341-8536-a2fbf2ae5f3b)|![014](https://github.com/rhjdev/geulbeotmall/assets/95993932/823a6540-b75d-45a3-976c-1befa69ec5f8)|
+|<small><b>장바구니 주문</b></small>|<small><b>바로주문</b></small>|<small><b>문의게시글 등록</b></small>
+|![015](https://github.com/rhjdev/geulbeotmall/assets/95993932/091dbeb7-45ef-4def-85e0-8b90a4a35bd4)|![016](https://github.com/rhjdev/geulbeotmall/assets/95993932/89df0fbd-fb6b-462f-b4ee-3583113ef268)|![017](https://github.com/rhjdev/geulbeotmall/assets/95993932/649b1110-0da4-4420-a43c-ff5d80e283a1)|
+|<small><b>댓글/대댓글 실시간 알림</b></small>|<small><b>댓글 수정,삭제 및 첨부파일 다운로드</b></small>|<small><b>상품출고/배송완료 실시간 알림<b></small>|
+![018](https://github.com/rhjdev/geulbeotmall/assets/95993932/c74ffaaa-e2a8-4535-b355-8f0236155f74)|![019](https://github.com/rhjdev/geulbeotmall/assets/95993932/1886ef53-5e89-4fb3-9c6f-e40124ef5e0b)|![020](https://github.com/rhjdev/geulbeotmall/assets/95993932/8b8783b8-b42f-4632-a812-88005ad5552e)|
+|<small><b>알림 삭제</b></small>|<small><b>텍스트리뷰 등록</b></small>|<small><b>사진리뷰 등록</b></small>|
+|![023](https://github.com/rhjdev/geulbeotmall/assets/95993932/1e7fa9d1-81e7-4096-8cdd-ef45f34334f3)|![024](https://github.com/rhjdev/geulbeotmall/assets/95993932/610c8e6d-7d4c-4d25-be14-08152389661d)|![025](https://github.com/rhjdev/geulbeotmall/assets/95993932/7f2e1e73-5306-4b98-94ba-db0be3792ac5)|
+|<small><b>디자인관리(슬라이드/이벤트배너 등록,수정)</b></small>|<small><b>기간별통계관리(조회,엑셀다운로드)</b></small>|<small><b>게시글관리(검색,조회,삭제,복구)</b></small>|
+![001](https://github.com/rhjdev/geulbeotmall/assets/95993932/94085e0c-8a0d-40c6-9dbf-cf43aa27f24b)|![026](https://github.com/rhjdev/geulbeotmall/assets/95993932/4523100d-4864-4160-90bb-1cebfae6162c)|![027](https://github.com/rhjdev/geulbeotmall/assets/95993932/02c3fe78-3491-4a54-ad20-7ba18b8ed0b6)
+|<small><b>댓글관리(검색,조회,삭제,복구)</b></small>|<small><b>문의게시글 수정,삭제</b></small>|<small><b>문의게시판 검색(글/댓글,작성자,말머리별)</b></small>|
+|![028](https://github.com/rhjdev/geulbeotmall/assets/95993932/740a82dc-208d-4d93-a8ad-6765d501fa64)|![021](https://github.com/rhjdev/geulbeotmall/assets/95993932/5e00163f-bb8b-4b17-a7b8-fcf8230301ad)|![022](https://github.com/rhjdev/geulbeotmall/assets/95993932/89fbb68a-b952-4118-ba42-853fdae21b6f)|
+|<small><b>상품관리(판매상태 변경)</b></small>|<small><b>상품관리(상품 등록)</b></small>|<small><b>전체상품조회(정렬별)</b></small>|
+|![029](https://github.com/rhjdev/geulbeotmall/assets/95993932/aac750c9-b57f-4eb9-b742-9f9796f27bb6)|![030](https://github.com/rhjdev/geulbeotmall/assets/95993932/04706054-cfd8-469f-ab25-1b319bcec709)|![031](https://github.com/rhjdev/geulbeotmall/assets/95993932/b7b5dd8f-5f45-4065-b33d-39b84d3600ac)|
+|<small><b>찜한상품 삭제 및 회원탈퇴</b></small>|<small><b>회원관리(계정정지/해제,누적경고수조회)</b></small>|<small><b>회원관리(관리자권한부여)</b></small>|
+|![032](https://github.com/rhjdev/geulbeotmall/assets/95993932/ffdf2c5a-e78e-444c-9a1d-f4dad7d420e0)|![033](https://github.com/rhjdev/geulbeotmall/assets/95993932/e8b6b870-916d-4055-aaa9-12176a14889a)|![034](https://github.com/rhjdev/geulbeotmall/assets/95993932/13236b06-9a51-445e-ad82-4a6ca8dfab0f)|
 
 ### 🛠기술 스택
 OS | Windows 10
@@ -20,7 +57,7 @@ API | ![Java Mail](https://img.shields.io/badge/Java%20Mail-3a75b0?style=for-the
 Server |![Apache Tomcat 9.0](https://img.shields.io/badge/Apache%20Tomcat%20-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black)
 Version Control | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white)
 
-### ✨ 기술적 의사결정
+### ✨기술적 의사결정
 선택기술 | 선택이유 및 근거
 --- | --- |
 `SSE` | 로그인 통해 Server와 Client간 연결이 이뤄지거든 Client에게 추가적인 요청을 요구하지 않으면서도 불시에 발생되는 이벤트들을 즉각 송신할 수 있어야 하기에 **Server to Client로의 단방향 통신**이 가능한 `Server-Sent Events(SSE)`가 실시간 알림을 구현하는 데 적합하다고 판단하였음.
@@ -30,4 +67,8 @@ Version Control | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for
 `Enum` | 문구 쇼핑몰 특성에 맞춰 _잉크컬러, 바디컬러, 심두께, 태그, 할인율, 상품카테고리, 기본배송메시지, 카드사별 할부혜택내용, 문의게시판 말머리, 실시간 알림 종류_ 등을 **연관된 상수들의 집합인 열거형** `Enum`으로 정의. 각 필드마다 데이터를 배정하고 이를 접근자(getter method) 통해 호출하면서 리팩토링 시 변경 범위를 최소화하였음.
 `Commons Lang3` | 상품 전체 검색 시 _StringUtils, NumberUtils_ 등 `Apache Commons Lang3` 클래스에 정의된 메소드 통해 **parameter type을 동적으로 구분 및 처리**하도록 조건별 쿼리문을 최적화하였음.
 `Thymeleaf Layout` | _Alert, Modal, ***Pagination***, ***Comment***, Header/Footer,  Dashboard_ 등을 각각 `Fragment`로 구분하여 사이트 전역적으로 사용되는 데 있어 코드 중복을 피하고 추가/수정에 용이하도록 의도하였음.
+`MessageSource` | 쇼핑몰 확장성 및 코드 유지보수성을 고려하여 **필요에 따라 다국어 지원**할 수 있도록 앞서 `Thymeleaf Layout Fragment`로 구분해둔 알러트(alert) 메시지들은 `MessageSource` 인터페이스의 `properties`로 관리되고 있음.
 `@SessionAttributes` | 어노테이션 통해 **세션상에 정보를 저장하고, 여러 화면 또는 연계된 요청 중에 해당 객체를 공유**하도록 정의해 다음과 같이 활용하였음.<br>`로그인 확인용 정보(loginMember)`<br>:  현재 로그인한 회원의 아이디를 가리키며 나아가 관리자인지 혹은 작성자 본인인지를 구분.<br>`최근 본 상품(recentlyViewed)`<br>: 회원은 접속 이래 현재까지 조회한 상품 목록을 '마이페이지'에서 확인 가능.<br>`장바구니(geulBeotCart)`<br>: 비로그인 상태에서 담은 장바구니 상품이 회원의 장바구니 목록으로 저장.<br>`바로주문 요청 정보(orderItem)`<br>: 로그인 전 선택한 상품 및 세부 옵션 정보 그대로 '주문페이지'로 이어지며, 이는 일회성이기에 사용자의 기존 장바구니와는 무관.<br>`소셜 로그인 여부(signInWithSocialAccount)`<br>: 소셜 로그인(카카오/구글) 시 이동 경로 구분.
+
+### 📖ERD
+![erd](https://github.com/rhjdev/geulbeotmall/assets/95993932/60b4a3ff-67f2-40e9-9e68-c0a8bf2c00cf)
