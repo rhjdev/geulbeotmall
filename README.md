@@ -14,8 +14,7 @@ Author : <rhjdev@gmail.com>
 <hr/>
 
 ### 💿서비스 시연 영상
-[![YouTube](https://github.com/rhjdev/geulbeotmall/assets/95993932/20d9bd9b-5223-42d8-914a-a48e073437e4)
-](https://youtu.be/RnkRZ14TDL4)
+[![YouTube](https://img.youtube.com/vi/RnkRZ14TDL4/maxresdefault.jpg)](https://youtu.be/RnkRZ14TDL4)
 
 ### 🎯서비스 핵심기능
 ```
